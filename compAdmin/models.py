@@ -1,12 +1,12 @@
 from django.core.validators import validate_comma_separated_integer_list
 from django.db import models
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import Permission
 
+from core.models import GeneralUser
 from superAdmin.models import Competition, PointFormat
 
 
-class CompAdmin(User):
-    competition = models.ForeignKey(Competition, on_delete=models.CASCADE)
+class CompAdmin(GeneralUser):
     permissions = Permission()
 
 

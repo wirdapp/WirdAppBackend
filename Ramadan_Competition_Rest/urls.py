@@ -22,6 +22,6 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('comp-admin/', include('compAdmin.urls')),
     path('student/', include('student.urls')),
-    # path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    # path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
