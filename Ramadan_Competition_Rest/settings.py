@@ -36,7 +36,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'student.apps.StudentConfig',
-    'superAdmin.apps.SuperadminConfig',
     'compAdmin.apps.CompadminConfig',
     'core.apps.CoreConfig',
     'rest_framework',

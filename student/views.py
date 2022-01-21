@@ -3,9 +3,7 @@ from django.shortcuts import render
 # Create your views here.
 from rest_framework import generics, permissions
 
-from compAdmin.models import CompAdmin
 from core.permissions import IsCompetitionAdmin
-from .models import *
 from .serializers import *
 
 
@@ -21,7 +19,7 @@ class PointRecords(generics.ListCreateAPIView):
     )
 
 
-class StudentUser(generics.ListCreateAPIView):
+class StudentUserView(generics.ListCreateAPIView):
     queryset = StudentUser.objects.all()
     serializer_class = StudentUserSerializer
     permission_classes = [IsCompetitionAdmin]
