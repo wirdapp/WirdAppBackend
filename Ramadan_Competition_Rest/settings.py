@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-w_67mdfx6ewgdod35)*3aiw5yu)%-rl4ud$qrqwcl%zwce!eg6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['ramadan-comp-rest.herokuapp.com/']
+ALLOWED_HOSTS = ['ramadan-comp-rest.herokuapp.com']
 
 # Application definition
 
