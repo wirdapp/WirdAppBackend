@@ -1,47 +1,58 @@
-from rest_framework import generics, views
+from rest_framework import viewsets
 from rest_framework.permissions import IsAdminUser
+from rest_condition import Or
 
-from core.permissions import IsCompetitionSuperAdminOrIsAdmin
+from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
 from .serializers import *
 
 
-class PointTemplates(generics.ListCreateAPIView):
-    permission_classes = [IsCompetitionSuperAdminOrIsAdmin]
+class PointTemplates(viewsets.ModelViewSet):
     serializer_class = PointTemplateSerializer
     name = 'points-templates-list'
+    lookup_field = 'id'
 
     def get_queryset(self):
         if self.request.user.is_staff:
             return PointTemplate.objects.all()
         else:
-            comp__id = self.request.user.competition.id
-            return PointTemplate.objects.filter(competition__id=comp__id)
+            comp = self.request.user.competition
+            return PointTemplate.objects.filter(competition=comp)
+
+    def get_permissions(self):
+        if self.action in ['update', 'partial_update', 'create']:
+            return Or(IsAdminUser(), IsCompetitionSuperAdmin()),
+        else:
+            return Or(IsAdminUser(), IsCompetitionAdmin()),
 
 
-class CompGroupView(generics.ListCreateAPIView):
+class CompGroupView(viewsets.ModelViewSet):
     serializer_class = CompGroupSerializer
-    permission_classes = [IsCompetitionSuperAdminOrIsAdmin]
-    name = 'compgroup-list'
+    permission_classes = [Or(IsAdminUser, IsCompetitionAdmin)]
+    name = 'comp-group-list'
+    lookup_field = 'id'
 
     def get_queryset(self):
         if self.request.user.is_staff:
             return CompGroup.objects.all()
         else:
-            comp__id = self.request.user.competition.id
-            return CompGroup.objects.filter(competition__id=comp__id)
+            comp = self.request.user.competition
+            return CompGroup.objects.filter(competition=comp)
 
 
-class CompAdminView(generics.ListCreateAPIView):
-    serializer_class = CompAdminSerializer
-    permission_classes = [IsCompetitionSuperAdminOrIsAdmin]
+class CompAdminView(viewsets.ModelViewSet):
+    permission_classes = [Or(IsCompetitionSuperAdmin, IsAdminUser)]
     name = 'competition-admin-api'
-
-    # permission_classes_by_action = {'create': [IsCompetitionSuperAdminOrIsAdmin],
-    #                                 'list': [IsCompetitionSuperAdminOrIsAdmin]}
+    lookup_field = 'username'
 
     def get_queryset(self):
         if self.request.user.is_staff:
             return CompAdmin.objects.all()
         else:
-            comp__id = self.request.user.competition.id
-            return CompAdmin.objects.filter(competition__id=comp__id)
+            comp = self.request.user.competition
+            return CompAdmin.objects.filter(competition=comp)
+
+    def get_serializer_class(self):
+        if self.action == 'update' or self.action == 'partial_update':
+            return CompAdminRetrieveUpdateSerializer
+        else:
+            return CompAdminSerializer

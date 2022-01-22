@@ -22,9 +22,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-w_67mdfx6ewgdod35)*3aiw5yu)%-rl4ud$qrqwcl%zwce!eg6'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['ramadan-comp-rest.herokuapp.com/']
 
 # Application definition
 
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -78,8 +79,12 @@ WSGI_APPLICATION = 'Ramadan_Competition_Rest.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'd26uvl5636pe26',
+        'USER': 'uuremscobrkpsf',
+        'PASSWORD': '48a39f1f203d8ab82c8adaf5063204e43bdfa051551c87c0b00de22d019cc6ca',
+        'HOST': 'ec2-52-19-164-214.eu-west-1.compute.amazonaws.com',
+        'PORT': '5432',
     }
 }
 
@@ -112,7 +117,6 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
 }

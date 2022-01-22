@@ -53,9 +53,9 @@ class CompGroup(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, default='')
     competition = models.ForeignKey(Competition, on_delete=models.CASCADE, null=True)
-    announcements = models.TextField(default="")
+    announcements = models.TextField(default="", blank=True)
     extra_challenges = models.ManyToManyField(PointTemplate, blank=True)
-    students = models.ManyToManyField('student.StudentUser')
+    students = models.ManyToManyField('student.StudentUser', blank=True)
 
     def set_competition(self, competition):
         self.competition = competition

@@ -12,11 +12,13 @@ def create_general_user(competition, validated_data, general_user):
     return user
 
 
-def set_competition(competition, validated_data, clazz):
-    clazz = clazz(**validated_data)
+def set_competition(competition, clazz):
     clazz.set_competition(competition)
-    clazz.save()
     return clazz
+
+
+def check_if_field_valid(comp, clazz):
+    return clazz.competition == comp
 
 
 class CompetitionQuerySet(serializers.RelatedField):
