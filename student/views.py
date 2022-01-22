@@ -1,7 +1,9 @@
 from django.shortcuts import render
 
 # Create your views here.
+from rest_condition import Or
 from rest_framework import generics, permissions
+from rest_framework.permissions import IsAdminUser
 
 from core.permissions import IsCompetitionAdmin
 from .serializers import *
@@ -22,7 +24,7 @@ class PointRecords(generics.ListCreateAPIView):
 class StudentUserView(generics.ListCreateAPIView):
     queryset = StudentUser.objects.all()
     serializer_class = StudentUserSerializer
-    permission_classes = [IsCompetitionAdmin]
+    permission_classes = [Or(IsAdminUser, IsCompetitionAdmin)]
     name = 'student-user-list'
 
     # def get_queryset(self):
