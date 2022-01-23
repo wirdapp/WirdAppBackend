@@ -12,8 +12,9 @@ def create_general_user(competition, validated_data, general_user):
     return user
 
 
-def set_competition(competition, clazz):
-    clazz.set_competition(competition)
+def set_competition(context, clazz):
+    clazz.set_competition(context['request'].user.competition)
+    clazz.save()
     return clazz
 
 
@@ -21,10 +22,14 @@ def check_if_field_valid(comp, clazz):
     return clazz.competition == comp
 
 
-class CompetitionQuerySet(serializers.RelatedField):
-    def __init__(self, clazz):
+class CompetitionFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
+    def __init__(self, clazz, **kwargs):
         self.clazz = clazz
-        super().__init__()
+        super(CompetitionFilteredPrimaryKeyRelatedField, self).__init__(**kwargs)
 
     def get_queryset(self):
-        return self.clazz.objects.filter(competition=self.context['request'].user.competition)
+        competition = self.context['request'].user.competition
+        return self.clazz.objects.filter(competition=competition)
+
+    def to_internal_value(self, data):
+        return self.get_queryset().get(pk=data)

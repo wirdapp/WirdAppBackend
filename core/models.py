@@ -3,8 +3,12 @@ from django.db import models
 
 
 # Create your models here.
+
 class GeneralUser(AbstractUser):
     competition = models.ForeignKey('compAdmin.Competition', on_delete=models.CASCADE, null=True)
 
     def set_competition(self, competition):
         self.competition = competition
+
+    class Meta:
+        default_related_name = ''

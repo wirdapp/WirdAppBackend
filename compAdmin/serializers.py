@@ -1,32 +1,18 @@
 from django.contrib.auth import password_validation
 from rest_framework import serializers
 
-from core.serializers import create_general_user, set_competition, CompetitionQuerySet, check_if_field_valid
 from django.contrib.auth.hashers import make_password
 
+from core.serializers import set_competition, CompetitionFilteredPrimaryKeyRelatedField
 from student.models import StudentUser
-from student.serializers import StudentUserSerializer
 from .models import *
-
-
-class CompetitionFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
-    def __init__(self, clazz, **kwargs):
-        self.clazz = clazz
-        super(CompetitionFilteredPrimaryKeyRelatedField, self).__init__(**kwargs)
-
-    def get_queryset(self):
-        competition = self.context['request'].user.competition
-        return self.clazz.objects.filter(competition=competition)
-
-    def to_internal_value(self, data):
-        return self.get_queryset().get(pk=data)
 
 
 class CompetitionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
         depth = 1
-        fields = 'id'
+        fields = '__all__'
 
 
 class PointTemplateSerializer(serializers.ModelSerializer):
@@ -39,23 +25,21 @@ class PointTemplateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         point_template = super(PointTemplateSerializer, self).create(validated_data)
-        point_template.set_competition(self.context['request'].user.competition)
-        return point_template
+        return set_competition(self.context, point_template)
 
 
 class CompGroupSerializer(serializers.ModelSerializer):
     extra_challenges = CompetitionFilteredPrimaryKeyRelatedField(PointTemplate, many=True)
-    students = CompetitionFilteredPrimaryKeyRelatedField(StudentUser, many=True)
+    group_students = CompetitionFilteredPrimaryKeyRelatedField(StudentUser, many=True)
 
     class Meta:
         model = CompGroup
         depth = 2
-        fields = ['id', 'name', 'announcements', 'extra_challenges', 'students']
+        fields = ['id', 'name', 'announcements', 'extra_challenges', 'group_students']
 
     def create(self, validated_data):
         comp_group = super(CompGroupSerializer, self).create(validated_data)
-        comp_group.set_competition(self.context['request'].user.competition)
-        return comp_group
+        return set_competition(self.context, comp_group)
 
 
 class CompAdminSerializer(serializers.ModelSerializer):
@@ -75,8 +59,7 @@ class CompAdminSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         comp_admin = super(CompAdminSerializer, self).create(validated_data)
-        comp_admin.set_competition(self.context['request'].user.competition)
-        return comp_admin
+        return set_competition(self.context, comp_admin)
 
 
 class CompAdminRetrieveUpdateSerializer(CompAdminSerializer):
