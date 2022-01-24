@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from compAdmin.models import PointTemplate, CompGroup
@@ -13,6 +14,7 @@ class StudentUser(GeneralUser):
     profile_photo = models.ImageField(upload_to=upload_location, blank=True)
     read_only = models.BooleanField(default=False)
     group = models.ForeignKey(CompGroup, on_delete=models.CASCADE, related_name='group_students', null=True)
+
     #
     # @property
     # def total_points(self):
@@ -28,10 +30,13 @@ class StudentUser(GeneralUser):
 
 class PointRecord(models.Model):
     point_template = models.ForeignKey(PointTemplate, on_delete=models.CASCADE)
-    student = models.ForeignKey(StudentUser, on_delete=models.CASCADE, related_name='student_points')
+    student = models.ForeignKey(StudentUser, on_delete=models.CASCADE, null=True, related_name='student_points')
     point_scored_units = models.IntegerField(default=1)
     details = models.CharField(max_length=256, default='')
-    ramadan_record_date = models.IntegerField()
+    ramadan_record_date = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(30)])
+
+    def set_student(self, student):
+        self.student = student
 
     @property
     def point_total_score(self):

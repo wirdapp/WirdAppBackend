@@ -6,7 +6,15 @@ from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
 from .serializers import *
 
 
-class PointTemplates(viewsets.ModelViewSet):
+class PointFormatView(viewsets.ModelViewSet):
+    queryset = PointFormat.objects.all()
+    serializer_class = PointFormatSerializer
+    permission_classes = [IsAdminUser]
+    name = 'points-templates-list'
+    lookup_field = 'id'
+
+
+class PointTemplatesView(viewsets.ModelViewSet):
     serializer_class = PointTemplateSerializer
     name = 'points-templates-list'
     lookup_field = 'id'

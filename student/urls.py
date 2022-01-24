@@ -5,7 +5,7 @@ from . import views
 
 router = routers.DefaultRouter()
 router.register(r'student-user', views.StudentUserView, basename='StudentUser')
-# router.register(r'point-record', views.PointRecordSerializer, basename='PointRecord')
+router.register(r'record-point', views.PointRecordsView, basename='PointRecord')
 
 urlpatterns = [
     path('', include(router.urls)),

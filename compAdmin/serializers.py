@@ -15,8 +15,16 @@ class CompetitionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class PointFormatSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PointFormat
+        depth = 2
+        fields = '__all__'
+
+
 class PointTemplateSerializer(serializers.ModelSerializer):
     form_type = serializers.PrimaryKeyRelatedField(queryset=PointFormat.objects.all())
+    section = CompetitionFilteredPrimaryKeyRelatedField(Section)
 
     class Meta:
         model = PointTemplate

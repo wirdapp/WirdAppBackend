@@ -3,11 +3,12 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 
 from compAdmin.models import Competition
-from core.serializers import create_general_user
 from .models import *
 
 
 class PointRecordSerializer(serializers.ModelSerializer):
+    point_template = serializers.PrimaryKeyRelatedField(queryset=PointTemplate.objects.all())
+
     class Meta:
         model = PointRecord
         depth = 1
@@ -15,9 +16,12 @@ class PointRecordSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         student_user = self.context['request'].user
-        point = super(PointRecordSerializer, self).create(validated_data)
-        student_user.points.add(point)
-        return point
+        if isinstance(student_user, StudentUser):
+            point = super(PointRecordSerializer, self).create(validated_data)
+            point.set_student(student_user)
+            point.save()
+            return point
+        return PointRecord()
 
     def validate_point_total_score(self):
         pass
@@ -38,8 +42,7 @@ class StudentUserSerializer(serializers.ModelSerializer):
                   'student_points']
 
         extra_kwargs = {'password': {'write_only': True},
-                        'competition': {'write_only': True},
-                        }
+                        'competition': {'write_only': True}, }
 
 
 class StudentUserAdminUpdateSerializer(serializers.ModelSerializer):
@@ -48,10 +51,9 @@ class StudentUserAdminUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentUser
         depth = 2
-        fields = ['username', 'password', 'first_name', 'last_name', 'read_only', 'student_points']
+        fields = ['username', 'first_name', 'last_name', 'read_only', 'student_points']
 
-        extra_kwargs = {'username': {'read_only': True},
-                        }
+        extra_kwargs = {'username': {'read_only': True}, }
 
 
 class StudentUserStudentUpdateSerializer(serializers.ModelSerializer):
@@ -61,5 +63,4 @@ class StudentUserStudentUpdateSerializer(serializers.ModelSerializer):
         model = StudentUser
         depth = 2
         fields = ['username', 'first_name', 'last_name', 'profile_photo', 'student_points']
-        extra_kwargs = {'username': {'read_only': True},
-                        }
+        extra_kwargs = {'username': {'read_only': True}, }

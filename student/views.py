@@ -5,18 +5,18 @@ from django.shortcuts import render
 from rest_condition import Or
 from rest_framework import generics, permissions, viewsets
 from rest_framework.permissions import IsAdminUser
-from rest_framework.response import Response
 
 from compAdmin.models import CompAdmin
-from core.permissions import IsCompetitionAdmin, IsCompetitionSuperAdmin
+from core.permissions import IsCompetitionAdmin
 from .serializers import *
 
 
-class PointRecords(viewsets.ModelViewSet):
+class PointRecordsView(viewsets.ModelViewSet):
     queryset = PointRecord.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = PointRecordSerializer
     name = 'points-record-list'
+    lookup_field = 'id'
 
 
 class StudentUserView(viewsets.ModelViewSet):
@@ -44,12 +44,8 @@ class StudentUserView(viewsets.ModelViewSet):
         user = self.request.user
         if self.action in ['create', 'list'] and (user is None or not isinstance(user, StudentUser)):
             return StudentUserSerializer
-        elif self.action in ['update', 'partial_update']:
+        elif self.action in ['update', 'partial_update', 'retrieve']:
             if isinstance(user, StudentUser):
                 return StudentUserStudentUpdateSerializer
             else:
                 return StudentUserAdminUpdateSerializer
-
-    # def get_permissions(self):
-    #     if self.action in ['list']:
-    #         return Or(IsAdminUser(), IsCompetitionAdmin()),

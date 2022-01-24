@@ -36,6 +36,8 @@ class Section(models.Model):
     id = models.CharField(primary_key=True, max_length=32)
     label = models.CharField(default='', max_length=32)
     position = models.IntegerField(default=1)
+    competition = models.ForeignKey(Competition, on_delete=models.CASCADE, null=True,
+                                    related_name='competition_sections')
 
     def __str__(self):
         return self.label
