@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-w_67mdfx6ewgdod35)*3aiw5yu)%-rl4ud$qrqwcl%zwce!eg6'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['ramadan-comp-rest.herokuapp.com']
+ALLOWED_HOSTS = ['ramadan-comp-rest.herokuapp.com', '127.0.0.1']
 
 # Application definition
 
@@ -81,10 +81,10 @@ WSGI_APPLICATION = 'Ramadan_Competition_Rest.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'd26uvl5636pe26',
-        'USER': 'uuremscobrkpsf',
-        'PASSWORD': '48a39f1f203d8ab82c8adaf5063204e43bdfa051551c87c0b00de22d019cc6ca',
-        'HOST': 'ec2-52-19-164-214.eu-west-1.compute.amazonaws.com',
+        'NAME': 'deio18c0r3vceq',
+        'USER': 'attijylnplqlvt',
+        'PASSWORD': 'a072835c65d4f1bd9c39abb78fa899baf996302451204f9050e3071f272e861b',
+        'HOST': 'ec2-52-30-133-191.eu-west-1.compute.amazonaws.com',
         'PORT': '5432',
     }
 }
