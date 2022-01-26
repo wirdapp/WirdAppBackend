@@ -38,13 +38,6 @@ class PointRecord(models.Model):
     def set_student(self, student):
         self.student = student
 
-    @property
-    def point_total_score(self):
-        if self.point_template.lower_units_bound <= self.point_scored_units <= self.point_template.upper_units_bound:
-            return self.point_scored_units * self.point_template.points_per_unit
-        else:
-            return 0
-
     class Meta:
         ordering = ('-ramadan_record_date',)
         # constraints = [

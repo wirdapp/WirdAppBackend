@@ -6,6 +6,20 @@ from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
 from .serializers import *
 
 
+class SectionView(viewsets.ModelViewSet):
+    permission_classes = [Or(IsCompetitionSuperAdmin, IsAdminUser)]
+    serializer_class = SectionSerializer
+    name = 'section-list'
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Section.objects.all()
+        else:
+            comp = self.request.user.competition
+            return Section.objects.filter(competition=comp)
+
+
 class PointFormatView(viewsets.ModelViewSet):
     queryset = PointFormat.objects.all()
     serializer_class = PointFormatSerializer

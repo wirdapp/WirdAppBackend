@@ -39,6 +39,9 @@ class Section(models.Model):
     competition = models.ForeignKey(Competition, on_delete=models.CASCADE, null=True,
                                     related_name='competition_sections')
 
+    def set_competition(self, competition):
+        self.competition = competition
+
     def __str__(self):
         return self.label
 

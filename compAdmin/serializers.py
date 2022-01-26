@@ -22,6 +22,17 @@ class PointFormatSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Section
+        depth = 2
+        exclude = ('competition',)
+
+    def create(self, validated_data):
+        section = super(SectionSerializer, self).create(validated_data)
+        return set_competition(self.context, section)
+
+
 class PointTemplateSerializer(serializers.ModelSerializer):
     form_type = serializers.PrimaryKeyRelatedField(queryset=PointFormat.objects.all())
     section = CompetitionFilteredPrimaryKeyRelatedField(Section)
