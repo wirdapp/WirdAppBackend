@@ -1,7 +1,6 @@
 from django.contrib.auth import password_validation
-from rest_framework import serializers
-
 from django.contrib.auth.hashers import make_password
+from rest_framework import serializers
 
 from core.serializers import set_competition, CompetitionFilteredPrimaryKeyRelatedField
 from student.models import StudentUser
@@ -54,10 +53,12 @@ class CompGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompGroup
         depth = 2
-        fields = ['id', 'name', 'announcements', 'extra_challenges', 'group_students']
+        exclude = ('competition', 'admin',)
 
     def create(self, validated_data):
+        admin = self.context['request'].user.competition_admins
         comp_group = super(CompGroupSerializer, self).create(validated_data)
+        comp_group.set_admin(admin)
         return set_competition(self.context, comp_group)
 
 
@@ -66,15 +67,15 @@ class CompAdminSerializer(serializers.ModelSerializer):
 
     def validate_password(self, value):
         password_validation.validate_password(value, self.instance)
+        if value.startswith('pbkdf2_sha256'):
+            return value
         return make_password(value)
 
     class Meta:
         model = CompAdmin
         depth = 2
-        fields = ['username', 'password', 'first_name', 'last_name', 'managed_groups',
+        fields = ['password', 'username', 'first_name', 'last_name', 'managed_groups',
                   'permissions', 'is_super_admin']
-
-        extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
         comp_admin = super(CompAdminSerializer, self).create(validated_data)
@@ -82,7 +83,11 @@ class CompAdminSerializer(serializers.ModelSerializer):
 
 
 class CompAdminRetrieveUpdateSerializer(CompAdminSerializer):
+    managed_groups = CompetitionFilteredPrimaryKeyRelatedField(CompGroup, many=True, read_only=True)
+
     class Meta:
         model = CompAdmin
         depth = 1
-        fields = ['first_name', 'last_name', 'managed_groups', 'permissions', 'is_super_admin']
+        fields = ['username', 'managed_groups', 'first_name', 'last_name', ]
+        extra_kwargs = {'username': {'read_only': True},
+                        'password': {'write_only': True}, }

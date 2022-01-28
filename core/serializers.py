@@ -1,7 +1,5 @@
 from rest_framework import serializers
 
-from compAdmin.models import Competition
-
 
 def create_general_user(competition, validated_data, general_user):
     password = validated_data.pop('password')
