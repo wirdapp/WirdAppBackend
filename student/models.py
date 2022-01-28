@@ -15,11 +15,6 @@ class StudentUser(GeneralUser):
     read_only = models.BooleanField(default=False)
     group = models.ForeignKey(CompGroup, on_delete=models.CASCADE, related_name='group_students', null=True)
 
-    #
-    # @property
-    # def total_points(self):
-    #     return PointRecord.objects.prefetch_related('point_total_score').aggregate(models.Sum('point_total_score'))
-
     def set_competition(self, competition):
         self.competition = competition
 
@@ -34,15 +29,13 @@ class PointRecord(models.Model):
     point_scored_units = models.IntegerField(default=1)
     details = models.CharField(max_length=256, default='')
     ramadan_record_date = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(30)])
+    point_total = models.IntegerField(default=1)
 
     def set_student(self, student):
         self.student = student
 
+    def set_point_total(self, point_total):
+        self.point_total = point_total
+
     class Meta:
         ordering = ('-ramadan_record_date',)
-        # constraints = [
-        #     models.CheckConstraint(
-        #         check=models.Q(point_total_score=1) & models.Q(qt__lte=10),
-        #         name="A qty value is valid between 1 and 10",
-        #     )
-        # ]
