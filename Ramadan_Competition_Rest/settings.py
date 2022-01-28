@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-w_67mdfx6ewgdod35)*3aiw5yu)%-rl4ud$qrqwcl%zwce!eg6'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['ramadan-comp-rest.herokuapp.com', '127.0.0.1']
 
@@ -79,8 +79,12 @@ WSGI_APPLICATION = 'Ramadan_Competition_Rest.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'deio18c0r3vceq',
+        'USER': 'attijylnplqlvt',
+        'PASSWORD': 'a072835c65d4f1bd9c39abb78fa899baf996302451204f9050e3071f272e861b',
+        'HOST': 'ec2-52-30-133-191.eu-west-1.compute.amazonaws.com',
+        'PORT': '5432',
     }
 }
 
