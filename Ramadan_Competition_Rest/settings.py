@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-w_67mdfx6ewgdod35)*3aiw5yu)%-rl4ud$qrqwcl%zwce!eg6
 DEBUG = False
 
 ALLOWED_HOSTS = ['ramadan-comp-rest.herokuapp.com', '127.0.0.1']
+CORS_ALLOWED_ORIGINS = ['https://ramadan-comp-rest.herokuapp.com', 'https://127.0.0.1']
 
 # Application definition
 
@@ -41,12 +42,14 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
     'rest_framework',
     'django_filters',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
