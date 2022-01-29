@@ -29,6 +29,7 @@ ALLOWED_HOSTS = ['ramadan-comp-rest.herokuapp.com', '127.0.0.1']
 #CORS_ALLOWED_ORIGINS = ['https://ramadan-comp-rest.herokuapp.com',]
 #CORS_ALLOWED_ORIGIN_REGEXES = [r"^https?:\/\/localhost.*",]
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
