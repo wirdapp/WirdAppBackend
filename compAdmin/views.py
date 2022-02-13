@@ -4,7 +4,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAdminUser
 
 from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
-from core.views import StandardResultsSetPagination
+from core.views import StandardResultsSetPagination, ChangePasswordSerializer
 from .serializers import *
 
 
@@ -77,7 +77,7 @@ class CompGroupView(viewsets.ModelViewSet):
             return Or(IsCompetitionSuperAdmin(), IsAdminUser()),
 
 
-class CompAdminView(viewsets.ModelViewSet):
+class CompAdminView(ChangePasswordSerializer):
     pagination_class = StandardResultsSetPagination
     name = 'competition-admin-api'
     lookup_field = 'username'
@@ -95,10 +95,12 @@ class CompAdminView(viewsets.ModelViewSet):
                     return QuerySet(admin).filter(username=admin.username)
 
     def get_serializer_class(self):
-        if self.request.user.is_staff or self.request.user.competition_admins.is_super_admin:
-            return CompAdminSerializer
-        else:
+        if self.action in ['update', 'partial_update', 'retrieve']:
             return CompAdminRetrieveUpdateSerializer
+        elif self.action == "change_password":
+            return CompAdminChangePasswordSerializer
+        else:
+            return CompAdminSerializer
 
     def get_permissions(self):
         if self.action in ['update', 'partial_update', 'retrieve']:
