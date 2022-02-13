@@ -1,6 +1,9 @@
+from collections import OrderedDict
+
 from django.contrib.auth import password_validation
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from compAdmin.models import Competition
 from core.serializers import CompetitionFilteredPrimaryKeyRelatedField
@@ -12,21 +15,31 @@ class PointRecordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PointRecord
-        depth = 1
+        depth = 2
         exclude = ('student',)
         extra_kwargs = {'point_total': {'read_only': True}}
 
     def validate(self, attrs):
+        errors = OrderedDict()
         user = self.context['request'].user
         point_template = attrs['point_template']
         scored_units = attrs['point_scored_units']
         record_date = attrs['ramadan_record_date']
-        assert hasattr(user, 'competition_students'), 'Only student can create or update points'
-        assert point_template.is_active and point_template.is_shown, 'Point is not active'
-        assert point_template.upper_units_bound >= scored_units >= point_template.lower_units_bound, 'Point is beyond limits'
-        assert 30 >= record_date >= 1, 'Date is beyond limits'
-        assert str(record_date) in point_template.custom_days.split(','), 'Point is not active on this day'
+        self.check(hasattr(user, 'competition_students'), 'Only student can create or update points', errors, 'user')
+        self.check(point_template.is_active and point_template.is_shown, 'Point is not active', errors,
+                   'Point template')
+        self.check(point_template.upper_units_bound >= scored_units >= point_template.lower_units_bound,
+                   'Point is beyond limits', errors, 'Point scored units')
+        self.check(30 >= record_date >= 1, 'Date is beyond limits', errors, 'Ramadan record date')
+        self.check(str(record_date) in point_template.custom_days.split(','), 'Point is not active on this day', errors,
+                   'Ramadan record date')
+        if len(errors) > 0:
+            raise ValidationError(errors)
         return attrs
+
+    def check(self, statement, message, errors, field):
+        if not statement:
+            errors[str(field)] = message
 
     def create(self, validated_data):
         student_user = self.context['request'].user.competition_students
@@ -49,7 +62,12 @@ class PointRecordSerializer(serializers.ModelSerializer):
 
 class StudentUserSerializer(serializers.ModelSerializer):
     competition = serializers.PrimaryKeyRelatedField(queryset=Competition.objects.all())
-    student_points = PointRecordSerializer(many=True, read_only=True)
+    student_points = serializers.SerializerMethodField(read_only=True)
+
+    def get_student_points(self, obj):
+        date = self.context['request'].query_params.get('ramadan_record_date', 0)
+        points = obj.student_points.filter(ramadan_record_date=date)
+        return PointRecordSerializer(points, many=True).data
 
     def validate_password(self, value):
         password_validation.validate_password(value, self.instance)
@@ -65,22 +83,27 @@ class StudentUserSerializer(serializers.ModelSerializer):
                         'competition': {'write_only': True}, }
 
 
-class StudentUserAdminUpdateSerializer(serializers.ModelSerializer):
-    student_points = PointRecordSerializer(many=True, read_only=True)
-
+class StudentUserAdminUpdateSerializer(StudentUserSerializer):
     class Meta:
         model = StudentUser
-        depth = 2
+        depth = 1
         fields = ['username', 'first_name', 'last_name', 'read_only', 'profile_photo', 'student_points']
 
         extra_kwargs = {'username': {'read_only': True}, }
 
 
-class StudentUserStudentUpdateSerializer(serializers.ModelSerializer):
-    student_points = PointRecordSerializer(many=True, read_only=True)
-
+class StudentUserStudentUpdateSerializer(StudentUserSerializer):
     class Meta:
         model = StudentUser
-        depth = 2
+        depth = 1
         fields = ['username', 'first_name', 'last_name', 'profile_photo', 'student_points']
+        extra_kwargs = {'username': {'read_only': True}, }
+
+
+class StudentUserUpdatePasswordSerializer(StudentUserSerializer):
+    class Meta:
+        model = StudentUser
+        depth = 1
+        fields = ['username', 'password']
+
         extra_kwargs = {'username': {'read_only': True}, }
