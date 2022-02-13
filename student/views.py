@@ -1,4 +1,3 @@
-# Create your views here.
 from django.contrib.auth.models import AnonymousUser
 from django.db.models import QuerySet
 from rest_condition import Or
@@ -6,7 +5,7 @@ from rest_framework import permissions, viewsets
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 
 from core.permissions import IsCompetitionAdmin
-from core.views import StandardResultsSetPagination
+from core.views import StandardResultsSetPagination, ChangePasswordSerializer
 from .serializers import *
 
 
@@ -16,16 +15,21 @@ class PointRecordsView(viewsets.ModelViewSet):
     serializer_class = PointRecordSerializer
     name = 'points-record-list'
     lookup_field = 'id'
+    filterset_fields = ['ramadan_record_date']
 
     def get_queryset(self):
         user = self.request.user
+        date = self.request.query_params.get('ramadan_record_date', 0)
+        student_username = self.request.query_params.get('student_username', '0')
         if hasattr(user, 'competition_students'):
-            return user.competition_students.student_points.all()
-        else:
-            return PointRecord.objects.none()
+            return user.competition_students.student_points.filter(ramadan_record_date=date)
+        elif hasattr(user, 'competition_admins'):
+            students = StudentUserView(context={'request': self.request}, request=self.request).get_queryset()
+            points = students.get(username=student_username).student_points().filter(ramadan_record_date=date)
+            return points
 
 
-class StudentUserView(viewsets.ModelViewSet):
+class StudentUserView(ChangePasswordSerializer):
     pagination_class = StandardResultsSetPagination
     name = 'student-user-list'
     lookup_field = 'username'
@@ -38,7 +42,7 @@ class StudentUserView(viewsets.ModelViewSet):
         if user.is_staff:
             return StudentUser.objects.all()
         if hasattr(user, 'competition_students'):
-            return QuerySet(user.competition_students)
+            return QuerySet(user.competition_students).filter(username=user.username)
         if hasattr(user, 'competition_admins'):
             admin = user.competition_admins
             if admin.is_super_admin:
@@ -57,6 +61,8 @@ class StudentUserView(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ['create', 'list']:
             return StudentUserSerializer
+        elif self.action == "change_password":
+            return StudentUserUpdatePasswordSerializer
         elif self.action in ['update', 'partial_update', 'retrieve']:
             user = self.request.user
             if hasattr(user, 'competition_students'):
