@@ -67,8 +67,6 @@ class CompAdminSerializer(serializers.ModelSerializer):
 
     def validate_password(self, value):
         password_validation.validate_password(value, self.instance)
-        if value.startswith('pbkdf2_sha256'):
-            return value
         return make_password(value)
 
     class Meta:
@@ -76,6 +74,8 @@ class CompAdminSerializer(serializers.ModelSerializer):
         depth = 2
         fields = ['password', 'username', 'first_name', 'last_name', 'managed_groups',
                   'permissions', 'is_super_admin']
+
+        extra_kwargs = {'password': {'write_only': True}, }
 
     def create(self, validated_data):
         comp_admin = super(CompAdminSerializer, self).create(validated_data)
@@ -89,5 +89,13 @@ class CompAdminRetrieveUpdateSerializer(CompAdminSerializer):
         model = CompAdmin
         depth = 1
         fields = ['username', 'managed_groups', 'first_name', 'last_name', ]
-        extra_kwargs = {'username': {'read_only': True},
-                        'password': {'write_only': True}, }
+        extra_kwargs = {'username': {'read_only': True}, }
+
+
+class CompAdminChangePasswordSerializer(CompAdminSerializer):
+    class Meta:
+        model = CompAdmin
+        depth = 2
+        fields = ['username', 'password']
+
+        extra_kwargs = {'username': {'read_only': True}, }
