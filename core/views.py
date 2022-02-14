@@ -1,4 +1,3 @@
-# Create your views here.
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -11,7 +10,7 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 100
 
 
-class ChangePasswordSerializer(viewsets.ModelViewSet):
+class ChangePasswordViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['put'], name='Change Password')
     def change_password(self, request, *args, **kwargs):
         user = self.get_object()
