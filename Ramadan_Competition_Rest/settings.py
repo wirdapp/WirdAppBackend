@@ -126,6 +126,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',  # TODO REMOVE
     ],
+    'EXCEPTION_HANDLER': 'core.global_exception_handler.custom_exception_handler',
 }
 
 # Internationalization
