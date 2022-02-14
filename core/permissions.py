@@ -1,12 +1,10 @@
 """
 Provides a set of pluggable permission policies.
 """
-from django.http import Http404
 
-from rest_framework import exceptions
-from rest_framework.permissions import BasePermission, IsAdminUser
+from rest_framework.permissions import BasePermission
 
-from compAdmin.models import CompAdmin, CompGroup
+from compAdmin.models import CompAdmin
 
 
 class IsCompetitionAdmin(BasePermission):
@@ -29,3 +27,8 @@ class IsCompetitionSuperAdmin(BasePermission):
             return bool(comp_admin.competition == competition and comp_admin.is_super_admin)
         except:
             return False
+
+
+class NoPermission(BasePermission):
+    def has_permission(self, request, view):
+        return False
