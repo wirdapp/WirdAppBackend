@@ -1,5 +1,6 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.db.models import Sum
 
 from compAdmin.models import PointTemplate, CompGroup
 from core.models import GeneralUser
@@ -21,6 +22,10 @@ class StudentUser(GeneralUser):
     class Meta:
         default_related_name = 'competition_students'
         ordering = ('first_name', 'last_name')
+
+    @property
+    def total_points(self):
+        return self.student_points.aggregate(Sum('point_total'))['point_total__sum']
 
 
 class PointRecord(models.Model):
