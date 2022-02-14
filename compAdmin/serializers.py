@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from core.serializers import set_competition, CompetitionFilteredPrimaryKeyRelatedField
 from student.models import StudentUser
+from student.serializers import PointRecordSerializer
 from .models import *
 
 
@@ -83,19 +84,49 @@ class CompAdminSerializer(serializers.ModelSerializer):
 
 
 class CompAdminRetrieveUpdateSerializer(CompAdminSerializer):
-    managed_groups = CompetitionFilteredPrimaryKeyRelatedField(CompGroup, many=True, read_only=True)
+    managed_groups = CompetitionFilteredPrimaryKeyRelatedField(CompGroup, many=True)
 
     class Meta:
         model = CompAdmin
         depth = 1
-        fields = ['username', 'managed_groups', 'first_name', 'last_name', ]
+        fields = ['username', 'managed_groups', 'first_name', 'last_name']
         extra_kwargs = {'username': {'read_only': True}, }
 
 
-class CompAdminChangePasswordSerializer(CompAdminSerializer):
+class CompAdminChangePasswordSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompAdmin
         depth = 2
+        fields = ['username', 'password']
+
+        extra_kwargs = {'username': {'read_only': True}, }
+
+
+class StudentUserSerializer(serializers.ModelSerializer):
+    student_points = serializers.SerializerMethodField()
+
+    def get_student_points(self, obj):
+        # TODO: Make it the current day of ramadan instead of 1
+        ramadan_date = self.context['request'].query_params.get('ramadan_date', 1)
+        points = obj.student_points.filter(ramadan_record_date=ramadan_date)
+        return PointRecordSerializer(points, many=True).data
+
+    class Meta:
+        model = StudentUser
+        depth = 1
+        fields = ['username', 'first_name', 'last_name', 'total_points', 'read_only', 'profile_photo', 'student_points',
+                  'total_points']
+
+        extra_kwargs = {
+            'username': {'read_only': True},
+            'total_points': {'read_only': True},
+        }
+
+
+class StudentChangePasswordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentUser
+        depth = 1
         fields = ['username', 'password']
 
         extra_kwargs = {'username': {'read_only': True}, }
