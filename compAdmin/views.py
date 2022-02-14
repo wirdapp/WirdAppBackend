@@ -4,7 +4,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAdminUser
 
 from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
-from core.views import StandardResultsSetPagination, ChangePasswordSerializer
+from core.views import StandardResultsSetPagination, ChangePasswordViewSet
 from .serializers import *
 
 
@@ -77,7 +77,7 @@ class CompGroupView(viewsets.ModelViewSet):
             return Or(IsCompetitionSuperAdmin(), IsAdminUser()),
 
 
-class CompAdminView(ChangePasswordSerializer):
+class CompAdminView(ChangePasswordViewSet):
     pagination_class = StandardResultsSetPagination
     name = 'competition-admin-api'
     lookup_field = 'username'
