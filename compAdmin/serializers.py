@@ -8,13 +8,6 @@ from student.serializers import PointRecordSerializer
 from .models import *
 
 
-class CompetitionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Competition
-        depth = 1
-        fields = '__all__'
-
-
 class PointFormatSerializer(serializers.ModelSerializer):
     class Meta:
         model = PointFormat
