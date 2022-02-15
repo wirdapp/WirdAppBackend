@@ -25,8 +25,7 @@ class StudentUser(GeneralUser):
 
     @property
     def total_points(self):
-        total = self.student_points.aggregate(Sum('point_total'))['point_total__sum']
-        return total if total else 0
+        return self.student_points.aggregate(Sum('point_total'))['point_total__sum']
 
 
 class PointRecord(models.Model):
