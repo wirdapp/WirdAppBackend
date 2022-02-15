@@ -4,7 +4,7 @@ from rest_framework import routers
 from . import views
 
 router = routers.DefaultRouter()
-router.register(r'competitions', views.CompetitionView, basename='CompAdmin')
+router.register(r'competition', views.CompetitionView, basename='CompAdmin')
 
 urlpatterns = [
     path('', include(router.urls)),
