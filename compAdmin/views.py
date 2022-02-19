@@ -1,10 +1,13 @@
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Sum
 from rest_condition import Or
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
+from rest_framework.response import Response
 
 from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
-from core.views import StandardResultsSetPagination, ChangePasswordViewSet
+from core.views import StandardResultsSetPagination, ChangePasswordViewSet, CompetitionView
+from student.models import PointRecord
 from .serializers import *
 
 
@@ -71,7 +74,7 @@ class CompGroupView(viewsets.ModelViewSet):
                     return admin.managed_groups.all()
 
     def get_permissions(self):
-        if self.action in ['update', 'partial_update', 'retrieve']:
+        if self.action in ['list', 'update', 'partial_update', 'retrieve']:
             return Or(IsCompetitionAdmin(), IsAdminUser()),
         else:
             return Or(IsCompetitionSuperAdmin(), IsAdminUser()),
@@ -103,7 +106,30 @@ class CompAdminView(ChangePasswordViewSet):
             return CompAdminSerializer
 
     def get_permissions(self):
-        if self.action in ['update', 'partial_update', 'retrieve']:
+        if self.action in ['list', 'update', 'partial_update', 'retrieve']:
             return Or(IsCompetitionAdmin(), IsAdminUser()),
         else:
             return Or(IsCompetitionSuperAdmin(), IsAdminUser()),
+
+
+class AdminCompetitionView(CompetitionView):
+    permission_classes = [IsCompetitionAdmin]
+
+    @action(detail=False, name='General Comp Stats')
+    def general_stats(self, request, *args, **kwargs):
+        competition = self.request.user.competition
+        ramadan_date = 1  # TODO: put ramadan latest date instead of one
+        stats = dict()
+        top_on_day = StudentUser.objects.filter(competition=competition) \
+            .values('username', 'first_name', 'last_name', 'student_points', 'student_points__ramadan_record_date') \
+            .filter(student_points__ramadan_record_date=ramadan_date) \
+            .annotate(points_per_day=Sum('student_points__point_total')) \
+            .order_by('-points_per_day').first()
+
+        stats['top_student_last_day'] = top_on_day
+        stats['top_ramadan_day'] = PointRecord.objects.filter(point_template__competition=competition) \
+            .values('ramadan_record_date') \
+            .annotate(total_day=Sum('point_total')).order_by('-total_day').first()
+        stats['students_count'] = StudentUser.objects.count()
+        stats['ramadan_date'] = 1  # TODO: put ramadan latest date instead of one
+        return Response({**stats})
