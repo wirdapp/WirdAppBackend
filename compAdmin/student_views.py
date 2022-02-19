@@ -5,6 +5,7 @@ from rest_framework.response import Response
 
 from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
 from core.views import StandardResultsSetPagination, ChangePasswordViewSet
+from student.serializers import PointRecordSerializer
 from .serializers import *
 
 
@@ -20,22 +21,18 @@ class StudentView(ChangePasswordViewSet):
             return StudentUser.objects.all()
         if hasattr(user, 'competition_admins'):
             admin = user.competition_admins
-            try:
-                groups = competition.competition_groups.prefetch_related("group_students")
-                groups = groups if admin.is_super_admin else groups.filter(admin=admin)
-                res = StudentUser.objects.none()
-                merge_sets = lambda x, y: x | y
-                for g in groups:
-                    res = merge_sets(res, g.group_students.all())
-                return res
-            except:
-                return StudentUser.objects.none()
+            if admin.is_super_admin:
+                return StudentUser.objects.filter(competition=competition)
+            else:
+                return StudentUser.objects.filter(group__admin=user)
 
     def get_serializer_class(self):
         if self.action == "change_password":
             return StudentChangePasswordSerializer
         elif self.action == 'update_or_delete_point':
             return PointRecordSerializer
+        elif self.action in ['update', 'partial_update', 'retrieve']:
+            return StudentUserRetrieveSerializer
         else:
             return StudentUserSerializer
 
