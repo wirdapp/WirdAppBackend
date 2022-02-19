@@ -4,7 +4,6 @@ from rest_framework import serializers
 
 from core.serializers import set_competition, CompetitionFilteredPrimaryKeyRelatedField
 from student.models import StudentUser
-from student.serializers import PointRecordSerializer
 from .models import *
 
 
@@ -41,7 +40,7 @@ class PointTemplateSerializer(serializers.ModelSerializer):
 
 
 class CompGroupSerializer(serializers.ModelSerializer):
-    extra_challenges = CompetitionFilteredPrimaryKeyRelatedField(PointTemplate, many=True)
+    extra_challenges = CompetitionFilteredPrimaryKeyRelatedField(ExtraChallengeTemplate, many=True)
     group_students = CompetitionFilteredPrimaryKeyRelatedField(StudentUser, many=True)
 
     class Meta:
@@ -96,14 +95,19 @@ class CompAdminChangePasswordSerializer(serializers.ModelSerializer):
 
 
 class StudentUserSerializer(serializers.ModelSerializer):
-    student_points = serializers.SerializerMethodField()
+    class Meta:
+        model = StudentUser
+        depth = 1
+        fields = ['username', 'first_name', 'last_name', 'total_points', 'read_only', 'profile_photo',
+                  'total_points']
 
-    def get_student_points(self, obj):
-        # TODO: Make it the current day of ramadan instead of 1
-        ramadan_date = self.context['request'].query_params.get('ramadan_date', 1)
-        points = obj.student_points.filter(ramadan_record_date=ramadan_date)
-        return PointRecordSerializer(points, many=True).data
+        extra_kwargs = {
+            'username': {'read_only': True},
+            'total_points': {'read_only': True},
+        }
 
+
+class StudentUserRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentUser
         depth = 1
@@ -113,10 +117,15 @@ class StudentUserSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'username': {'read_only': True},
             'total_points': {'read_only': True},
+            'student_points': {'read_only': True},
         }
 
 
 class StudentChangePasswordSerializer(serializers.ModelSerializer):
+    def validate_password(self, value):
+        password_validation.validate_password(value, self.instance)
+        return make_password(value)
+
     class Meta:
         model = StudentUser
         depth = 1
