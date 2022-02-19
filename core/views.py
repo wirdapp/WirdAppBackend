@@ -2,9 +2,11 @@ from django.db.models import QuerySet
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import *
 from rest_framework.response import Response
 
 from compAdmin.models import Competition
+from core.permissions import NoPermission
 from core.serializers import CompetitionReadOnlySerializer, TopStudentsSerializer
 from student.models import StudentUser
 
@@ -37,6 +39,14 @@ class CompetitionView(viewsets.ReadOnlyModelViewSet):
         else:
             competition = self.request.user.competition
             return QuerySet(competition)
+
+    def get_permissions(self):
+        if self.action in ['list']:
+            return AllowAny(),
+        elif self.action in ['list_top_students', 'general_stats']:
+            return IsAuthenticated(),
+        else:
+            return NoPermission(),
 
     @action(detail=False, name='List Top Students')
     def list_top_students(self, request, *args, **kwargs):
