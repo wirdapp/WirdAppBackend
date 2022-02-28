@@ -7,11 +7,11 @@ from student.models import StudentUser
 from .models import *
 
 
-class PointFormatSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PointFormat
-        depth = 2
-        fields = '__all__'
+# class PointFormatSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = PointFormat
+#         depth = 2
+#         fields = '__all__'
 
 
 class SectionSerializer(serializers.ModelSerializer):
@@ -26,7 +26,7 @@ class SectionSerializer(serializers.ModelSerializer):
 
 
 class PointTemplateSerializer(serializers.ModelSerializer):
-    form_type = serializers.PrimaryKeyRelatedField(queryset=PointFormat.objects.all())
+    # form_type = serializers.PrimaryKeyRelatedField(queryset=PointFormat.objects.all())
     section = CompetitionFilteredPrimaryKeyRelatedField(Section)
 
     class Meta:
@@ -40,13 +40,13 @@ class PointTemplateSerializer(serializers.ModelSerializer):
 
 
 class CompGroupSerializer(serializers.ModelSerializer):
-    extra_challenges = CompetitionFilteredPrimaryKeyRelatedField(ExtraChallengeTemplate, many=True)
     group_students = CompetitionFilteredPrimaryKeyRelatedField(StudentUser, many=True)
+    admin = CompetitionFilteredPrimaryKeyRelatedField(CompAdmin)
 
     class Meta:
         model = CompGroup
         depth = 2
-        exclude = ('competition', 'admin',)
+        exclude = ('competition',)
 
     def create(self, validated_data):
         admin = self.context['request'].user.competition_admins
@@ -56,7 +56,7 @@ class CompGroupSerializer(serializers.ModelSerializer):
 
 
 class CompAdminSerializer(serializers.ModelSerializer):
-    managed_groups = CompetitionFilteredPrimaryKeyRelatedField(CompGroup, many=True)
+    managed_groups = CompetitionFilteredPrimaryKeyRelatedField(CompGroup, many=True, read_only=True)
 
     def validate_password(self, value):
         password_validation.validate_password(value, self.instance)
@@ -65,23 +65,36 @@ class CompAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompAdmin
         depth = 2
-        fields = ['password', 'username', 'first_name', 'last_name', 'managed_groups',
+        fields = ['password', 'username', 'email', 'phone_number', 'first_name', 'last_name', 'managed_groups',
                   'permissions', 'is_super_admin']
 
         extra_kwargs = {'password': {'write_only': True}, }
 
     def create(self, validated_data):
         comp_admin = super(CompAdminSerializer, self).create(validated_data)
+        if self.check_admin_added(self.context, comp_admin):
+            return comp_admin
         return set_competition(self.context, comp_admin)
+
+    def check_admin_added(self, context, comp_admin):
+        if context['request'].user.is_staff:
+            comp_id = context['request'].query_params.get('c')
+            if not comp_id:
+                comp_admin.delete()
+                raise Exception("You forgot smthng ;)")
+            comp_admin.set_competition(Competition.objects.get(id=comp_id))
+            comp_admin.save()
+            return True
 
 
 class CompAdminRetrieveUpdateSerializer(CompAdminSerializer):
-    managed_groups = CompetitionFilteredPrimaryKeyRelatedField(CompGroup, many=True)
+    managed_groups = CompetitionFilteredPrimaryKeyRelatedField(CompGroup, many=True, read_only=True)
 
     class Meta:
         model = CompAdmin
         depth = 1
-        fields = ['username', 'managed_groups', 'first_name', 'last_name']
+        fields = ['username', 'email', 'phone_number', 'first_name', 'last_name', 'managed_groups', 'permissions',
+                  'is_super_admin']
         extra_kwargs = {'username': {'read_only': True}, }
 
 
