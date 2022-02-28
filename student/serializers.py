@@ -12,11 +12,12 @@ from .models import *
 
 class PointRecordSerializer(serializers.ModelSerializer):
     point_template = CompetitionFilteredPrimaryKeyRelatedField(PointTemplate)
+    student = serializers.CharField(read_only=True, source='student.username')
 
     class Meta:
         model = PointRecord
-        depth = 2
-        exclude = ('student',)
+        depth = 0
+        fields = "__all__"
         extra_kwargs = {'point_total': {'read_only': True}}
 
     def validate(self, attrs):
@@ -29,8 +30,9 @@ class PointRecordSerializer(serializers.ModelSerializer):
         self.check(point_template.upper_units_bound >= scored_units >= point_template.lower_units_bound,
                    'Point is beyond limits', errors, 'Point scored units')
         self.check(30 >= record_date >= 1, 'Date is beyond limits', errors, 'Ramadan record date')
-        self.check(str(record_date) in point_template.custom_days.split(','), 'Point is not active on this day', errors,
-                   'Ramadan record date')
+        if point_template.custom_days:
+            self.check(str(record_date) in point_template.custom_days.split(','), 'Point is not active on this day',
+                       errors, 'Ramadan record date')
         if len(errors) > 0:
             raise ValidationError(errors)
         return attrs
@@ -43,16 +45,16 @@ class PointRecordSerializer(serializers.ModelSerializer):
         student_user = self.context['request'].user.competition_students
         point = super(PointRecordSerializer, self).create(validated_data)
         point.set_student(student_user)
-        point.set_point_total(self.set_point_total(validated_data))
+        point.set_point_total(self.get_point_total(validated_data))
         point.save()
         return point
 
     def update(self, instance, validated_data):
-        instance.set_point_total(self.set_point_total(validated_data))
+        instance.set_point_total(self.get_point_total(validated_data))
         return super(PointRecordSerializer, self).update(instance, validated_data)
 
     @classmethod
-    def set_point_total(cls, validated_data):
+    def get_point_total(cls, validated_data):
         units = validated_data['point_scored_units']
         ppu = validated_data['point_template'].points_per_unit
         return units * ppu
