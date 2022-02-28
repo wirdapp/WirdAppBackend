@@ -5,6 +5,7 @@ from rest_framework.response import Response
 
 from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
 from core.views import StandardResultsSetPagination, ChangePasswordViewSet
+from student.models import PointRecord
 from student.serializers import PointRecordSerializer
 from .serializers import *
 
@@ -29,7 +30,7 @@ class StudentView(ChangePasswordViewSet):
     def get_serializer_class(self):
         if self.action == "change_password":
             return StudentChangePasswordSerializer
-        elif self.action == 'update_or_delete_point':
+        elif self.action in ['update_or_delete_point','get_user_input_records']:
             return PointRecordSerializer
         elif self.action in ['update', 'partial_update', 'retrieve']:
             return StudentUserRetrieveSerializer
@@ -64,3 +65,15 @@ class StudentView(ChangePasswordViewSet):
             return Response("Deleted Successfully")
         else:
             return Response("Action is not supported", status=404)
+
+    @action(detail=False, methods=['get'], name='Get User Input Records')
+    def get_user_input_records(self, request, *args, **kwargs):
+        admin = request.user.competition_admins
+        comp = request.user.competition
+        if admin.is_super_admin:
+            points = PointRecord.objects.filter(point_template__form_type='oth', student__competition=comp)
+        else:
+            points = PointRecord.objects.filter(point_template__form_type='oth', student__group__admin=admin)
+        serializer = self.get_serializer(points, many=True)
+        return Response(serializer.data)
+
