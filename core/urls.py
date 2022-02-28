@@ -5,6 +5,7 @@ from . import views
 
 router = routers.DefaultRouter()
 router.register(r'competition', views.CompetitionView, basename='Competitions')
+router.register(r'create-competition', views.CreateCompetitionView, basename='CreateCompetition')
 
 urlpatterns = [
     path('', include(router.urls)),
