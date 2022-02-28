@@ -29,17 +29,23 @@ class CompetitionFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedFie
         self.clazz = clazz
         super(CompetitionFilteredPrimaryKeyRelatedField, self).__init__(**kwargs)
 
+    def use_pk_only_optimization(self):
+        return False
+
     def get_queryset(self):
         competition = self.context['request'].user.competition
         return self.clazz.objects.filter(competition=competition)
 
     def to_internal_value(self, data):
-        return self.get_queryset().get(pk=data)
+        if issubclass(self.clazz, GeneralUser):
+            return self.get_queryset().get(username=data)
+        else:
+            return self.get_queryset().get(pk=data)
 
     def to_representation(self, value):
         if self.pk_field is not None:
             return self.pk_field.to_representation(value.pk)
-        if isinstance(value, GeneralUser):
+        if issubclass(self.clazz, GeneralUser):
             return value.username
         return value.pk
 
@@ -49,6 +55,13 @@ class CompetitionReadOnlySerializer(serializers.ModelSerializer):
         model = Competition
         depth = 1
         exclude = ('show_standings', 'readonly_mode')
+
+
+class CompetitionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Competition
+        depth = 1
+        fields = "__all__"
 
 
 class TopStudentsSerializer(serializers.ModelSerializer):
