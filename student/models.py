@@ -29,7 +29,9 @@ class StudentUser(GeneralUser):
         return total if total else 0
 
     def total_points_on_day(self, ramadan_day):
-        total = self.student_points.filter(ramadan_record_date=ramadan_day).values('student__first_name','student__last_name','ramadan_record_date').annotate(
+        total = self.student_points.filter(ramadan_record_date=ramadan_day).values('student__first_name',
+                                                                                   'student__last_name',
+                                                                                   'ramadan_record_date').annotate(
             points_per_day=Sum('point_total'))
         return total
 
@@ -38,7 +40,7 @@ class PointRecord(models.Model):
     point_template = models.ForeignKey(PointTemplate, on_delete=models.CASCADE)
     student = models.ForeignKey(StudentUser, on_delete=models.CASCADE, null=True, related_name='student_points')
     point_scored_units = models.IntegerField(default=1)
-    details = models.CharField(max_length=256, default='')
+    details = models.TextField(default='')
     ramadan_record_date = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(30)])
     point_total = models.IntegerField(default=1)
 
