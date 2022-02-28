@@ -26,13 +26,13 @@ class SectionView(viewsets.ModelViewSet):
             return comp.competition_sections.all()
 
 
-class PointFormatView(viewsets.ModelViewSet):
-    pagination_class = StandardResultsSetPagination
-    queryset = PointFormat.objects.all()
-    serializer_class = PointFormatSerializer
-    permission_classes = [IsAdminUser]
-    name = 'points-templates-list'
-    lookup_field = 'id'
+# class PointFormatView(viewsets.ModelViewSet):
+#     pagination_class = StandardResultsSetPagination
+#     queryset = PointFormat.objects.all()
+#     serializer_class = PointFormatSerializer
+#     permission_classes = [IsAdminUser]
+#     name = 'points-templates-list'
+#     lookup_field = 'id'
 
 
 class PointTemplatesView(viewsets.ModelViewSet):
@@ -82,6 +82,7 @@ class CompGroupView(viewsets.ModelViewSet):
 
 class CompAdminView(ChangePasswordViewSet):
     pagination_class = StandardResultsSetPagination
+    permission_classes = [Or(IsCompetitionSuperAdmin, IsAdminUser)]
     name = 'competition-admin-api'
     lookup_field = 'username'
 
@@ -104,12 +105,6 @@ class CompAdminView(ChangePasswordViewSet):
             return CompAdminChangePasswordSerializer
         else:
             return CompAdminSerializer
-
-    def get_permissions(self):
-        if self.action in ['list', 'update', 'partial_update', 'retrieve']:
-            return Or(IsCompetitionAdmin(), IsAdminUser()),
-        else:
-            return Or(IsCompetitionSuperAdmin(), IsAdminUser()),
 
 
 class AdminCompetitionView(CompetitionView):
