@@ -3,12 +3,8 @@ from rest_framework.views import exception_handler
 
 
 def custom_exception_handler(exc, context):
-    # Call REST framework's default exception handler first,
-    # to get the standard error response.
     response = exception_handler(exc, context)
-
-    # Now add the HTTP status code to the response.
     if response is not None:
-        response.data['status_code'] = response.status_code
-
-    return Response(f'ERROR: {exc}', status=400 if not response else response.status_code)
+        return response
+    else:
+        return Response(f"{exc}", status=500)
