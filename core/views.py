@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from compAdmin.models import Competition
 from core.permissions import NoPermission
-from core.serializers import CompetitionReadOnlySerializer, TopStudentsSerializer
+from core.serializers import CompetitionReadOnlySerializer, TopStudentsSerializer, CompetitionSerializer
 from student.models import StudentUser
 
 
@@ -55,3 +55,11 @@ class CompetitionView(viewsets.ReadOnlyModelViewSet):
                           reverse=True)
         serializer = TopStudentsSerializer(students, many=True)
         return Response(serializer.data)
+
+
+class CreateCompetitionView(viewsets.ModelViewSet):
+    serializer_class = CompetitionSerializer
+    permission_classes = [IsAdminUser]
+    queryset = Competition.objects.all()
+    name = 'create-competition-view'
+
