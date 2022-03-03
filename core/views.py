@@ -23,7 +23,7 @@ class ChangePasswordViewSet(viewsets.ModelViewSet):
         user = self.get_object()
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
-            return Response({**serializer.errors})
+            return Response({**serializer.errors}, status=400)
         serializer.update(user, serializer.validated_data)
         return Response({**serializer.data})
 
