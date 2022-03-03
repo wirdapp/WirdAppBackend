@@ -14,6 +14,7 @@ class StudentView(ChangePasswordViewSet):
     pagination_class = StandardResultsSetPagination
     name = 'student-admin-view'
     lookup_field = 'username'
+    http_method_names = ['put', 'delete', 'get']
 
     def get_queryset(self):
         user = self.request.user
