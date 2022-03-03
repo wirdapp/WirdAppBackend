@@ -11,7 +11,7 @@ from .models import *
 
 
 class PointRecordSerializer(serializers.ModelSerializer):
-    point_template = CompetitionFilteredPrimaryKeyRelatedField(PointTemplate)
+    point_template = CompetitionFilteredPrimaryKeyRelatedField(PointTemplate, many=True)
     student = serializers.CharField(read_only=True, source='student.username')
 
     class Meta:
