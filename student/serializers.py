@@ -25,7 +25,7 @@ class PointRecordSerializer(serializers.ModelSerializer):
         point_template = attrs['point_template']
         scored_units = attrs['point_scored_units']
         record_date = attrs['ramadan_record_date']
-        self.check(not (point_template.is_active and point_template.is_shown), 'Point is not active', errors,
+        self.check(point_template.is_active and point_template.is_shown, 'Point is not active', errors,
                    'Point template')
         self.check(point_template.upper_units_bound >= scored_units >= point_template.lower_units_bound,
                    'Point is beyond limits', errors, 'Point scored units')
