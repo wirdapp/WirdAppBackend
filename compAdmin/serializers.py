@@ -99,6 +99,10 @@ class CompAdminRetrieveUpdateSerializer(CompAdminSerializer):
 
 
 class CompAdminChangePasswordSerializer(serializers.ModelSerializer):
+    def validate_password(self, value):
+        password_validation.validate_password(value, self.instance)
+        return make_password(value)
+    
     class Meta:
         model = CompAdmin
         depth = 2
