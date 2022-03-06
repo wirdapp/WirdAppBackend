@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from compAdmin.serializers import PointTemplateSerializer
 from core.permissions import NoPermission
-from core.views import StandardResultsSetPagination
+from core.views import StandardResultsSetPagination, user_points_stats
 from .serializers import *
 
 
@@ -26,24 +26,9 @@ class PointRecordsView(viewsets.ModelViewSet):
 
     @action(detail=False, name='Point Scores Stats')
     def points_stats(self, request, *args, **kwargs):
-        stats = dict()
         user = self.request.user
         stats_type = self.request.query_params['type'] if 'type' in self.request.query_params else ''
-        if stats_type == 'total_points_by_day':
-            stats['total_points_by_day'] = user.competition_students.student_points.all() \
-                .values('ramadan_record_date') \
-                .annotate(total_day=Sum('point_total')).order_by('-ramadan_record_date')
-        elif stats_type == 'total_points_by_type':
-            stats['total_points_by_type'] = user.competition_students.student_points.all() \
-                .values('point_template__label').annotate(total_point=Sum('point_total'))
-        elif stats_type == 'daily_points_by_type':
-            stats['daily_points_by_type'] = user.competition_students.student_points.all() \
-                .values('point_template__label', 'ramadan_record_date') \
-                .annotate(total_day=Sum('point_total')).order_by('-ramadan_record_date')
-        else:
-            return Response('Please specify type as a query param')
-
-        return Response(stats)
+        return user_points_stats(user, stats_type)
 
 
 class StudentUserView(viewsets.ModelViewSet):

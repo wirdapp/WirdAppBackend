@@ -1,4 +1,4 @@
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Sum
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -63,3 +63,21 @@ class CreateCompetitionView(viewsets.ModelViewSet):
     queryset = Competition.objects.all()
     name = 'create-competition-view'
 
+
+def user_points_stats(user, stats_type):
+    stats = dict()
+    if stats_type == 'total_points_by_day':
+        stats['total_points_by_day'] = user.competition_students.student_points.all() \
+            .values('ramadan_record_date') \
+            .annotate(total_day=Sum('point_total')).order_by('-ramadan_record_date')
+    elif stats_type == 'total_points_by_type':
+        stats['total_points_by_type'] = user.competition_students.student_points.all() \
+            .values('point_template__label').annotate(total_point=Sum('point_total'))
+    elif stats_type == 'daily_points_by_type':
+        stats['daily_points_by_type'] = user.competition_students.student_points.all() \
+            .values('point_template__label', 'ramadan_record_date') \
+            .annotate(total_day=Sum('point_total')).order_by('-ramadan_record_date')
+    else:
+        return Response(
+            'Please specify type as a query param [total_points_by_day, total_points_by_type, daily_points_by_type]')
+    return Response(stats)

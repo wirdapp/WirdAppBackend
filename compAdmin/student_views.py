@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
-from core.views import StandardResultsSetPagination, ChangePasswordViewSet
+from core.views import StandardResultsSetPagination, ChangePasswordViewSet, user_points_stats
 from student.models import PointRecord
 from student.serializers import PointRecordSerializer
 from .student_serializers import StudentUserSerializer, StudentUserRetrieveSerializer, StudentChangePasswordSerializer
@@ -78,4 +78,10 @@ class StudentView(ChangePasswordViewSet):
             points = PointRecord.objects.filter(point_template__form_type='oth', student__group__admin=admin)
         serializer = self.get_serializer(points, many=True)
         return Response(serializer.data)
+
+    @action(detail=True, name='Point Scores Stats')
+    def points_stats(self, request, *args, **kwargs):
+        student = self.get_object()
+        stats_type = self.request.query_params['type'] if 'type' in self.request.query_params else ''
+        return user_points_stats(student, stats_type)
 
