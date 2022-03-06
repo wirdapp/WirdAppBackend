@@ -7,6 +7,7 @@ from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
 from core.views import StandardResultsSetPagination, ChangePasswordViewSet
 from student.models import PointRecord
 from student.serializers import PointRecordSerializer
+from .student_serializers import StudentUserSerializer, StudentUserRetrieveSerializer, StudentChangePasswordSerializer
 from .serializers import *
 
 
