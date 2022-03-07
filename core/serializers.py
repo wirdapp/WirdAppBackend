@@ -54,7 +54,7 @@ class CompetitionReadOnlySerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
         depth = 1
-        exclude = ('show_standings', 'readonly_mode')
+        fields = ('id', 'name')
 
 
 class CompetitionSerializer(serializers.ModelSerializer):
