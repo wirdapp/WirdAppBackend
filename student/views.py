@@ -72,20 +72,20 @@ class PointTemplatesView(viewsets.ReadOnlyModelViewSet):
         return IsAuthenticated(),
 
 
-class AdvertisementsView(viewsets.ReadOnlyModelViewSet):
-    name = 'advertisements-list'
+class AnnouncementsView(viewsets.ReadOnlyModelViewSet):
+    name = 'announcements-list'
 
     def list(self, request, *args, **kwargs):
-        ads = dict()
+        anounc = dict()
         user = self.request.user
         competition = user.competition
         comp_groups = CompGroup.objects.filter(competition=competition)
 
         for cg in comp_groups:
-            ads[cg.name] = cg.announcements.split(';')
+            anounc[cg.name] = cg.announcements.split(';')
 
-        ads['comp'] = competition.announcements.split(';')
-        return Response({'advertisements': ads})
+        anounc['comp'] = competition.announcements.split(';')
+        return Response({'announcements': anounc})
 
     def get_permissions(self):
         return IsAuthenticated(),
