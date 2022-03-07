@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'corsheaders',
+    'cacheops',
 ]
 
 MIDDLEWARE = [
@@ -157,3 +158,12 @@ SIMPLE_JWT = {
 }
 
 AUTH_USER_MODEL = 'core.GeneralUser'
+
+CACHEOPS_DEGRADE_ON_FAILURE = True
+
+CACHEOPS = {
+    'compadmin.*': {'ops': 'all', 'timeout': 5 * 60},
+    'student.*': {'ops': 'all', 'timeout': 5 * 60},
+    'core.*': {'ops': 'all', 'timeout': 5 * 60},
+    # '*.*': {'ops': 'get', 'timeout': 60*15},
+}
