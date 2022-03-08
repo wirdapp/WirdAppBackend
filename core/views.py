@@ -37,13 +37,12 @@ class CompetitionView(viewsets.ReadOnlyModelViewSet):
         if self.action == 'list':
             return Competition.objects.all()
         else:
-            competition = self.request.user.competition
-            return QuerySet(competition)
+            return Competition.objects.none()
 
     def get_permissions(self):
-        if self.action in ['list']:
+        if self.action == 'list':
             return AllowAny(),
-        elif self.action in ['list_top_students', 'general_stats']:
+        elif self.action == 'list_top_students':
             return IsAuthenticated(),
         else:
             return NoPermission(),
