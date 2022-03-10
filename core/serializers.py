@@ -33,7 +33,10 @@ class CompetitionFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedFie
         return False
 
     def get_queryset(self):
-        competition = self.context['request'].user.competition
+        user = self.context['request'].user
+        if user.is_staff:
+            return self.clazz.objects.all()
+        competition = user.competition
         return self.clazz.objects.filter(competition=competition)
 
     def to_internal_value(self, data):
