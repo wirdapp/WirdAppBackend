@@ -1,7 +1,6 @@
 from django.db.models import QuerySet, Sum
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import *
 from rest_framework.response import Response
 
@@ -9,12 +8,6 @@ from compAdmin.models import Competition
 from core.permissions import NoPermission
 from core.serializers import CompetitionReadOnlySerializer, TopStudentsSerializer, CompetitionSerializer
 from student.models import StudentUser
-
-
-class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 25
-    page_size_query_param = 'page_size'
-    max_page_size = 100
 
 
 class ChangePasswordViewSet(viewsets.ModelViewSet):
@@ -30,7 +23,6 @@ class ChangePasswordViewSet(viewsets.ModelViewSet):
 
 class CompetitionView(viewsets.ReadOnlyModelViewSet):
     serializer_class = CompetitionReadOnlySerializer
-    pagination_class = StandardResultsSetPagination
     name = 'competition-view'
 
     def get_queryset(self):
@@ -79,5 +71,6 @@ def user_points_stats(user, stats_type):
             .annotate(total_day=Sum('point_total')).order_by('-ramadan_record_date')
     else:
         return Response(
-            'Please specify type as a query param [total_points_by_day, total_points_by_type, daily_points_by_type]')
+            'Please specify type as a query param:'
+            '?type=[total_points_by_day, total_points_by_type, daily_points_by_type]')
     return Response(stats)
