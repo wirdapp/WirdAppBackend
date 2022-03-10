@@ -7,13 +7,12 @@ from rest_framework.response import Response
 
 from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
 from core.util import current_hijri_day
-from core.views import StandardResultsSetPagination, ChangePasswordViewSet, CompetitionView
+from core.views import ChangePasswordViewSet, CompetitionView
 from student.models import PointRecord
 from .serializers import *
 
 
 class SectionView(viewsets.ModelViewSet):
-    pagination_class = StandardResultsSetPagination
     permission_classes = [Or(IsCompetitionSuperAdmin, IsAdminUser)]
     serializer_class = SectionSerializer
     name = 'section-list'
@@ -37,7 +36,6 @@ class SectionView(viewsets.ModelViewSet):
 
 
 class PointTemplatesView(viewsets.ModelViewSet):
-    pagination_class = StandardResultsSetPagination
     serializer_class = PointTemplateSerializer
     name = 'points-templates-list'
     lookup_field = 'id'
@@ -57,7 +55,6 @@ class PointTemplatesView(viewsets.ModelViewSet):
 
 
 class CompGroupView(viewsets.ModelViewSet):
-    pagination_class = StandardResultsSetPagination
     serializer_class = CompGroupSerializer
     name = 'comp-group-list'
     lookup_field = 'id'
@@ -82,7 +79,6 @@ class CompGroupView(viewsets.ModelViewSet):
 
 
 class CompAdminView(ChangePasswordViewSet):
-    pagination_class = StandardResultsSetPagination
     permission_classes = [Or(IsCompetitionSuperAdmin, IsAdminUser)]
     name = 'competition-admin-api'
     lookup_field = 'username'
