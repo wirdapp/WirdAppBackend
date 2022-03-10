@@ -5,12 +5,11 @@ from rest_framework.response import Response
 
 from compAdmin.serializers import PointTemplateSerializer
 from core.permissions import NoPermission
-from core.views import StandardResultsSetPagination, user_points_stats
+from core.views import user_points_stats
 from .serializers import *
 
 
 class PointRecordsView(viewsets.ModelViewSet):
-    pagination_class = StandardResultsSetPagination
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = PointRecordSerializer
     name = 'points-record-list'
@@ -32,7 +31,6 @@ class PointRecordsView(viewsets.ModelViewSet):
 
 
 class StudentUserView(viewsets.ModelViewSet):
-    pagination_class = StandardResultsSetPagination
     name = 'student-user-list'
     lookup_field = 'username'
 
@@ -59,7 +57,6 @@ class StudentUserView(viewsets.ModelViewSet):
 
 
 class PointTemplatesView(viewsets.ReadOnlyModelViewSet):
-    pagination_class = StandardResultsSetPagination
     serializer_class = PointTemplateSerializer
     name = 'points-templates-list'
     lookup_field = 'id'
@@ -76,16 +73,13 @@ class AnnouncementsView(viewsets.ReadOnlyModelViewSet):
     name = 'announcements-list'
 
     def list(self, request, *args, **kwargs):
-        anounc = dict()
         user = self.request.user
         competition = user.competition
-        comp_groups = CompGroup.objects.filter(competition=competition)
+        comp_group = user.competition_students.group
 
-        for cg in comp_groups:
-            anounc[cg.name] = cg.announcements.split(';')
-
-        anounc['comp'] = competition.announcements.split(';')
-        return Response({'announcements': anounc})
+        announcements = comp_group.announcements.split(';') if comp_group else []
+        announcements = announcements + competition.announcements.split(';')
+        return Response({'announcements': announcements})
 
     def get_permissions(self):
         return IsAuthenticated(),
