@@ -91,9 +91,9 @@ class CompAdminView(ChangePasswordViewSet):
             if hasattr(user, 'competition_admins'):
                 admin = user.competition_admins
                 if admin.is_super_admin:
-                    return QuerySet(admin)
+                    return CompAdmin.objects.filter(competition=admin.competition)
                 else:
-                    return QuerySet(admin).filter(username=admin.username)
+                    return CompAdmin.objects.filter(username=admin.username)
 
     def get_serializer_class(self):
         if self.action in ['update', 'partial_update', 'retrieve']:
