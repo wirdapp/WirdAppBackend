@@ -2,17 +2,15 @@ from rest_condition import Or
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
-
 from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
-from core.views import StandardResultsSetPagination, ChangePasswordViewSet, user_points_stats
+from core.views import ChangePasswordViewSet, user_points_stats
 from student.models import PointRecord
 from student.serializers import PointRecordSerializer
-from .student_serializers import StudentUserSerializer, StudentUserRetrieveSerializer, StudentChangePasswordSerializer
 from .serializers import *
+from .student_serializers import StudentUserSerializer, StudentUserRetrieveSerializer, StudentChangePasswordSerializer
 
 
 class StudentView(ChangePasswordViewSet):
-    pagination_class = StandardResultsSetPagination
     name = 'student-admin-view'
     lookup_field = 'username'
     http_method_names = ['put', 'delete', 'get']
@@ -32,7 +30,7 @@ class StudentView(ChangePasswordViewSet):
     def get_serializer_class(self):
         if self.action == "change_password":
             return StudentChangePasswordSerializer
-        elif self.action in ['update_or_delete_point','get_user_input_records']:
+        elif self.action in ['update_or_delete_point', 'get_user_input_records']:
             return PointRecordSerializer
         elif self.action in ['update', 'partial_update', 'retrieve']:
             return StudentUserRetrieveSerializer
@@ -84,4 +82,3 @@ class StudentView(ChangePasswordViewSet):
         student = self.get_object()
         stats_type = self.request.query_params['type'] if 'type' in self.request.query_params else ''
         return user_points_stats(student, stats_type)
-
