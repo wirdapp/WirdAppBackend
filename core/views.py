@@ -1,4 +1,4 @@
-from django.db.models import QuerySet, Sum
+from django.db.models import Sum
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import *
@@ -55,7 +55,7 @@ class CreateCompetitionView(viewsets.ModelViewSet):
     name = 'create-competition-view'
 
 
-def user_points_stats(user, stats_type):
+def user_points_stats(user, stats_type, date):
     stats = dict()
     if stats_type == 'total_points_by_day':
         stats['total_points_by_day'] = user.competition_students.student_points.all() \
@@ -72,4 +72,6 @@ def user_points_stats(user, stats_type):
         return Response(
             'Please specify type as a query param:'
             '?type=[total_points_by_day, total_points_by_type, daily_points_by_type]')
+    if 'ramadan_record_date' in stats[stats_type][0] and date:
+        stats[stats_type] = stats.get(stats_type).filter(ramadan_record_date=date)
     return Response(stats)

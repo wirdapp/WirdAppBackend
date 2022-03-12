@@ -27,7 +27,8 @@ class PointRecordsView(viewsets.ModelViewSet):
     def points_stats(self, request, *args, **kwargs):
         user = self.request.user
         stats_type = self.request.query_params['type'] if 'type' in self.request.query_params else ''
-        return user_points_stats(user, stats_type)
+        date = self.request.query_params['date'] if 'date' in self.request.query_params else None
+        return user_points_stats(user, stats_type, date)
 
 
 class StudentUserView(viewsets.ModelViewSet):

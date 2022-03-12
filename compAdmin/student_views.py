@@ -81,4 +81,5 @@ class StudentView(ChangePasswordViewSet):
     def points_stats(self, request, *args, **kwargs):
         student = self.get_object()
         stats_type = self.request.query_params['type'] if 'type' in self.request.query_params else ''
-        return user_points_stats(student, stats_type)
+        date = self.request.query_params['date'] if 'date' in self.request.query_params else None
+        return user_points_stats(student, stats_type, date)
