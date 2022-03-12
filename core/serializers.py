@@ -25,8 +25,9 @@ def check_if_field_valid(comp, clazz):
 
 
 class CompetitionFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
-    def __init__(self, clazz, **kwargs):
-        self.clazz = clazz
+    def __init__(self, **kwargs):
+        self.clazz = kwargs.pop('clazz') if 'clazz' in kwargs else None
+        self.serializer = kwargs.pop('serializer') if 'serializer' in kwargs else None
         super(CompetitionFilteredPrimaryKeyRelatedField, self).__init__(**kwargs)
 
     def use_pk_only_optimization(self):
@@ -46,9 +47,11 @@ class CompetitionFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedFie
             return self.get_queryset().get(pk=data)
 
     def to_representation(self, value):
-        if self.pk_field is not None:
+        if self.serializer and self.context['request'].method == 'GET':
+            return self.serializer(value).data
+        elif self.pk_field is not None:
             return self.pk_field.to_representation(value.pk)
-        if issubclass(self.clazz, GeneralUser):
+        elif issubclass(self.clazz, GeneralUser):
             return value.username
         return value.pk
 

@@ -27,7 +27,7 @@ class SectionSerializer(serializers.ModelSerializer):
 
 class PointTemplateSerializer(serializers.ModelSerializer):
     # form_type = serializers.PrimaryKeyRelatedField(queryset=PointFormat.objects.all())
-    section = CompetitionFilteredPrimaryKeyRelatedField(Section)
+    section = CompetitionFilteredPrimaryKeyRelatedField(clazz=Section)
 
     class Meta:
         model = PointTemplate
@@ -40,8 +40,8 @@ class PointTemplateSerializer(serializers.ModelSerializer):
 
 
 class CompGroupSerializer(serializers.ModelSerializer):
-    group_students = CompetitionFilteredPrimaryKeyRelatedField(StudentUser, many=True)
-    admin = CompetitionFilteredPrimaryKeyRelatedField(CompAdmin)
+    group_students = CompetitionFilteredPrimaryKeyRelatedField(clazz=StudentUser, many=True)
+    admin = CompetitionFilteredPrimaryKeyRelatedField(clazz=CompAdmin)
 
     class Meta:
         model = CompGroup
@@ -56,7 +56,7 @@ class CompGroupSerializer(serializers.ModelSerializer):
 
 
 class CompAdminSerializer(serializers.ModelSerializer):
-    managed_groups = CompetitionFilteredPrimaryKeyRelatedField(CompGroup, many=True, read_only=True)
+    managed_groups = CompetitionFilteredPrimaryKeyRelatedField(clazz=CompGroup, many=True, read_only=True)
 
     def validate_password(self, value):
         password_validation.validate_password(value, self.instance)
@@ -88,7 +88,8 @@ class CompAdminSerializer(serializers.ModelSerializer):
 
 
 class CompAdminRetrieveUpdateSerializer(CompAdminSerializer):
-    managed_groups = CompetitionFilteredPrimaryKeyRelatedField(CompGroup, many=True, read_only=True)
+    managed_groups = CompetitionFilteredPrimaryKeyRelatedField(clazz=CompGroup, serializer=CompGroupSerializer,
+                                                               many=True, read_only=True)
 
     class Meta:
         model = CompAdmin
@@ -102,12 +103,10 @@ class CompAdminChangePasswordSerializer(serializers.ModelSerializer):
     def validate_password(self, value):
         password_validation.validate_password(value, self.instance)
         return make_password(value)
-    
+
     class Meta:
         model = CompAdmin
         depth = 2
         fields = ['username', 'password']
 
         extra_kwargs = {'username': {'read_only': True}, }
-
-
