@@ -79,7 +79,7 @@ class CompGroupView(viewsets.ModelViewSet):
 
 
 class CompAdminView(ChangePasswordViewSet):
-    permission_classes = [Or(IsCompetitionSuperAdmin, IsAdminUser)]
+    permission_classes = [Or(IsCompetitionAdmin, IsAdminUser)]
     name = 'competition-admin-api'
     lookup_field = 'username'
 
