@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import *
 from rest_framework.response import Response
-
+from core.permissions import IsCompetitionAdmin
 from compAdmin.models import Competition
 from core.permissions import NoPermission
 from core.serializers import CompetitionReadOnlySerializer, TopStudentsSerializer, CompetitionSerializer
@@ -37,7 +37,7 @@ class CompetitionView(viewsets.ReadOnlyModelViewSet):
         elif self.action == 'list_top_students':
             return IsAuthenticated(),
         else:
-            return NoPermission(),
+            return IsCompetitionAdmin(),
 
     @action(detail=False, name='List Top Students')
     def list_top_students(self, request, *args, **kwargs):
