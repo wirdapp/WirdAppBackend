@@ -1,14 +1,20 @@
+import os
+
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import Sum
 
+from Ramadan_Competition_Rest import settings
 from compAdmin.models import PointTemplate, CompGroup
 from core.models import GeneralUser
 
 
 def upload_location(instance, filename):
     filebase, extension = filename.split('.')
-    return f'{instance.competition.id}/{instance.username}.{extension}'
+    filename = f'{instance.competition.id}/{instance.username}.{extension}'
+    if os.path.exists(settings.MEDIA_URL+filename):
+        os.remove(settings.MEDIA_URL+filename)
+    return filename
 
 
 class StudentUser(GeneralUser):
