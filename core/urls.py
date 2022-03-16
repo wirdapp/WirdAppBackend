@@ -9,4 +9,5 @@ router.register(r'create-competition', views.CreateCompetitionView, basename='Cr
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('check_username_pwd/', views.CheckUserNamePasswordView.as_view(), name='check_username_pwd'),
 ]
