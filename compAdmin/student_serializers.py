@@ -23,7 +23,8 @@ class ReadOnlyPointTemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PointTemplate
         depth = 2
-        fields = ['label', "description", "form_type", "upper_units_bound", "lower_units_bound", "points_per_unit"]
+        fields = ['id', 'label', "description", "form_type", "upper_units_bound", "lower_units_bound",
+                  "points_per_unit"]
 
 
 class ReadOnlyPointRecordSerializer(serializers.ModelSerializer):
