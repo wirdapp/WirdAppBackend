@@ -11,5 +11,5 @@ router.register(r'announcements', views.AnnouncementsView, basename='Announcemen
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('admin_info/', views.GroupAdminInformationView.as_view(), name='Group Admin Info'),
+    path('admin-info/', views.GroupAdminInformationView.as_view(), name='Group Admin Info'),
 ]
