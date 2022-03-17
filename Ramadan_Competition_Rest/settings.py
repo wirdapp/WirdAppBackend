@@ -26,12 +26,16 @@ SECRET_KEY = 'django-insecure-w_67mdfx6ewgdod35)*3aiw5yu)%-rl4ud$qrqwcl%zwce!eg6
 DEBUG = True
 
 ALLOWED_HOSTS = ['ramadan-comp-rest.herokuapp.com', '127.0.0.1']
-# CORS_ALLOWED_ORIGINS = ['https://ramadan-comp-rest.herokuapp.com',]
-# CORS_ALLOWED_ORIGIN_REGEXES = [r"^https?:\/\/localhost.*",]
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
-# Application definition
+
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = True
+
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",
+# ]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -156,7 +160,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
-    'ROTATE_REFRESH_TOKENS': True,
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': False,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
 }
 
 AUTH_USER_MODEL = 'core.GeneralUser'
