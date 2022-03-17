@@ -1,13 +1,14 @@
-from django.db.models import QuerySet, Sum
+from django.db.models import Sum
 from rest_condition import Or
-from rest_framework import viewsets
+from rest_framework import viewsets, views
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
+from core.serializers import CompetitionSerializer
 from core.util import current_hijri_day
-from core.views import ChangePasswordViewSet, CompetitionView
+from core.views import ChangePasswordViewSet
 from student.models import PointRecord
 from .serializers import *
 
@@ -104,10 +105,15 @@ class CompAdminView(ChangePasswordViewSet):
             return CompAdminSerializer
 
 
-class AdminCompetitionView(CompetitionView):
-    permission_classes = [IsCompetitionAdmin]
+class AdminCompetitionView(viewsets.ModelViewSet):
+    permission_classes = [IsCompetitionSuperAdmin]
+    serializer_class = CompetitionSerializer
+    http_method_names = ['get', 'put']
 
-    @action(detail=False, name='General Comp Stats')
+    def get_queryset(self):
+        return Competition.objects.filter(id=self.request.user.competition.id)
+
+    @action(detail=False, methods=['get'], name='General Comp Stats')
     def general_stats(self, request, *args, **kwargs):
         competition = self.request.user.competition
         ramadan_date = current_hijri_day
@@ -125,3 +131,18 @@ class AdminCompetitionView(CompetitionView):
         stats['students_count'] = StudentUser.objects.count()
         stats['ramadan_date'] = current_hijri_day
         return Response({**stats})
+
+
+class AdminInformationView(views.APIView):
+    permission_classes = (IsCompetitionAdmin,)
+
+    def get(self, request, *args, **kwargs):
+        result = dict()
+        user = self.request.user.competition_admins
+        result['username'] = user.username
+        result['first_name'] = user.first_name
+        result['last_name'] = user.last_name
+        result['is_super_admin'] = user.is_super_admin
+        result['email'] = user.email
+        result['phone_number'] = user.phone_number
+        return Response({**result})

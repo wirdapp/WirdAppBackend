@@ -1,4 +1,4 @@
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, viewsets, views
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -84,3 +84,18 @@ class AnnouncementsView(viewsets.ReadOnlyModelViewSet):
 
     def get_permissions(self):
         return IsAuthenticated(),
+
+
+class GroupAdminInformationView(views.APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        result = dict()
+        user = self.request.user.competition_students
+        admin = user.group.admin
+        result['username'] = admin.username
+        result['first_name'] = admin.first_name
+        result['last_name'] = admin.last_name
+        result['email'] = admin.email
+        result['phone_number'] = admin.phone_number
+        return Response({**result})
