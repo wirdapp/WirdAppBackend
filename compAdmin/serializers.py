@@ -7,13 +7,6 @@ from student.models import StudentUser
 from .models import *
 
 
-# class PointFormatSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = PointFormat
-#         depth = 2
-#         fields = '__all__'
-
-
 class SectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
@@ -110,3 +103,10 @@ class CompAdminChangePasswordSerializer(serializers.ModelSerializer):
         fields = ['username', 'password']
 
         extra_kwargs = {'username': {'read_only': True}, }
+
+
+class AdminCompetitionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Competition
+        depth = 1
+        exclude = ('id',)

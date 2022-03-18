@@ -6,7 +6,6 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
-from core.serializers import CompetitionSerializer
 from core.util import current_hijri_day
 from core.views import ChangePasswordViewSet
 from student.models import PointRecord
@@ -25,15 +24,6 @@ class SectionView(viewsets.ModelViewSet):
         else:
             comp = self.request.user.competition
             return comp.competition_sections.all()
-
-
-# class PointFormatView(viewsets.ModelViewSet):
-#     pagination_class = StandardResultsSetPagination
-#     queryset = PointFormat.objects.all()
-#     serializer_class = PointFormatSerializer
-#     permission_classes = [IsAdminUser]
-#     name = 'points-templates-list'
-#     lookup_field = 'id'
 
 
 class PointTemplatesView(viewsets.ModelViewSet):
@@ -107,7 +97,7 @@ class CompAdminView(ChangePasswordViewSet):
 
 class AdminCompetitionView(viewsets.ModelViewSet):
     permission_classes = [IsCompetitionSuperAdmin]
-    serializer_class = CompetitionSerializer
+    serializer_class = AdminCompetitionSerializer
     http_method_names = ['get', 'put']
 
     def get_queryset(self):
