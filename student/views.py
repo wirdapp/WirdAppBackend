@@ -4,6 +4,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from compAdmin.serializers import PointTemplateSerializer
+from core import util
 from core.permissions import NoPermission
 from core.views import user_points_stats
 from .serializers import *
@@ -14,12 +15,12 @@ class PointRecordsView(viewsets.ModelViewSet):
     serializer_class = PointRecordSerializer
     name = 'points-record-list'
     lookup_field = 'id'
-    filterset_fields = ['ramadan_record_date']
 
     def get_queryset(self):
         user = self.request.user
+        date = self.request.query_params['date'] if 'date' in self.request.query_params else util.current_hijri_date
         if hasattr(user, 'competition_students'):
-            return PointRecord.objects.filter(student__username=user.username)
+            return PointRecord.objects.filter(student__username=user.username, ramadan_record_date=date)
         else:
             return PointRecord.objects.none()
 
