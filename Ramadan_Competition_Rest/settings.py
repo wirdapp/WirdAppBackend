@@ -92,11 +92,12 @@ WSGI_APPLICATION = 'Ramadan_Competition_Rest.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'deio18c0r3vceq',
-        'USER': 'attijylnplqlvt',
-        'PASSWORD': 'a072835c65d4f1bd9c39abb78fa899baf996302451204f9050e3071f272e861b',
-        'HOST': 'ec2-52-30-133-191.eu-west-1.compute.amazonaws.com',
+        'NAME': 'd9bdahiujnd5gs',
+        'USER': 'ggjhmrunathqpt',
+        'PASSWORD': '8d6b511a735a9151291cea7dcbd2815296b4daf0889f066ff477db55aabd8c60',
+        'HOST': 'ec2-52-208-185-143.eu-west-1.compute.amazonaws.com',
         'PORT': '5432',
+        'URI': 'postgres://ggjhmrunathqpt:8d6b511a735a9151291cea7dcbd2815296b4daf0889f066ff477db55aabd8c60@ec2-52-208-185-143.eu-west-1.compute.amazonaws.com:5432/d9bdahiujnd5gs'
     }
 }
 
