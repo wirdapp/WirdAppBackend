@@ -46,7 +46,6 @@ class PointRecord(models.Model):
     point_template = models.ForeignKey(PointTemplate, on_delete=models.CASCADE)
     student = models.ForeignKey(StudentUser, on_delete=models.CASCADE, null=True, related_name='student_points')
     point_scored_units = models.IntegerField(default=1)
-    details = models.TextField(default='')
     ramadan_record_date = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(30)])
     point_total = models.IntegerField(default=1)
 
