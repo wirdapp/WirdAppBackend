@@ -2,6 +2,8 @@ from rest_condition import Or
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
+
+from core import util
 from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
 from core.views import ChangePasswordViewSet, user_points_stats
 from student.models import PointRecord
@@ -70,10 +72,12 @@ class StudentView(ChangePasswordViewSet):
     def get_user_input_records(self, request, *args, **kwargs):
         admin = request.user.competition_admins
         comp = request.user.competition
+        date = request.query_params['date'] if 'date' in request.query_params else util.current_hijri_date
+        points = PointRecord.objects.filter(point_template__form_type='oth', point_scored_units=-1, ramadan_record_date=date)
         if admin.is_super_admin:
-            points = PointRecord.objects.filter(point_template__form_type='oth', student__competition=comp)
+            points.filter(student__competition=comp)
         else:
-            points = PointRecord.objects.filter(point_template__form_type='oth', student__group__admin=admin)
+            points.filter(student__group__admin=admin)
         serializer = self.get_serializer(points, many=True)
         return Response(serializer.data)
 
