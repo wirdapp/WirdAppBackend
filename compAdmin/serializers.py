@@ -19,7 +19,6 @@ class SectionSerializer(serializers.ModelSerializer):
 
 
 class PointTemplateSerializer(serializers.ModelSerializer):
-    # form_type = serializers.PrimaryKeyRelatedField(queryset=PointFormat.objects.all())
     section = CompetitionFilteredPrimaryKeyRelatedField(clazz=Section)
 
     class Meta:
@@ -30,6 +29,12 @@ class PointTemplateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         point_template = super(PointTemplateSerializer, self).create(validated_data)
         return set_competition(self.context, point_template)
+
+    def validate_lower_units_bound(self, value):
+        if self.initial_data['form_type'] == 'oth':
+            return -1
+        else:
+            return value
 
 
 class CompGroupSerializer(serializers.ModelSerializer):
