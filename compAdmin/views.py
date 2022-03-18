@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
-from core.util import current_hijri_day
+from core.util import current_hijri_date
 from core.views import ChangePasswordViewSet
 from student.models import PointRecord
 from .serializers import *
@@ -106,7 +106,7 @@ class AdminCompetitionView(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], name='General Comp Stats')
     def general_stats(self, request, *args, **kwargs):
         competition = self.request.user.competition
-        ramadan_date = current_hijri_day
+        ramadan_date = current_hijri_date
         stats = dict()
         top_on_day = StudentUser.objects.filter(competition=competition) \
             .values('username', 'first_name', 'last_name', 'student_points', 'student_points__ramadan_record_date') \
@@ -119,7 +119,7 @@ class AdminCompetitionView(viewsets.ModelViewSet):
             .values('ramadan_record_date') \
             .annotate(total_day=Sum('point_total')).order_by('-total_day').first()
         stats['students_count'] = StudentUser.objects.count()
-        stats['ramadan_date'] = current_hijri_day
+        stats['ramadan_date'] = current_hijri_date
         return Response({**stats})
 
 
