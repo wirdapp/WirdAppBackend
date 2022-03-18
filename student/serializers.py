@@ -88,5 +88,5 @@ class StudentUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentUser
         depth = 1
-        fields = ['username', 'first_name', 'last_name', 'profile_photo']
-        extra_kwargs = {'username': {'read_only': True}, }
+        fields = ['username', 'first_name', 'last_name', 'profile_photo', 'total_points']
+        extra_kwargs = {'username': {'read_only': True}, 'total_points': {'read_only': True}, }
