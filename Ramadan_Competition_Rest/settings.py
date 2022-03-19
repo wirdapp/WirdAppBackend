@@ -92,7 +92,7 @@ WSGI_APPLICATION = 'Ramadan_Competition_Rest.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-#DATABASES = {
+# DATABASES = {
 #    'default': {
 #        'ENGINE': 'django.db.backends.postgresql',
 #        'NAME': 'deio18c0r3vceq',
@@ -101,7 +101,7 @@ WSGI_APPLICATION = 'Ramadan_Competition_Rest.wsgi.application'
 #        'HOST': 'ec2-52-30-133-191.eu-west-1.compute.amazonaws.com',
 #        'PORT': '5432',
 #    }
-#}
+# }
 
 DATABASES = {
     'default': {
@@ -165,39 +165,40 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
 # Logging
-LOGGING =  {
-  'version': 1,
-  'disable_existing_loggers': False,
-  'filters': {
-    'require_debug_false': {
-      '()': 'django.utils.log.RequireDebugFalse'
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s|%(asctime)s|%(module)s|%(process)d|%(thread)d|%(message)s',
+            'datefmt': "%d/%b/%Y %H:%M:%S"
+        }
+    },
+    'handlers': {
+        'default': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            # 'filename': '/home/osama/django.log',
+            'filename': 'django.log',
+            'formatter': 'verbose',
+            'when': 'midnight',
+            'backupCount': '5'
+        }
+    },
+    'loggers': {
+        'sensible': {
+            'handlers': [
+                'default'
+            ],
+            'level': 'DEBUG',
+            'propagate': True
+        }
     }
-  },
-  'formatters': {
-    'verbose': {
-      'format': '%(levelname)s|%(asctime)s|%(module)s|%(process)d|%(thread)d|%(message)s',
-      'datefmt': "%d/%b/%Y %H:%M:%S"
-    }
-  },
-  'handlers': {
-    'default': {
-      'level': 'INFO',
-      'class': 'logging.handlers.TimedRotatingFileHandler',
-      'filename': '/home/osama/django.log',
-      'formatter': 'verbose',
-      'when': 'midnight',
-      'backupCount': '5'
-    }
-  },
-  'loggers': {
-    'sensible': {
-      'handlers': [
-        'default'
-      ],
-      'level': 'DEBUG',
-      'propagate': True
-    }
-  }
 }
 
 LANGUAGE_CODE = 'ar'
@@ -246,7 +247,6 @@ CACHEOPS = {
     # '*.*': {'ops': 'get', 'timeout': 60*15},
 }
 
-
 # Security Headers
 SECURE_HSTS_PRELOAD = True
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
@@ -256,8 +256,8 @@ SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 # Application definition
 CSP_STYLE_SRC = ["'self'", "cdn.jsdelivr.net"]
 CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE= True
+SESSION_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
-PERMISSIONS_POLICY = {"fullscreen": "*",}
+PERMISSIONS_POLICY = {"fullscreen": "*", }
