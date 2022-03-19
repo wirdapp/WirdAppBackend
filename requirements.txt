@@ -26,3 +26,5 @@ sqlparse==0.4.2
 whitenoise==5.3.0
 wrapt==1.13.3
 zipp==3.7.0
+django-feature-policy==4.0.0
+django-csp==3.7
