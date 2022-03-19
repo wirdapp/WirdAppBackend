@@ -20,7 +20,11 @@ class PointRecordsView(viewsets.ModelViewSet):
         user = self.request.user
         date = self.request.query_params['date'] if 'date' in self.request.query_params else util.current_hijri_date
         if hasattr(user, 'competition_students'):
-            return PointRecord.objects.filter(student__username=user.username, ramadan_record_date=date)
+            points = PointRecord.objects.filter(student__username=user.username, point_scored_units__gte=0)
+            if self.action == 'list':
+                return points.filter(ramadan_record_date=date)
+            else:
+                return points
         else:
             return PointRecord.objects.none()
 
