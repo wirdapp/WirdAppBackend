@@ -1,9 +1,10 @@
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, viewsets, views
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from compAdmin.serializers import PointTemplateSerializer
+from core import util
 from core.permissions import NoPermission
 from core.views import user_points_stats
 from .serializers import *
@@ -14,12 +15,12 @@ class PointRecordsView(viewsets.ModelViewSet):
     serializer_class = PointRecordSerializer
     name = 'points-record-list'
     lookup_field = 'id'
-    filterset_fields = ['ramadan_record_date']
 
     def get_queryset(self):
         user = self.request.user
+        date = self.request.query_params['date'] if 'date' in self.request.query_params else util.current_hijri_date
         if hasattr(user, 'competition_students'):
-            return PointRecord.objects.filter(student__username=user.username)
+            return PointRecord.objects.filter(student__username=user.username, ramadan_record_date=date)
         else:
             return PointRecord.objects.none()
 
@@ -84,3 +85,18 @@ class AnnouncementsView(viewsets.ReadOnlyModelViewSet):
 
     def get_permissions(self):
         return IsAuthenticated(),
+
+
+class GroupAdminInformationView(views.APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        result = dict()
+        user = self.request.user.competition_students
+        admin = user.group.admin
+        result['username'] = admin.username
+        result['first_name'] = admin.first_name
+        result['last_name'] = admin.last_name
+        result['email'] = admin.email
+        result['phone_number'] = admin.phone_number
+        return Response({**result})

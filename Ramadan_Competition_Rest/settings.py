@@ -27,11 +27,18 @@ except KeyError as e:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['ramadan-comp-rest.herokuapp.com', '127.0.0.1', 'wird.app', '159.65.93.82']
-# CORS_ALLOWED_ORIGINS = ['https://ramadan-comp-rest.herokuapp.com',]
-# CORS_ALLOWED_ORIGIN_REGEXES = [r"^https?:\/\/localhost.*",]
-#CORS_ALLOW_ALL_ORIGINS = True
-#CORS_ALLOW_CREDENTIALS = True
+ALLOWED_HOSTS = ['ramadan-comp-rest.herokuapp.com', '127.0.0.1']
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
+
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",
+# ]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -99,15 +106,15 @@ WSGI_APPLICATION = 'Ramadan_Competition_Rest.wsgi.application'
 #}
 
 DATABASES = {
-   'default': {
-       'ENGINE': 'django.db.backends.postgresql',
-       'HOST': 'localhost',
-       'NAME': 'ramadan_comp',
-       'USER': 'osama',
-       'PASSWORD': SECRET_KEY,
-       'PORT': '5432',
-       'CONN_MAX_AGE' : 60,
-   }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'd9bdahiujnd5gs',
+        'USER': 'ggjhmrunathqpt',
+        'PASSWORD': '8d6b511a735a9151291cea7dcbd2815296b4daf0889f066ff477db55aabd8c60',
+        'HOST': 'ec2-52-208-185-143.eu-west-1.compute.amazonaws.com',
+        'PORT': '5432',
+        'URI': 'postgres://ggjhmrunathqpt:8d6b511a735a9151291cea7dcbd2815296b4daf0889f066ff477db55aabd8c60@ec2-52-208-185-143.eu-west-1.compute.amazonaws.com:5432/d9bdahiujnd5gs'
+    }
 }
 
 # Password validation
@@ -208,6 +215,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = 'media/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
@@ -216,7 +225,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
-    'ROTATE_REFRESH_TOKENS': True,
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': False,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
 }
 
 AUTH_USER_MODEL = 'core.GeneralUser'

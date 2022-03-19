@@ -1,11 +1,12 @@
+from django.contrib.auth import password_validation
 from django.db.models import Sum
-from rest_framework import viewsets
+from rest_framework import viewsets, views
 from rest_framework.decorators import action
 from rest_framework.permissions import *
 from rest_framework.response import Response
-
+from core.models import GeneralUser
+from core.permissions import IsCompetitionAdmin
 from compAdmin.models import Competition
-from core.permissions import NoPermission
 from core.serializers import CompetitionReadOnlySerializer, TopStudentsSerializer, CompetitionSerializer
 from student.models import StudentUser
 
@@ -37,7 +38,7 @@ class CompetitionView(viewsets.ReadOnlyModelViewSet):
         elif self.action == 'list_top_students':
             return IsAuthenticated(),
         else:
-            return NoPermission(),
+            return IsCompetitionAdmin(),
 
     @action(detail=False, name='List Top Students')
     def list_top_students(self, request, *args, **kwargs):
@@ -75,3 +76,21 @@ def user_points_stats(user, stats_type, date):
     if 'ramadan_record_date' in stats[stats_type][0] and date:
         stats[stats_type] = stats.get(stats_type).filter(ramadan_record_date=date)
     return Response(stats)
+
+
+class CheckUserNamePasswordView(views.APIView):
+    permission_classes = (AllowAny,)
+
+    @staticmethod
+    def post(request, *args, **kwargs):
+        username = request.data['username']
+        password = request.data['password']
+        result = dict()
+        result['username_ok'] = not GeneralUser.objects.filter(username=username).exists()
+        result['password_ok'] = True
+        try:
+            password_validation.validate_password(password, GeneralUser(username=username))
+        except Exception as ve:
+            result['password_ok'] = False
+            result['password_errors'] = list(ve)
+        return Response({**result})

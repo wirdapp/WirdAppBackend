@@ -8,11 +8,11 @@ router = routers.DefaultRouter()
 router.register(r'comp-admins', views.CompAdminView, basename='CompAdmin')
 router.register(r'comp-group', views.CompGroupView, basename='CompGroup')
 router.register(r'point-template', views.PointTemplatesView, basename='PointTemplate')
-# router.register(r'point-format', views.PointFormatView, basename='PointFormat') #TODO: to admin view only
 router.register(r'section', views.SectionView, basename='Section')
 router.register(r'comp-view', views.AdminCompetitionView, basename='AdminCompetitionView')
 router.register(r'students', student_views.StudentView, basename='Students')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('admin-info/', views.AdminInformationView.as_view(), name='Admin info'),
 ]

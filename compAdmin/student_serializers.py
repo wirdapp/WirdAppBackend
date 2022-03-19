@@ -3,7 +3,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 
 from compAdmin.models import PointTemplate
-from core.util import current_hijri_day
+from core.util import current_hijri_date
 from student.models import StudentUser, PointRecord
 
 
@@ -23,7 +23,8 @@ class ReadOnlyPointTemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PointTemplate
         depth = 2
-        fields = ['label', "description", "form_type", "upper_units_bound", "lower_units_bound", "points_per_unit"]
+        fields = ['id', 'label', "description", "form_type", "upper_units_bound", "lower_units_bound",
+                  "points_per_unit"]
 
 
 class ReadOnlyPointRecordSerializer(serializers.ModelSerializer):
@@ -40,7 +41,7 @@ class StudentUserRetrieveSerializer(serializers.ModelSerializer):
     student_points = serializers.SerializerMethodField()
 
     def get_student_points(self, instance):
-        date = self.context['request'].query_params.get('date', current_hijri_day)
+        date = self.context['request'].query_params.get('date', current_hijri_date)
         student_points = instance.student_points.filter(ramadan_record_date=date)
         return ReadOnlyPointRecordSerializer(student_points, many=True, read_only=True).data
 

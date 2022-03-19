@@ -7,13 +7,6 @@ from student.models import StudentUser
 from .models import *
 
 
-# class PointFormatSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = PointFormat
-#         depth = 2
-#         fields = '__all__'
-
-
 class SectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
@@ -26,7 +19,6 @@ class SectionSerializer(serializers.ModelSerializer):
 
 
 class PointTemplateSerializer(serializers.ModelSerializer):
-    # form_type = serializers.PrimaryKeyRelatedField(queryset=PointFormat.objects.all())
     section = CompetitionFilteredPrimaryKeyRelatedField(clazz=Section)
 
     class Meta:
@@ -37,6 +29,12 @@ class PointTemplateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         point_template = super(PointTemplateSerializer, self).create(validated_data)
         return set_competition(self.context, point_template)
+
+    def validate_lower_units_bound(self, value):
+        if self.initial_data['form_type'] == 'oth':
+            return -1
+        else:
+            return value
 
 
 class CompGroupSerializer(serializers.ModelSerializer):
@@ -110,3 +108,10 @@ class CompAdminChangePasswordSerializer(serializers.ModelSerializer):
         fields = ['username', 'password']
 
         extra_kwargs = {'username': {'read_only': True}, }
+
+
+class AdminCompetitionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Competition
+        depth = 1
+        exclude = ('id',)

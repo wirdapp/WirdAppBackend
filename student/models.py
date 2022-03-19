@@ -1,14 +1,20 @@
+import os
+
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import Sum
 
+from Ramadan_Competition_Rest import settings
 from compAdmin.models import PointTemplate, CompGroup
 from core.models import GeneralUser
 
 
 def upload_location(instance, filename):
     filebase, extension = filename.split('.')
-    return f'{instance.competition.id}/{instance.username}.{extension}'
+    filename = f'{instance.competition.id}/{instance.username}.{extension}'
+    if os.path.exists(settings.MEDIA_URL+filename):
+        os.remove(settings.MEDIA_URL+filename)
+    return filename
 
 
 class StudentUser(GeneralUser):
@@ -25,7 +31,7 @@ class StudentUser(GeneralUser):
 
     @property
     def total_points(self):
-        total = self.student_points.aggregate(Sum('point_total'))['point_total__sum']
+        total = self.student_points.filter(point_scored_units__gte=0).aggregate(Sum('point_total'))['point_total__sum']
         return total if total else 0
 
     def total_points_on_day(self, ramadan_day):
@@ -35,14 +41,16 @@ class StudentUser(GeneralUser):
             points_per_day=Sum('point_total'))
         return total
 
+    def __str__(self):
+        return self.username
+
 
 class PointRecord(models.Model):
     point_template = models.ForeignKey(PointTemplate, on_delete=models.CASCADE)
     student = models.ForeignKey(StudentUser, on_delete=models.CASCADE, null=True, related_name='student_points')
-    point_scored_units = models.IntegerField(default=1)
-    details = models.TextField(default='')
+    point_scored_units = models.IntegerField(default=0)
     ramadan_record_date = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(30)])
-    point_total = models.IntegerField(default=1)
+    point_total = models.IntegerField(default=0)
 
     def set_student(self, student):
         self.student = student
@@ -52,3 +60,6 @@ class PointRecord(models.Model):
 
     class Meta:
         ordering = ('-ramadan_record_date',)
+
+    def __str__(self):
+        return f'{self.student.usernamme}:{self.point_template.label}:date:{self.ramadan_record_date}'

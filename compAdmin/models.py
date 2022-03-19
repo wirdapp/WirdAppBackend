@@ -5,12 +5,6 @@ from django.db import models
 from core.models import GeneralUser, Competition
 
 
-# class PointFormat(models.Model):
-#     id = models.CharField(max_length=64, default="", primary_key=True)
-#     label = models.CharField(max_length=64, default="")
-#     html = models.TextField(default="")
-
-
 class Section(models.Model):
     label = models.CharField(default='', max_length=32)
     position = models.IntegerField(default=1)
@@ -49,15 +43,8 @@ class PointTemplate(models.Model):
     def set_competition(self, competition):
         self.competition = competition
 
-
-#
-# class ExtraChallengeTemplate(PointTemplate):
-#     is_for_all = models.BooleanField(default=False)
-#     is_temporary = models.BooleanField(default=False)
-#     time_frame = models.DurationField(default=timedelta(days=1))
-#     date_posted = models.DateTimeField(default=timezone.now)
-#
-
+    def __str__(self):
+        return self.label
 
 class CompAdmin(GeneralUser):
     phone_number = models.CharField(max_length=15, validators=[integer_validator], default="0000000000")
@@ -67,6 +54,9 @@ class CompAdmin(GeneralUser):
 
     class Meta:
         default_related_name = 'competition_admins'
+
+    def __str__(self):
+        return self.username
 
 
 class CompGroup(models.Model):
@@ -80,3 +70,6 @@ class CompGroup(models.Model):
 
     def set_admin(self, admin):
         self.admin = admin
+
+    def __str__(self):
+        return self.name
