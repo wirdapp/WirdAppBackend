@@ -64,7 +64,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'csp.middleware.CSPMiddleware',
     "django_permissions_policy.PermissionsPolicyMiddleware",
 ]
 
@@ -221,6 +220,11 @@ SIMPLE_JWT = {
     'UPDATE_LAST_LOGIN': False,
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
 }
 
 AUTH_USER_MODEL = 'core.GeneralUser'
