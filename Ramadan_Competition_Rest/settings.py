@@ -25,7 +25,7 @@ try:
 except KeyError as e:
     raise RuntimeError("Could not find a SECRET_KEY in environment") from e
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['ramadan-comp-rest.herokuapp.com', '127.0.0.1']
 CORS_ALLOW_ALL_ORIGINS = True
@@ -33,8 +33,6 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
 
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
 
 # CORS_ALLOWED_ORIGINS = [
 #     "http://localhost:3000",
