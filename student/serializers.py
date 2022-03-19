@@ -57,7 +57,6 @@ class PointRecordSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance.set_point_total(self.get_point_total(validated_data))
-        instance.save()
         return super(PointRecordSerializer, self).update(instance, validated_data)
 
     @classmethod
