@@ -20,10 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-w_67mdfx6ewgdod35)*3aiw5yu)%-rl4ud$qrqwcl%zwce!eg6'
-
+try:
+    SECRET_KEY = os.environ["SECRET_KEY"]
+except KeyError as e:
+    raise RuntimeError("Could not find a SECRET_KEY in environment") from e
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['ramadan-comp-rest.herokuapp.com', '127.0.0.1']
 CORS_ALLOW_ALL_ORIGINS = True
@@ -64,6 +66,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware',
+    "django_permissions_policy.PermissionsPolicyMiddleware",
 ]
 
 ROOT_URLCONF = 'Ramadan_Competition_Rest.urls'
@@ -89,6 +93,18 @@ WSGI_APPLICATION = 'Ramadan_Competition_Rest.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
+
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.postgresql',
+#        'NAME': 'deio18c0r3vceq',
+#        'USER': 'attijylnplqlvt',
+#        'PASSWORD': 'a072835c65d4f1bd9c39abb78fa899baf996302451204f9050e3071f272e861b',
+#        'HOST': 'ec2-52-30-133-191.eu-west-1.compute.amazonaws.com',
+#        'PORT': '5432',
+#    }
+#}
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -123,7 +139,7 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        'rest_framework.permissions.IsAdminUser'
     ],
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend'
@@ -134,10 +150,57 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',  # TODO REMOVE
     ],
     'EXCEPTION_HANDLER': 'core.global_exception_handler.custom_exception_handler',
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
 }
 
+TEMPLATE_LOADERS = (
+    ('django.template.loaders.cached.Loader', (
+        'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader',
+    )),
+)
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
+
+# Logging
+LOGGING =  {
+  'version': 1,
+  'disable_existing_loggers': False,
+  'filters': {
+    'require_debug_false': {
+      '()': 'django.utils.log.RequireDebugFalse'
+    }
+  },
+  'formatters': {
+    'verbose': {
+      'format': '%(levelname)s|%(asctime)s|%(module)s|%(process)d|%(thread)d|%(message)s',
+      'datefmt': "%d/%b/%Y %H:%M:%S"
+    }
+  },
+  'handlers': {
+    'default': {
+      'level': 'INFO',
+      'class': 'logging.handlers.TimedRotatingFileHandler',
+      'filename': '/home/osama/django.log',
+      'formatter': 'verbose',
+      'when': 'midnight',
+      'backupCount': '5'
+    }
+  },
+  'loggers': {
+    'sensible': {
+      'handlers': [
+        'default'
+      ],
+      'level': 'DEBUG',
+      'propagate': True
+    }
+  }
+}
 
 LANGUAGE_CODE = 'ar'
 
@@ -184,3 +247,19 @@ CACHEOPS = {
     'core.*': {'ops': 'all', 'timeout': 5 * 60},
     # '*.*': {'ops': 'get', 'timeout': 60*15},
 }
+
+
+# Security Headers
+SECURE_HSTS_PRELOAD = True
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_HSTS_SECONDS = 2_592_000
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+# Application definition
+CSP_STYLE_SRC = ["'self'", "cdn.jsdelivr.net"]
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE= True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+PERMISSIONS_POLICY = {"fullscreen": "*",}
