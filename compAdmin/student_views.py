@@ -68,22 +68,18 @@ class StudentView(ChangePasswordViewSet):
         else:
             return Response("Action is not supported", status=404)
 
-    @action(detail=False, methods=['get'], name='Get User Input Records')
+    @action(detail=True, methods=['get'], name='Get User Input Records')
     def get_user_input_records(self, request, *args, **kwargs):
-        admin = request.user.competition_admins
-        comp = request.user.competition
+        user = self.get_object()
         date = request.query_params['date'] if 'date' in request.query_params else util.current_hijri_date
-        points = PointRecord.objects.filter(point_template__form_type='oth', point_scored_units=-1, ramadan_record_date=date)
-        if admin.is_super_admin:
-            points.filter(student__competition=comp)
-        else:
-            points.filter(student__group__admin=admin)
+        points = user.student_points.filter(point_template__form_type='oth', point_scored_units=-1,
+                                            ramadan_record_date=date)
         serializer = self.get_serializer(points, many=True)
         return Response(serializer.data)
 
     @action(detail=True, name='Point Scores Stats')
     def points_stats(self, request, *args, **kwargs):
         student = self.get_object()
-        stats_type = self.request.query_params['type'] if 'type' in self.request.query_params else ''
-        date = self.request.query_params['date'] if 'date' in self.request.query_params else None
+        stats_type = request.query_params['type'] if 'type' in request.query_params else ''
+        date = request.query_params['date'] if 'date' in request.query_params else None
         return user_points_stats(student, stats_type, date)
