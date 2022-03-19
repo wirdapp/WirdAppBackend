@@ -114,4 +114,5 @@ class AdminCompetitionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
         depth = 1
-        exclude = ('id',)
+        fields = '__all__'
+        extra_kwargs = {'id': {'read_only': True}, }
