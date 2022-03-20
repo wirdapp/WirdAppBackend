@@ -6,10 +6,9 @@ from rest_framework.response import Response
 from core import util
 from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
 from core.views import ChangePasswordViewSet, user_points_stats
-from student.models import PointRecord
-from student.serializers import PointRecordSerializer
 from .serializers import *
-from .student_serializers import StudentUserSerializer, StudentUserRetrieveSerializer, StudentChangePasswordSerializer
+from .student_serializers import StudentUserSerializer, StudentUserRetrieveSerializer, StudentChangePasswordSerializer, \
+    UpdatePointRecordSerializer
 
 
 class StudentView(ChangePasswordViewSet):
@@ -33,7 +32,7 @@ class StudentView(ChangePasswordViewSet):
         if self.action == "change_password":
             return StudentChangePasswordSerializer
         elif self.action in ['update_or_delete_point', 'get_user_input_records']:
-            return PointRecordSerializer
+            return UpdatePointRecordSerializer
         elif self.action in ['update', 'partial_update', 'retrieve']:
             return StudentUserRetrieveSerializer
         else:
