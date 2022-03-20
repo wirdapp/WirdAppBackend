@@ -115,4 +115,4 @@ class AdminCompetitionSerializer(serializers.ModelSerializer):
         model = Competition
         depth = 1
         fields = '__all__'
-        extra_kwargs = {'id': {'read_only': True}, }
+        extra_kwargs = {'id': {'read_only': True}, 'name': {'read_only': True}}
