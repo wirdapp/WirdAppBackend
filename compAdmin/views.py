@@ -73,6 +73,7 @@ class CompAdminView(ChangePasswordViewSet):
     permission_classes = [Or(IsCompetitionAdmin, IsAdminUser)]
     name = 'competition-admin-api'
     lookup_field = 'username'
+    http_method_names = ['get', 'put', 'post']
 
     def get_queryset(self):
         user = self.request.user
@@ -96,12 +97,17 @@ class CompAdminView(ChangePasswordViewSet):
 
 
 class AdminCompetitionView(viewsets.ModelViewSet):
-    permission_classes = [IsCompetitionSuperAdmin]
     serializer_class = AdminCompetitionSerializer
     http_method_names = ['get', 'put']
 
     def get_queryset(self):
         return Competition.objects.filter(id=self.request.user.competition.id)
+
+    def get_permissions(self):
+        if self.action in ['general_stats', 'list', 'retrieve']:
+            return IsCompetitionAdmin(),
+        else:
+            return IsCompetitionSuperAdmin(),
 
     @action(detail=False, methods=['get'], name='General Comp Stats')
     def general_stats(self, request, *args, **kwargs):
