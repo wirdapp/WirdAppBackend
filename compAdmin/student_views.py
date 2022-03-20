@@ -39,8 +39,7 @@ class StudentView(ChangePasswordViewSet):
             return StudentUserSerializer
 
     def get_permissions(self):
-        if self.action in ['list', 'update', 'partial_update', 'retrieve', 'change_password', 'update_or_delete_point',
-                           None]:
+        if self.action in ['points_stats', 'list', 'update', 'partial_update', 'retrieve', 'change_password', 'update_or_delete_point']:
             return Or(IsCompetitionAdmin(), IsAdminUser()),
         else:
             return Or(IsCompetitionSuperAdmin(), IsAdminUser()),
