@@ -26,7 +26,7 @@ class ReadOnlyPointRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = PointRecord
         depth = 1
-        exclude = ('extra_details',)
+        exclude = ('user_input', 'student',)
 
 
 class UpdatePointRecordSerializer(PointRecordSerializer):
