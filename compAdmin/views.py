@@ -25,6 +25,12 @@ class SectionView(viewsets.ModelViewSet):
             comp = self.request.user.competition
             return comp.competition_sections.all()
 
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return Or(IsAdminUser(), IsCompetitionAdmin()),
+        else:
+            return Or(IsAdminUser(), IsCompetitionSuperAdmin()),
+
 
 class PointTemplatesView(viewsets.ModelViewSet):
     serializer_class = PointTemplateSerializer
