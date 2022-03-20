@@ -21,7 +21,6 @@ class StudentUserSerializer(serializers.ModelSerializer):
 
 class ReadOnlyPointRecordSerializer(serializers.ModelSerializer):
     point_template = ReadOnlyPointTemplateSerializer(read_only=True)
-    student = serializers.CharField(read_only=True, source='student.username')
 
     class Meta:
         model = PointRecord
