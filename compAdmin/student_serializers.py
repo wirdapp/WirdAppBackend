@@ -2,9 +2,9 @@ from django.contrib.auth import password_validation
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 
-from compAdmin.models import PointTemplate
 from core.util import current_hijri_date
 from student.models import StudentUser, PointRecord
+from student.serializers import PointRecordSerializer, ReadOnlyPointTemplateSerializer
 
 
 class StudentUserSerializer(serializers.ModelSerializer):
@@ -19,14 +19,6 @@ class StudentUserSerializer(serializers.ModelSerializer):
         }
 
 
-class ReadOnlyPointTemplateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PointTemplate
-        depth = 2
-        fields = ['id', 'label', "description", "form_type", "upper_units_bound", "lower_units_bound",
-                  "points_per_unit"]
-
-
 class ReadOnlyPointRecordSerializer(serializers.ModelSerializer):
     point_template = ReadOnlyPointTemplateSerializer(read_only=True)
     student = serializers.CharField(read_only=True, source='student.username')
@@ -34,7 +26,15 @@ class ReadOnlyPointRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = PointRecord
         depth = 1
-        fields = "__all__"
+        exclude = ('extra_details',)
+
+
+class UpdatePointRecordSerializer(PointRecordSerializer):
+    class Meta:
+        model = PointRecord
+        depth = 1
+        fields = '__all__'
+        extra_kwargs = {'point_total': {'read_only': True}}
 
 
 class StudentUserRetrieveSerializer(serializers.ModelSerializer):
