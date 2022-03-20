@@ -63,4 +63,4 @@ class PointRecord(models.Model):
         ordering = ('-ramadan_record_date',)
 
     def __str__(self):
-        return f'{self.student.usernamme}:{self.point_template.label}:date:{self.ramadan_record_date}'
+        return f'{self.student.username}:{self.point_template.label}:date:{self.ramadan_record_date}'
