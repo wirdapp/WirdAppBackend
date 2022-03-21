@@ -25,7 +25,6 @@ class PointRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = PointRecord
         depth = 0
-        exclude = ('user_input',)
         extra_kwargs = {'point_total': {'read_only': True}}
 
     def validate(self, attrs):
