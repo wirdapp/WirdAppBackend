@@ -39,7 +39,8 @@ class StudentView(ChangePasswordViewSet):
             return StudentUserSerializer
 
     def get_permissions(self):
-        if self.action in ['points_stats', 'list', 'update', 'partial_update', 'retrieve', 'change_password', 'update_or_delete_point']:
+        if self.action in ['points_stats', 'list', 'update', 'partial_update', 'retrieve', 'change_password',
+                           'update_or_delete_point']:
             return Or(IsCompetitionAdmin(), IsAdminUser()),
         else:
             return Or(IsCompetitionSuperAdmin(), IsAdminUser()),
@@ -55,7 +56,9 @@ class StudentView(ChangePasswordViewSet):
             serializer = self.get_serializer(point)
             return Response({**serializer.data})
         elif self.request.method == 'PUT':
-            serializer = self.get_serializer(data=request.data)
+            data = request.data.copy()
+            data.update({'student': student})
+            serializer = self.get_serializer(data=data)
             if not serializer.is_valid():
                 return Response({**serializer.errors}, status=400)
             serializer.update(point, serializer.validated_data)
