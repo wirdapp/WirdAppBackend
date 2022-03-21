@@ -57,7 +57,7 @@ class StudentView(ChangePasswordViewSet):
         elif self.request.method == 'PUT':
             serializer = self.get_serializer(data=request.data)
             if not serializer.is_valid():
-                return Response({**serializer.errors})
+                return Response({**serializer.errors}, status=400)
             serializer.update(point, serializer.validated_data)
             return Response({**serializer.data})
         elif self.request.method == 'DELETE':
