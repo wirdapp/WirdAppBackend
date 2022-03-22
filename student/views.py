@@ -1,3 +1,5 @@
+import itertools
+
 from rest_framework import permissions, viewsets, views
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -73,6 +75,15 @@ class PointTemplatesView(viewsets.ReadOnlyModelViewSet):
 
     def get_permissions(self):
         return IsAuthenticated(),
+
+    def list(self, request, *args, **kwargs):
+        query = self.get_queryset().all().select_related('section')
+        grouping_func = lambda pt: pt.section_id
+        sections = self.request.user.competition.competition_sections.values('id', 'label')
+        res = dict()
+        for section_id, point_templates in itertools.groupby(query, grouping_func):
+            res[sections.get(id=section_id)['label']] = [PointTemplateSerializer(pt).data for pt in point_templates]
+        return Response({**res})
 
 
 class AnnouncementsView(viewsets.ReadOnlyModelViewSet):
