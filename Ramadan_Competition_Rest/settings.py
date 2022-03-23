@@ -16,27 +16,16 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 try:
     SECRET_KEY = os.environ["SECRET_KEY"]
 except KeyError as e:
     raise RuntimeError("Could not find a SECRET_KEY in environment") from e
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['ramadan-comp-rest.herokuapp.com', '127.0.0.1']
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_ALLOW_ALL = True
-
-SESSION_COOKIE_HTTPONLY = True
-
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",
-# ]
+ALLOWED_HOSTS = ['ramadan-comp-rest.herokuapp.com', '127.0.0.1', 'wird.app', '159.65.93.82', 'localhost', 'student.wird.app', 'admin.wird.app', '0.0.0.0']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -88,29 +77,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Ramadan_Competition_Rest.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-
-# DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.postgresql',
-#        'NAME': 'deio18c0r3vceq',
-#        'USER': 'attijylnplqlvt',
-#        'PASSWORD': 'a072835c65d4f1bd9c39abb78fa899baf996302451204f9050e3071f272e861b',
-#        'HOST': 'ec2-52-30-133-191.eu-west-1.compute.amazonaws.com',
-#        'PORT': '5432',
-#    }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'd9bdahiujnd5gs',
-        'USER': 'ggjhmrunathqpt',
-        'PASSWORD': '8d6b511a735a9151291cea7dcbd2815296b4daf0889f066ff477db55aabd8c60',
-        'HOST': 'ec2-52-208-185-143.eu-west-1.compute.amazonaws.com',
-        'PORT': '5432',
-        'URI': 'postgres://ggjhmrunathqpt:8d6b511a735a9151291cea7dcbd2815296b4daf0889f066ff477db55aabd8c60@ec2-52-208-185-143.eu-west-1.compute.amazonaws.com:5432/d9bdahiujnd5gs'
+       'ENGINE': 'django.db.backends.postgresql',
+       'HOST': 'localhost',
+       'NAME': 'ramadan_comp',
+       'USER': 'osama',
+       'PASSWORD': SECRET_KEY,
+       'PORT': '5432',
+       'CONN_MAX_AGE' : 60,
     }
 }
 
@@ -143,13 +118,11 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',  # TODO REMOVE
     ],
     'EXCEPTION_HANDLER': 'core.global_exception_handler.custom_exception_handler',
-    # 'DEFAULT_RENDERER_CLASSES': [
-    #     'rest_framework.renderers.JSONRenderer',
-    # ],
+    'DEFAULT_RENDERER_CLASSES': [
+         'rest_framework.renderers.JSONRenderer',
+     ],
 }
 
 # Internationalization
@@ -159,37 +132,36 @@ REST_FRAMEWORK = {
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-    },
     'formatters': {
-        'verbose': {
-            'format': '%(levelname)s|%(asctime)s|%(module)s|%(process)d|%(thread)d|%(message)s',
-            'datefmt': "%d/%b/%Y %H:%M:%S"
+        'large': {
+            'format': '%(asctime)s, %(levelname)s, %(filename)s, %(funcName)s, LineNo %(lineno)d : %(message)s'
+        },
+        'tiny': {
+            'format': '%(asctime)s %(message)s  '
         }
     },
     'handlers': {
-        'default': {
-            'level': 'INFO',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            # 'filename': '/home/osama/django.log',
-            'filename': 'django.log',
-            'formatter': 'verbose',
-            'when': 'midnight',
-            'backupCount': '5'
-        }
-    },
-    'loggers': {
-        'sensible': {
-            'handlers': [
-                'default'
-            ],
+        'file': {
             'level': 'DEBUG',
-            'propagate': True
-        }
-    }
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': '/home/osama/backend_log/debug.log',
+	    'when': 'midnight',
+            'backupCount': '5',
+	    'formatter': 'large'
+        },
+    },
+     'console' : {
+         'level' : 'DEBUG',
+         'formatter': 'tiny',
+         'class' : 'logging.StreamHandler',
+     },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
 }
 
 LANGUAGE_CODE = 'ar'
@@ -200,15 +172,10 @@ USE_I18N = True
 
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.0/howto/static-files/
-
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = 'media/'
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -235,7 +202,6 @@ CACHEOPS = {
     'compadmin.*': {'ops': 'all', 'timeout': 5 * 60},
     'student.*': {'ops': 'all', 'timeout': 5 * 60},
     'core.*': {'ops': 'all', 'timeout': 5 * 60},
-    # '*.*': {'ops': 'get', 'timeout': 60*15},
 }
 
 # Security Headers
@@ -252,3 +218,5 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 PERMISSIONS_POLICY = {"fullscreen": "*", }
+SESSION_COOKIE_HTTPONLY = True
+CORS_ALLOWED_ORIGINS = ["http://localhost", 'http://0.0.0.0', 'https://student.wird.app', 'https://admin.wird.app', 'https://ramadan-comp-rest.herokuapp.com']
