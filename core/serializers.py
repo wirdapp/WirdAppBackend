@@ -37,8 +37,8 @@ class CompetitionFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedFie
         user = self.context['request'].user
         if user.is_staff:
             return self.clazz.objects.all()
-        competition = user.competition
-        return self.clazz.objects.filter(competition=competition)
+        competition = user.competition_id
+        return self.clazz.objects.filter(competition__id=competition)
 
     def to_internal_value(self, data):
         if issubclass(self.clazz, GeneralUser):

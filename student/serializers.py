@@ -40,21 +40,23 @@ class PointRecordSerializer(serializers.ModelSerializer):
         else:
             student = self.initial_data['student']  # admin editing for a student
         exists = student.student_points.filter(ramadan_record_date=record_date, point_template=point_template).exists()
-        self.check(not exists, 'You can\'t score the same point again', errors, 'General')
-        self.check(not (student.read_only or competition.readonly_mode), 'You can\'t score new points', errors, 'General')
-        self.check(point_template.is_active and point_template.is_shown, 'Point is not active', errors,'Point template')
-        self.check(point_template.upper_units_bound >= scored_units >= point_template.lower_units_bound,'Point is beyond limits', errors, 'Point scored units')
-        self.check(30 >= record_date >= 1, 'Date is beyond limits', errors, 'Ramadan record date')
-        self.check(30 >= record_date >= 1, 'Date is beyond limits', errors, 'Ramadan record date')
+        self.check(not exists, 'You can\'t score the same point again', errors)
+        self.check(not (student.read_only or competition.readonly_mode), 'You can\'t score new points', errors)
+        self.check(point_template.is_active and point_template.is_shown, 'Point is not active', errors)
+        if not (point_template.form_type == 'oth' and scored_units == -1):
+            self.check(point_template.upper_units_bound >= scored_units >= point_template.lower_units_bound
+                       , 'Point is beyond limits', errors)
+        self.check(30 >= record_date >= 1, 'Date is beyond limits', errors)
+        self.check(30 >= record_date >= 1, 'Date is beyond limits', errors)
         if point_template.custom_days:
-            self.check(str(record_date) in point_template.custom_days.split(','), 'Point is not active on this day', errors, 'Ramadan record date')
+            self.check(str(record_date) in point_template.custom_days.split(','), 'Point is not active on this day', errors)
         if len(errors) > 0:
             raise ValidationError(errors)
         return attrs
 
-    def check(self, statement, message, errors, field):
+    def check(self, statement, message, errors):
         if not statement:
-            errors[str(field)] = message
+            errors['Error'] = message
 
     def create(self, validated_data):
         student_user = self.context['request'].user.competition_students

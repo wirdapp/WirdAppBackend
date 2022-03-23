@@ -1,14 +1,24 @@
+from cacheops import cache, CacheMiss
 from django.contrib.auth import password_validation
 from django.db.models import Sum
 from rest_framework import viewsets, views
 from rest_framework.decorators import action
 from rest_framework.permissions import *
 from rest_framework.response import Response
+
+from compAdmin.models import Competition
 from core.models import GeneralUser
 from core.permissions import IsCompetitionAdmin
-from compAdmin.models import Competition
 from core.serializers import CompetitionReadOnlySerializer, TopStudentsSerializer, CompetitionSerializer
 from student.models import StudentUser
+
+
+def get_from_cache(key):
+    try:
+        result = cache.get(key)
+        return result
+    except CacheMiss:
+        return None
 
 
 class ChangePasswordViewSet(viewsets.ModelViewSet):
@@ -42,11 +52,16 @@ class CompetitionView(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=False, name='List Top Students')
     def list_top_students(self, request, *args, **kwargs):
-        competition = self.request.user.competition
-        students = sorted(StudentUser.objects.filter(competition=competition), key=lambda st: st.total_points,
-                          reverse=True)
+        competition = self.request.user.competition_id
+        key = f'list_top_students_{competition}'
+        res = get_from_cache(key)
+        if res:
+            return Response(res)
+        students = StudentUser.objects.filter(competition__id=competition)
         serializer = TopStudentsSerializer(students, many=True)
-        return Response(serializer.data)
+        sorted_res = sorted(serializer.data, key=lambda x: x['total_points'], reverse=True)
+        cache.set(key, sorted_res, timeout=3600)
+        return Response(sorted_res)
 
 
 class CreateCompetitionView(viewsets.ModelViewSet):
@@ -58,6 +73,10 @@ class CreateCompetitionView(viewsets.ModelViewSet):
 
 def user_points_stats(user, stats_type, date):
     stats = dict()
+    key = f'user_points_stats_{user}_{stats_type}_{date}'
+    res = get_from_cache(key)
+    if res:
+        return Response(res)
     if stats_type == 'total_points_by_day':
         stats['total_points_by_day'] = user.competition_students.student_points.all() \
             .values('ramadan_record_date') \
@@ -72,9 +91,10 @@ def user_points_stats(user, stats_type, date):
     else:
         return Response(
             'Please specify type as a query param:'
-            '?type=[total_points_by_day, total_points_by_type, daily_points_by_type]')
-    if 'ramadan_record_date' in stats[stats_type][0] and date:
+            '?type=[total_points_by_day, total_points_by_type, daily_points_by_type]', status=400)
+    if date:
         stats[stats_type] = stats.get(stats_type).filter(ramadan_record_date=date)
+    cache.set(key, stats, timeout=3600)
     return Response(stats)
 
 

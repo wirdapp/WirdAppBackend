@@ -18,15 +18,13 @@ class StudentView(ChangePasswordViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        competition = user.competition
-        if user.is_staff:
-            return StudentUser.objects.all()
+        competition = user.competition_id
         if hasattr(user, 'competition_admins'):
             admin = user.competition_admins
             if admin.is_super_admin:
-                return StudentUser.objects.filter(competition=competition)
+                return StudentUser.objects.filter(competition__id=competition)
             else:
-                return StudentUser.objects.filter(group__admin=user)
+                return StudentUser.objects.filter(group__admin__username=user.username)
 
     def get_serializer_class(self):
         if self.action == "change_password":

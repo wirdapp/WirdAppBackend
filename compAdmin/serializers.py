@@ -30,12 +30,6 @@ class PointTemplateSerializer(serializers.ModelSerializer):
         point_template = super(PointTemplateSerializer, self).create(validated_data)
         return set_competition(self.context, point_template)
 
-    def validate_lower_units_bound(self, value):
-        if self.initial_data['form_type'] == 'oth':
-            return -1
-        else:
-            return value
-
 
 class CompGroupSerializer(serializers.ModelSerializer):
     group_students = CompetitionFilteredPrimaryKeyRelatedField(clazz=StudentUser, many=True)
