@@ -1,4 +1,3 @@
-from cacheops import cache
 from django.db.models import Sum
 from rest_condition import Or
 from rest_framework import viewsets, views
@@ -7,8 +6,8 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
-from core.util import current_hijri_date
-from core.views import ChangePasswordViewSet, get_from_cache
+from core.util import current_hijri_date, get_from_cache, save_to_cache
+from core.views import ChangePasswordViewSet
 from student.models import PointRecord
 from .serializers import *
 
@@ -114,7 +113,8 @@ class AdminCompetitionView(viewsets.ModelViewSet):
             return Response({**res})
         stats = dict()
         top_on_day = StudentUser.objects.filter(competition__id=competition_id) \
-            .values('username', 'first_name', 'last_name', 'student_points__point_total', 'student_points__ramadan_record_date') \
+            .values('username', 'first_name', 'last_name', 'student_points__point_total',
+                    'student_points__ramadan_record_date') \
             .filter(student_points__ramadan_record_date=ramadan_date) \
             .annotate(points_per_day=Sum('student_points__point_total')) \
             .order_by('-points_per_day').first()
@@ -125,7 +125,7 @@ class AdminCompetitionView(viewsets.ModelViewSet):
             .annotate(total_day=Sum('point_total')).order_by('-total_day').first()
         stats['students_count'] = StudentUser.objects.count()
         stats['ramadan_date'] = current_hijri_date
-        cache.set(key, stats, timeout=3600)
+        save_to_cache(key, stats, timeout=3600)
         return Response({**stats})
 
 

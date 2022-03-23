@@ -1,4 +1,3 @@
-from cacheops import cache, CacheMiss
 from django.contrib.auth import password_validation
 from django.db.models import Sum
 from rest_framework import viewsets, views
@@ -10,15 +9,8 @@ from compAdmin.models import Competition
 from core.models import GeneralUser
 from core.permissions import IsCompetitionAdmin
 from core.serializers import CompetitionReadOnlySerializer, TopStudentsSerializer, CompetitionSerializer
+from core.util import get_from_cache, save_to_cache
 from student.models import StudentUser
-
-
-def get_from_cache(key):
-    try:
-        result = cache.get(key)
-        return result
-    except CacheMiss:
-        return None
 
 
 class ChangePasswordViewSet(viewsets.ModelViewSet):
@@ -60,7 +52,7 @@ class CompetitionView(viewsets.ReadOnlyModelViewSet):
         students = StudentUser.objects.filter(competition__id=competition)
         serializer = TopStudentsSerializer(students, many=True)
         sorted_res = sorted(serializer.data, key=lambda x: x['total_points'], reverse=True)
-        cache.set(key, sorted_res, timeout=3600)
+        save_to_cache(key, sorted_res, timeout=3600)
         return Response(sorted_res)
 
 
@@ -94,7 +86,7 @@ def user_points_stats(user, stats_type, date):
             '?type=[total_points_by_day, total_points_by_type, daily_points_by_type]', status=400)
     if date:
         stats[stats_type] = stats.get(stats_type).filter(ramadan_record_date=date)
-    cache.set(key, stats, timeout=3600)
+    save_to_cache(key, stats, timeout=3600)
     return Response(stats)
 
 
