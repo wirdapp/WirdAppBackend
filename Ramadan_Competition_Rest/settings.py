@@ -125,7 +125,15 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'EXCEPTION_HANDLER': 'core.global_exception_handler.custom_exception_handler',
-    'DEFAULT_RENDERER_CLASSES': [
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '50/day',
+        'user': '30/minute'
+    } 
+   'DEFAULT_RENDERER_CLASSES': [
          'rest_framework.renderers.JSONRenderer',
      ],
 }
@@ -201,14 +209,6 @@ SIMPLE_JWT = {
 
 AUTH_USER_MODEL = 'core.GeneralUser'
 
-CACHEOPS_DEGRADE_ON_FAILURE = True
-
-CACHEOPS = {
-    'compadmin.*': {'ops': 'all', 'timeout': 5 * 60},
-    'student.*': {'ops': 'all', 'timeout': 5 * 60},
-    'core.*': {'ops': 'all', 'timeout': 5 * 60},
-}
-
 # Security Headers
 SECURE_HSTS_PRELOAD = True
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
@@ -216,7 +216,6 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_HSTS_SECONDS = 2_592_000
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 # Application definition
-CSP_STYLE_SRC = ["'self'", "cdn.jsdelivr.net"]
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
