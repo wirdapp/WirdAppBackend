@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
-from core.util import current_hijri_date
+from core.util import current_hijri_date, get_from_cache, save_to_cache
 from core.views import ChangePasswordViewSet
 from student.models import PointRecord
 from .serializers import *
@@ -19,11 +19,8 @@ class SectionView(viewsets.ModelViewSet):
     lookup_field = 'id'
 
     def get_queryset(self):
-        if self.request.user.is_staff:
-            return Section.objects.all()
-        else:
-            comp = self.request.user.competition
-            return comp.competition_sections.all()
+        comp = self.request.user.competition
+        return comp.competition_sections.all()
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
@@ -38,11 +35,8 @@ class PointTemplatesView(viewsets.ModelViewSet):
     lookup_field = 'id'
 
     def get_queryset(self):
-        if self.request.user.is_staff:
-            return PointTemplate.objects.all()
-        else:
-            comp = self.request.user.competition
-            return comp.competition_point_templates.all()
+        comp = self.request.user.competition
+        return comp.competition_point_templates.all()
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
@@ -57,16 +51,13 @@ class CompGroupView(viewsets.ModelViewSet):
     lookup_field = 'id'
 
     def get_queryset(self):
-        if self.request.user.is_staff:
-            return CompGroup.objects.all()
-        else:
-            user = self.request.user
-            if hasattr(user, 'competition_admins'):
-                admin = user.competition_admins
-                if admin.is_super_admin:
-                    return admin.competition.competition_groups.all()
-                else:
-                    return admin.managed_groups.all()
+        user = self.request.user
+        if hasattr(user, 'competition_admins'):
+            admin = user.competition_admins
+            if admin.is_super_admin:
+                return admin.competition.competition_groups.all()
+            else:
+                return admin.managed_groups.all()
 
     def get_permissions(self):
         if self.action in ['list', 'update', 'partial_update', 'retrieve']:
@@ -83,15 +74,12 @@ class CompAdminView(ChangePasswordViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_staff:
-            return CompAdmin.objects.all()
-        else:
-            if hasattr(user, 'competition_admins'):
-                admin = user.competition_admins
-                if admin.is_super_admin:
-                    return CompAdmin.objects.filter(competition=admin.competition)
-                else:
-                    return CompAdmin.objects.filter(username=admin.username)
+        if hasattr(user, 'competition_admins'):
+            admin = user.competition_admins
+            if admin.is_super_admin:
+                return CompAdmin.objects.filter(competition__id=admin.competition_id)
+            else:
+                return CompAdmin.objects.filter(username=admin.username)
 
     def get_serializer_class(self):
         if self.action in ['update', 'partial_update', 'retrieve']:
@@ -107,7 +95,7 @@ class AdminCompetitionView(viewsets.ModelViewSet):
     http_method_names = ['get', 'put']
 
     def get_queryset(self):
-        return Competition.objects.filter(id=self.request.user.competition.id)
+        return Competition.objects.filter(id=self.request.user.competition_id)
 
     def get_permissions(self):
         if self.action in ['general_stats', 'list', 'retrieve']:
@@ -117,21 +105,27 @@ class AdminCompetitionView(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], name='General Comp Stats')
     def general_stats(self, request, *args, **kwargs):
-        competition = self.request.user.competition
+        competition_id = self.request.user.competition_id
         ramadan_date = current_hijri_date
+        key = f'general_stats_{competition_id}_{ramadan_date}'
+        res = get_from_cache(key)
+        if res:
+            return Response({**res})
         stats = dict()
-        top_on_day = StudentUser.objects.filter(competition=competition) \
-            .values('username', 'first_name', 'last_name', 'student_points', 'student_points__ramadan_record_date') \
+        top_on_day = StudentUser.objects.filter(competition__id=competition_id) \
+            .values('username', 'first_name', 'last_name', 'student_points__point_total',
+                    'student_points__ramadan_record_date') \
             .filter(student_points__ramadan_record_date=ramadan_date) \
             .annotate(points_per_day=Sum('student_points__point_total')) \
             .order_by('-points_per_day').first()
 
         stats['top_student_last_day'] = top_on_day
-        stats['top_ramadan_day'] = PointRecord.objects.filter(point_template__competition=competition) \
-            .values('ramadan_record_date') \
+        stats['top_ramadan_day'] = PointRecord.objects.filter(point_template__competition__id=competition_id) \
+            .values('ramadan_record_date', 'point_total') \
             .annotate(total_day=Sum('point_total')).order_by('-total_day').first()
         stats['students_count'] = StudentUser.objects.count()
         stats['ramadan_date'] = current_hijri_date
+        save_to_cache(key, stats, timeout=3600)
         return Response({**stats})
 
 

@@ -3,6 +3,7 @@ import os
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import Sum
+from django.utils.functional import cached_property
 
 from Ramadan_Competition_Rest import settings
 from compAdmin.models import PointTemplate, CompGroup
@@ -29,7 +30,7 @@ class StudentUser(GeneralUser):
         default_related_name = 'competition_students'
         ordering = ('first_name', 'last_name')
 
-    @property
+    @cached_property
     def total_points(self):
         total = self.student_points.filter(point_scored_units__gte=0).aggregate(Sum('point_total'))['point_total__sum']
         return total if total else 0

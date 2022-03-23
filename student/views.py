@@ -1,3 +1,5 @@
+import itertools
+
 from rest_framework import permissions, viewsets, views
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -20,7 +22,8 @@ class PointRecordsView(viewsets.ModelViewSet):
         user = self.request.user
         date = self.request.query_params['date'] if 'date' in self.request.query_params else util.current_hijri_date
         if hasattr(user, 'competition_students'):
-            points = PointRecord.objects.filter(student__username=user.username, point_scored_units__gte=0)
+            student = user.competition_students
+            points = student.student_points.filter(point_scored_units__gte=0)
             if self.action == 'list':
                 return points.filter(ramadan_record_date=date)
             else:
@@ -73,6 +76,15 @@ class PointTemplatesView(viewsets.ReadOnlyModelViewSet):
 
     def get_permissions(self):
         return IsAuthenticated(),
+
+    def list(self, request, *args, **kwargs):
+        query = self.get_queryset().all().select_related('section')
+        grouping_func = lambda pt: pt.section_id
+        sections = self.request.user.competition.competition_sections.values('id', 'label')
+        res = dict()
+        for section_id, point_templates in itertools.groupby(query, grouping_func):
+            res[sections.get(id=section_id)['label']] = [PointTemplateSerializer(pt).data for pt in point_templates]
+        return Response({**res})
 
 
 class AnnouncementsView(viewsets.ReadOnlyModelViewSet):
