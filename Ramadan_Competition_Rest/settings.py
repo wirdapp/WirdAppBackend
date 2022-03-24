@@ -109,7 +109,7 @@ AUTH_PASSWORD_VALIDATORS = [
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': os.environ.get('REDIS_TLS_URL'),
+        'LOCATION': os.environ.get('REDIS_URL'),
     }
 }
 
