@@ -25,7 +25,8 @@ except KeyError as e:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['ramadan-comp-rest.herokuapp.com', '127.0.0.1', 'wird.app', '159.65.93.82', 'localhost', 'student.wird.app', 'admin.wird.app', '0.0.0.0']
+ALLOWED_HOSTS = ['ramadan-comp-rest.herokuapp.com', '127.0.0.1', 'wird.app', '159.65.93.82', 'localhost',
+                 'student.wird.app', 'admin.wird.app', '0.0.0.0']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -78,13 +79,13 @@ WSGI_APPLICATION = 'Ramadan_Competition_Rest.wsgi.application'
 
 DATABASES = {
     'default': {
-       'ENGINE': 'django.db.backends.postgresql',
-       'HOST': 'localhost',
-       'NAME': 'ramadan_comp',
-       'USER': 'osama',
-       'PASSWORD': SECRET_KEY,
-       'PORT': '5432',
-       'CONN_MAX_AGE' : 60,
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'd9bdahiujnd5gs',
+        'USER': 'ggjhmrunathqpt',
+        'PASSWORD': '8d6b511a735a9151291cea7dcbd2815296b4daf0889f066ff477db55aabd8c60',
+        'HOST': 'ec2-52-208-185-143.eu-west-1.compute.amazonaws.com',
+        'PORT': '5432',
+        'URI': 'postgres://ggjhmrunathqpt:8d6b511a735a9151291cea7dcbd2815296b4daf0889f066ff477db55aabd8c60@ec2-52-208-185-143.eu-west-1.compute.amazonaws.com:5432/d9bdahiujnd5gs'
     }
 }
 
@@ -123,6 +124,8 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',  # TODO REMOVE
     ],
     'EXCEPTION_HANDLER': 'core.global_exception_handler.custom_exception_handler',
     'DEFAULT_THROTTLE_CLASSES': [
@@ -132,50 +135,50 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'anon': '50/day',
         'user': '30/minute'
-    }, 
-   'DEFAULT_RENDERER_CLASSES': [
-         'rest_framework.renderers.JSONRenderer',
-     ],
+    },
+    # 'DEFAULT_RENDERER_CLASSES': [
+    #       'rest_framework.renderers.JSONRenderer',
+    #   ],
 }
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
 # Logging
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'large': {
-            'format': '%(asctime)s, %(levelname)s, %(filename)s, %(funcName)s, LineNo %(lineno)d : %(message)s'
-        },
-        'tiny': {
-            'format': '%(asctime)s %(message)s  '
-        }
-    },
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': '/home/osama/backend_log/debug.log',
-	    'when': 'midnight',
-            'backupCount': '5',
-	    'formatter': 'large'
-        },
-    },
-     'console' : {
-         'level' : 'DEBUG',
-         'formatter': 'tiny',
-         'class' : 'logging.StreamHandler',
-     },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'formatters': {
+#         'large': {
+#             'format': '%(asctime)s, %(levelname)s, %(filename)s, %(funcName)s, LineNo %(lineno)d : %(message)s'
+#         },
+#         'tiny': {
+#             'format': '%(asctime)s %(message)s  '
+#         }
+#     },
+#     'handlers': {
+#         'file': {
+#             'level': 'DEBUG',
+#             'class': 'logging.handlers.TimedRotatingFileHandler',
+#             'filename': '/home/osama/backend_log/debug.log',
+#             'when': 'midnight',
+#             'backupCount': '5',
+#             'formatter': 'large'
+#         },
+#     },
+#     'console': {
+#         'level': 'DEBUG',
+#         'formatter': 'tiny',
+#         'class': 'logging.StreamHandler',
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['file'],
+#             'level': 'DEBUG',
+#             'propagate': False,
+#         },
+#     },
+# }
 
 LANGUAGE_CODE = 'ar'
 
@@ -223,4 +226,5 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 PERMISSIONS_POLICY = {"fullscreen": "*", }
 SESSION_COOKIE_HTTPONLY = True
-CORS_ALLOWED_ORIGINS = ["http://localhost", 'http://0.0.0.0', 'https://student.wird.app', 'https://admin.wird.app', 'https://ramadan-comp-rest.herokuapp.com']
+CORS_ALLOWED_ORIGINS = ["http://localhost", 'http://0.0.0.0', 'https://student.wird.app', 'https://admin.wird.app',
+                        'https://ramadan-comp-rest.herokuapp.com']
