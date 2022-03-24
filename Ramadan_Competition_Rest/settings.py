@@ -226,5 +226,8 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 PERMISSIONS_POLICY = {"fullscreen": "*", }
 SESSION_COOKIE_HTTPONLY = True
-CORS_ALLOWED_ORIGINS = ["http://localhost", 'http://0.0.0.0', 'https://student.wird.app', 'https://admin.wird.app',
-                        'https://ramadan-comp-rest.herokuapp.com']
+# CORS_ALLOWED_ORIGINS = ["http://localhost", 'http://0.0.0.0', 'https://student.wird.app', 'https://admin.wird.app',
+#                         'https://ramadan-comp-rest.herokuapp.com']
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
