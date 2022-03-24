@@ -21,7 +21,7 @@ def upload_location(instance, filename):
 class StudentUser(GeneralUser):
     profile_photo = models.ImageField(upload_to=upload_location, blank=True)
     read_only = models.BooleanField(default=False)
-    group = models.ForeignKey(CompGroup, on_delete=models.CASCADE, related_name='group_students', null=True)
+    group = models.ForeignKey(CompGroup, on_delete=models.PROTECT, related_name='group_students', null=True)
 
     def set_competition(self, competition):
         self.competition = competition
@@ -47,8 +47,8 @@ class StudentUser(GeneralUser):
 
 
 class PointRecord(models.Model):
-    point_template = models.ForeignKey(PointTemplate, on_delete=models.CASCADE)
-    student = models.ForeignKey(StudentUser, on_delete=models.CASCADE, null=True, related_name='student_points')
+    point_template = models.ForeignKey(PointTemplate, on_delete=models.PROTECT)
+    student = models.ForeignKey(StudentUser, on_delete=models.PROTECT, null=True, related_name='student_points')
     point_scored_units = models.IntegerField(default=0)
     ramadan_record_date = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(30)])
     user_input = models.TextField(default="", blank=True, max_length=512)

@@ -8,7 +8,7 @@ from core.models import GeneralUser, Competition
 class Section(models.Model):
     label = models.CharField(default='', max_length=32)
     position = models.IntegerField(default=1)
-    competition = models.ForeignKey(Competition, on_delete=models.CASCADE, related_name='competition_sections', null=True)
+    competition = models.ForeignKey(Competition, on_delete=models.PROTECT, related_name='competition_sections', null=True)
 
     def set_competition(self, competition):
         self.competition = competition
@@ -27,8 +27,8 @@ class PointTemplate(models.Model):
     is_shown = models.BooleanField(default=True)
     order_in_section = models.IntegerField()
     custom_days = models.CharField(validators=[validate_comma_separated_integer_list], max_length=64, blank=True)
-    competition = models.ForeignKey(Competition, on_delete=models.CASCADE, related_name="competition_point_templates", null=True)
-    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name="competition_sections")
+    competition = models.ForeignKey(Competition, on_delete=models.PROTECT, related_name="competition_point_templates", null=True)
+    section = models.ForeignKey(Section, on_delete=models.PROTECT, related_name="competition_sections")
 
     label = models.CharField(max_length=128, default='')
     description = models.CharField(max_length=256, default='')
@@ -61,9 +61,9 @@ class CompAdmin(GeneralUser):
 
 class CompGroup(models.Model):
     name = models.CharField(max_length=30, default='')
-    competition = models.ForeignKey(Competition, on_delete=models.CASCADE, related_name='competition_groups', null=True)
+    competition = models.ForeignKey(Competition, on_delete=models.PROTECT, related_name='competition_groups', null=True)
     announcements = models.TextField(default="", blank=True)
-    admin = models.ForeignKey(CompAdmin, on_delete=models.RESTRICT, related_name='managed_groups')
+    admin = models.ForeignKey(CompAdmin, on_delete=models.PROTECT, related_name='managed_groups')
 
     def set_competition(self, competition):
         self.competition = competition

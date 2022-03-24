@@ -16,7 +16,7 @@ class Competition(models.Model):
 
 
 class GeneralUser(AbstractUser):
-    competition = models.ForeignKey(Competition, on_delete=models.CASCADE, null=True)
+    competition = models.ForeignKey(Competition, on_delete=models.PROTECT, null=True)
 
     def set_competition(self, competition):
         self.competition = competition
