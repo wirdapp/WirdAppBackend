@@ -67,7 +67,6 @@ class CompGroupView(viewsets.ModelViewSet):
 
 
 class CompAdminView(ChangePasswordViewSet):
-    permission_classes = [Or(IsCompetitionAdmin, IsAdminUser)]
     name = 'competition-admin-api'
     lookup_field = 'username'
     http_method_names = ['get', 'put', 'post']
@@ -80,6 +79,12 @@ class CompAdminView(ChangePasswordViewSet):
                 return CompAdmin.objects.filter(competition__id=admin.competition_id)
             else:
                 return CompAdmin.objects.filter(username=admin.username)
+
+    def get_permissions(self):
+        if action in ['update', 'partial_update', 'retrieve']:
+            return Or(IsCompetitionAdmin(), IsAdminUser)
+        else:
+            return Or(IsCompetitionSuperAdmin(), IsAdminUser),
 
     def get_serializer_class(self):
         if self.action in ['update', 'partial_update', 'retrieve']:

@@ -83,6 +83,11 @@ class CompAdminRetrieveUpdateSerializer(CompAdminSerializer):
     managed_groups = CompetitionFilteredPrimaryKeyRelatedField(clazz=CompGroup, serializer=CompGroupSerializer,
                                                                many=True, read_only=True)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.context['request'].user.competition_admins.is_super_admin:
+            self.fields.pop('is_super_admin')
+
     class Meta:
         model = CompAdmin
         depth = 1
