@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
+from core import util
 from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
 from core.util import current_hijri_date, get_from_cache, save_to_cache
 from core.views import ChangePasswordViewSet
@@ -69,16 +70,18 @@ class CompGroupView(viewsets.ModelViewSet):
 class CompAdminView(ChangePasswordViewSet):
     name = 'competition-admin-api'
     lookup_field = 'username'
-    http_method_names = ['get', 'put', 'post']
+
+    def destroy(self, request, *args, **kwargs):
+        return util.destroy(self.get_object())
 
     def get_queryset(self):
         user = self.request.user
         if hasattr(user, 'competition_admins'):
             admin = user.competition_admins
             if admin.is_super_admin:
-                return CompAdmin.objects.filter(competition__id=admin.competition_id)
+                return CompAdmin.objects.filter(competition__id=admin.competition_id, is_active=True)
             else:
-                return CompAdmin.objects.filter(username=admin.username)
+                return CompAdmin.objects.filter(username=admin.username, is_active=True)
 
     def get_permissions(self):
         if action in ['update', 'partial_update', 'retrieve']:

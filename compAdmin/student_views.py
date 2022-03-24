@@ -16,15 +16,18 @@ class StudentView(ChangePasswordViewSet):
     lookup_field = 'username'
     http_method_names = ['put', 'delete', 'get']
 
+    def destroy(self, request, *args, **kwargs):
+        return util.destroy(self.get_object())
+
     def get_queryset(self):
         user = self.request.user
         competition = user.competition_id
         if hasattr(user, 'competition_admins'):
             admin = user.competition_admins
             if admin.is_super_admin:
-                return StudentUser.objects.filter(competition__id=competition)
+                return StudentUser.objects.filter(competition__id=competition, is_active=True)
             else:
-                return StudentUser.objects.filter(group__admin__username=user.username)
+                return StudentUser.objects.filter(group__admin__username=user.username, is_active=True)
 
     def get_serializer_class(self):
         if self.action == "change_password":

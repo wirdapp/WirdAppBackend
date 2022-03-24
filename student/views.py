@@ -42,11 +42,15 @@ class PointRecordsView(viewsets.ModelViewSet):
 class StudentUserView(viewsets.ModelViewSet):
     name = 'student-user-list'
     lookup_field = 'username'
+    http_method_names = ['get', 'put', 'post', 'options']
+
+    def destroy(self, request, *args, **kwargs):
+        util.destroy(self.get_object())
 
     def get_queryset(self):
         user = self.request.user
         if hasattr(user, 'competition_students'):
-            return StudentUser.objects.filter(username=user.username)
+            return StudentUser.objects.filter(username=user.username, is_active=True)
         else:
             return StudentUser.objects.none()
 
