@@ -130,9 +130,9 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle'
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '50/day',
+        'anon': '300/day',
         'user': '30/minute'
-    }, 
+    },
    'DEFAULT_RENDERER_CLASSES': [
          'rest_framework.renderers.JSONRenderer',
      ],
@@ -157,7 +157,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': '/home/osama/backend_log/debug.log',
+            'filename': '/home/osama/backend_log/backend.log',
 	    'when': 'midnight',
             'backupCount': '5',
 	    'formatter': 'large'
@@ -174,6 +174,15 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False,
         },
+        'django.request': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+    'root': {
+        'handlers': ['file'],
+        'level': 'DEBUG',
     },
 }
 
