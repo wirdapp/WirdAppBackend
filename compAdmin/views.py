@@ -129,9 +129,9 @@ class AdminCompetitionView(viewsets.ModelViewSet):
 
         stats['top_student_last_day'] = top_on_day
         stats['top_ramadan_day'] = PointRecord.objects.filter(point_template__competition__id=competition_id) \
-            .values('ramadan_record_date', 'point_total') \
+            .values('ramadan_record_date') \
             .annotate(total_day=Sum('point_total')).order_by('-total_day').first()
-        stats['students_count'] = StudentUser.objects.count()
+        stats['students_count'] = StudentUser.objects.filter(competition__id=competition_id).count()
         stats['ramadan_date'] = current_hijri_date
         save_to_cache(key, stats, timeout=3600)
         return Response({**stats})
