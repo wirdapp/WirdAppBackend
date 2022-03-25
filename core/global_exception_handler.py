@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
-import logging;
+import logging
 
 logger = logging.getLogger('django')
 
