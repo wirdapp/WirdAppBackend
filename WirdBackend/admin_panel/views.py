@@ -3,13 +3,13 @@ from collections import OrderedDict
 from django.db.models import Sum, Value
 from django.db.models.functions import Concat
 from rest_condition import And
-from rest_framework import views, generics
+from rest_framework import generics
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from core.my_view import MyModelViewSet
-from core.permissions import IsContestAdmin
+from core.permissions import IsContestAdmin, IsGroupAdmin
 from member_panel.models import PointRecord
 from member_panel.serializers import PointRecordSerializer
 from .serializers import *
@@ -82,7 +82,7 @@ class GroupView(MyModelViewSet):
 class ContestPersonView(MyModelViewSet):
     name = 'contest-people'
     lookup_field = 'person__username'
-    filterset_fields = ["contest_role"]
+    filterset_fields = {'contest_role': ["in", "exact"]}
     serializer_class = ContestPersonSerializer
     admin_allowed_methods = ["retrieve", "list"]
     super_admin_allowed_methods = ['retrieve', 'list', 'update', 'partial_update']
@@ -118,9 +118,10 @@ class TopMembers(generics.ListAPIView):
         return Response(user_results)
 
 
-class ResultsView(views.APIView):
-    @staticmethod
-    def get(request, *args, **kwargs):
+class ResultsView(generics.ListAPIView):
+    permission_classes = [And(IsAuthenticated(), IsContestAdmin())]
+
+    def get(self, request, *args, **kwargs):
         date = kwargs.get("date", None)
         contest_id = util.get_current_contest_dict(request)["id"]
         username = util.get_username_from_session(request)
@@ -137,12 +138,12 @@ class ResultsView(views.APIView):
 
 
 class GroupMemberResultsView(generics.ListAPIView):
-    permission_classes = [And(IsAuthenticated(), IsContestAdmin()), ]
+    permission_classes = [And(IsAuthenticated(), IsContestAdmin(), IsGroupAdmin())]
 
     def get_queryset(self):
         group_id = self.kwargs["group_id"]
-        members = ContestPersonGroups.objects.prefetch_related("contest_person__person").filter(group_id=group_id,
-                                                                                                group_role=1)
+        members = ContestPersonGroups.objects.prefetch_related("contest_person__person") \
+            .filter(group_id=group_id, group_role=1)
         return members
 
     def list(self, request, *args, **kwargs):
