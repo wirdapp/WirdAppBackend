@@ -44,19 +44,19 @@ class GroupView(MyModelViewSet):
     @action(methods=["post"], detail=True)
     def add_or_remove_admin(self, request, *args, **kwargs):
         person_type = "admin"
-        return self.add_remove_person(request, person_type, self.get_object())
+        return self.add_remove_person(request, person_type, kwargs["id"])
 
     @action(methods=["post"], detail=True)
     def add_or_remove_member(self, request, *args, **kwargs):
         person_type = "member"
-        return self.add_remove_person(request, person_type, self.get_object())
+        return self.add_remove_person(request, person_type, kwargs["id"])
 
     @staticmethod
-    def add_remove_person(request, person_type, group):
+    def add_remove_person(request, person_type, group_id):
         serializer = AddRemovePersonsToGroup(data=request.data, context=request)
         if serializer.is_valid():
             serializer.validated_data["person_type"] = person_type
-            serializer.validated_data["group"] = group
+            serializer.validated_data["group_id"] = group_id
             serializer.create(serializer.validated_data)
             return Response("Created!", status=200)
         else:

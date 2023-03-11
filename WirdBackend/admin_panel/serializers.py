@@ -59,15 +59,14 @@ class AddRemovePersonsToGroup(serializers.Serializer):
     def create(self, validated_data):
         person_ids = validated_data["persons"]
         contest_id = util.get_current_contest_dict(self.context)["id"]
-        group = validated_data["group"]
-        contest_role = 1
-        group_role = 1
+        group_id = validated_data["group_id"]
+        contest_role, group_role = (1, 1)
         if validated_data["person_type"] == "admin":
-            contest_role = 2
-            group_role = 2
+            contest_role, group_role = (2, 2)
         if validated_data["action"] == "remove":
-            ContestPerson.objects.filter(contest__id=contest_id, contest_role=contest_role, person__id__in=person_ids) \
-                .update(group=None, group_role=group_role)
+            ContestPerson.objects.filter(contest__id=contest_id, person__id__in=person_ids, group__id=group_id).delete()
         if validated_data["action"] == "add":
-            ContestPerson.objects.filter(contest__id=contest_id, person__id__in=person_ids) \
-                .update(group=group, contest_role=contest_role, group_role=group_role)
+            defaults = dict(contest_role=contest_role, group_role=group_role)
+            for person_id in person_ids:
+                ContestPerson.objects.update_or_create(contest_id=contest_id, person_id=person_id, group_id=group_id,
+                                                       defaults=defaults)

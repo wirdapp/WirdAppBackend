@@ -50,8 +50,6 @@ class ContestPerson(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['contest_id', 'person_id', 'contest_role'],
-                                    name="unique_contest_person"),
-            models.UniqueConstraint(fields=['contest_id', 'person_id', 'group_id', 'group_role'],
-                                    name="unique_group_person")
+            models.UniqueConstraint(fields=['contest_id', 'person_id', "group", "contest_role","group_role"],
+                                    name="unique_group_person"),
         ]
