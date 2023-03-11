@@ -153,7 +153,7 @@ class AdminInformationView(views.APIView):
 
 
 class ExportInformation(views.APIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (IsCompetitionSuperAdmin,)
 
     def get(self, request, *args, **kwargs):
         from_date = self.request.query_params['from_date'] if 'from_date' in self.request.query_params else 1
