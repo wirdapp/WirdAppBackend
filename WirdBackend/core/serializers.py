@@ -1,7 +1,7 @@
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 
-from core import util
+from core import util, models_helper
 from core.models import Person, Contest, ContestPerson
 
 
@@ -76,13 +76,19 @@ class ParticipantSignupSerializer(serializers.ModelSerializer):
 
 
 class ContextFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
+    def __init__(self, **kwargs):
+        self.object_name = kwargs.pop("object_name", "")
+        super().__init__(**kwargs)
+
     def get_queryset(self):
         request = self.context.get('request', None)
         contest = util.get_current_contest_dict(request)
-        queryset = super(ContextFilteredPrimaryKeyRelatedField, self).get_queryset()
-        if not request or not queryset:
-            return None
-        queryset = queryset.filter(contest__id=contest["id"])
+        if self.object_name:
+            func = getattr(models_helper, "get_contest_" + self.object_name)
+            queryset = func(contest["id"])
+        else:
+            queryset = super(ContextFilteredPrimaryKeyRelatedField, self).get_queryset()
+            queryset = queryset.filter(contest__id=contest["id"])
         return queryset
 
 
@@ -107,9 +113,5 @@ class MyRelatedField(serializers.RelatedField):
 
     def get_queryset(self):
         raise NotImplementedError(
-            '{cls}.to_internal_value() must be implemented for field '
-            '{field_name}.'.format(
-                cls=self.__class__.__name__,
-                field_name=self.field_name,
-            )
+            f'{self.__class__.__name__}.get_queryset() must be implemented for field {self.field_name}.'
         )
