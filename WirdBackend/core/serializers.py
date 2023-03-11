@@ -1,24 +1,8 @@
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 
-from core import util, models_helper
 from core.models import Person, Contest, ContestPerson
-
-
-class DynamicFieldsCategorySerializer(serializers.ModelSerializer):
-    def __init__(self, *args, **kwargs):
-        # Don't pass the 'fields' arg up to the superclass
-        fields = kwargs.pop('fields', None)
-
-        # Instantiate the superclass normally
-        super().__init__(*args, **kwargs)
-
-        if fields is not None:
-            # Drop any fields that are not specified in the `fields` argument.
-            allowed = set(fields)
-            existing = set(self.fields)
-            for field_name in existing - allowed:
-                self.fields.pop(field_name)
+from core.util_classes import DynamicFieldsCategorySerializer
 
 
 class PersonSerializer(DynamicFieldsCategorySerializer):
@@ -76,27 +60,3 @@ class ParticipantSignupSerializer(serializers.ModelSerializer):
         return person
 
 
-class ContestFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
-
-    def __init__(self, **kwargs):
-        self.object_name = kwargs.pop("object_name", None)
-        self.to_repr_field = kwargs.pop("to_repr_field", None)
-        self.to_repr_class = kwargs.pop("to_repr_class", None)
-        super().__init__(**kwargs)
-
-    def get_queryset(self):
-        request = self.context.get('request', None)
-        contest = util.get_current_contest_dict(request)
-        if self.object_name:
-            func = getattr(models_helper, "get_contest_" + self.object_name)
-            queryset = func(contest["id"])
-        else:
-            queryset = super(ContestFilteredPrimaryKeyRelatedField, self).get_queryset()
-            queryset = queryset.filter(contest__id=contest["id"])
-        return queryset
-
-    def to_representation(self, value):
-        if self.to_repr_class:
-            return getattr(self.to_repr_class.objects.get(pk=value.pk), self.to_repr_field)
-        else:
-            return super(ContestFilteredPrimaryKeyRelatedField, self).to_representation(value)
