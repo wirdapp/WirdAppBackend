@@ -15,12 +15,13 @@ ENV PYTHONUNBUFFERED 1
 # install psycopg2 dependencies
 RUN apt-get update && apt-get install -y  && apt-get upgrade -y \
    automake \
-   g++ \  
+   g++ \
    postgresql \
    gcc \
-   python3-dev \ 
-   musl-dev \ 
+   python3-dev \
+   musl-dev \
    netcat \
+   libpq-dev \
 #   jpeg-dev \
 #   zlib-dev \
 #    libgcc \
@@ -62,18 +63,19 @@ RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
 
 # install dependencies
-RUN apt-get update
-RUN apt-get -y install build-essential libssl-dev libffi-dev libblas3 libc6 \ 
- liblapack3 gcc python3-dev python3-pip cython3
+RUN apt-get update && apt-get install -y  && apt-get upgrade -y \
+build-essential libssl-dev libffi-dev libblas3 libc6 \
+ liblapack3 gcc python3-dev python3-pip cython3 libpq-dev
 RUN apt install -y netcat
+RUN pip install "gunicorn==20.0.4"
 COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
 RUN pip install /wheels/*
 
 # copy entrypoint.prod.sh
 COPY ./entrypoint.prod.sh .
-RUN sed -i 's/\r$//g'  $APP_HOME/entrypoint.prod.sh
-RUN chmod +x  $APP_HOME/entrypoint.prod.sh
+RUN sed -i 's/\r$//g'  $APP_HOME/entrypoint.sh
+RUN chmod +x  $APP_HOME/entrypoint.sh
 
 #Gunicorn
 RUN mkdir -p /var/log/gunicorn/
@@ -100,4 +102,4 @@ RUN chown -R app:app $APP_HOME
 USER app
 
 # run entrypoint.prod.sh
-ENTRYPOINT ["/home/app/web/entrypoint.prod.sh"]
+ENTRYPOINT ["/home/app/web/entrypoint.sh"]
