@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+from rest_polymorphic.serializers import PolymorphicSerializer
 
 import core.serializers
 from core import models_helper, util
@@ -21,12 +23,42 @@ class SectionSerializer(AutoSetContestSerializer):
 
 
 class PointTemplateSerializer(AutoSetContestSerializer):
-    section = ContextFilteredPrimaryKeyRelatedField(queryset=Section.objects)
+    section = ContextFilteredPrimaryKeyRelatedField(object_name="sections")
 
     class Meta:
         model = PointTemplate
-        depth = 2
-        exclude = ('contest',)
+        exclude = ["contest", "polymorphic_ctype"]
+
+
+class NumberPointTemplateSerializer(PointTemplateSerializer):
+    class Meta:
+        model = NumberPointTemplate
+        exclude = PointTemplateSerializer.Meta.exclude
+
+    def validate(self, attrs):
+        if not attrs["upper_units_bound"] > attrs["lower_units_bound"]:
+            raise ValidationError("upper_units_bound > lower_units_bound")
+        return super().validate(attrs)
+
+
+class CheckboxPointTemplateSerializer(PointTemplateSerializer):
+    class Meta:
+        model = CheckboxPointTemplate
+        exclude = PointTemplateSerializer.Meta.exclude
+
+
+class PointTemplatePolymorphicSerializer(PolymorphicSerializer):
+    resource_type_field_name = 'type'
+    resource_names_matching = dict(NumberPointTemplate='number', CheckboxPointTemplate='check_box',
+                                   PointTemplate='general')
+    model_serializer_mapping = {
+        NumberPointTemplate: NumberPointTemplateSerializer,
+        CheckboxPointTemplate: CheckboxPointTemplateSerializer,
+        PointTemplate: PointTemplateSerializer
+    }
+
+    def to_resource_type(self, model_or_instance):
+        return self.resource_names_matching[model_or_instance._meta.object_name]
 
 
 class ListCreateGroupSerializer(AutoSetContestSerializer):
