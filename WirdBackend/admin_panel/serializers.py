@@ -1,15 +1,17 @@
+from django.utils.translation import gettext
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from core import models_helper, util
+from core import models_helper, util_methods
 from core.models import Group, ContestPerson, ContestPersonGroups
-from core.serializers import ContestFilteredPrimaryKeyRelatedField, PersonSerializer
+from core.serializers import PersonSerializer
+from core.util_classes import ContestFilteredPrimaryKeyRelatedField
 from .models import *
 
 
 class AutoSetContestSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
-        contest = util.get_current_contest_object(self.context["request"])
+        contest = util_methods.get_current_contest_object(self.context["request"])
         validated_data["contest"] = contest
         return super().create(validated_data)
 
@@ -35,8 +37,8 @@ class ContestPersonSerializer(serializers.ModelSerializer):
 
 
 class PointTemplateSerializer(AutoSetContestSerializer):
-    section = ContestFilteredPrimaryKeyRelatedField(object_name="sections", to_repr_class=Section,
-                                                    to_repr_field="label")
+    section = ContestFilteredPrimaryKeyRelatedField(helper_function_name="get_contest_sections",
+                                                    to_repr_class=Section, to_repr_field="label")
     template_type = serializers.ChoiceField(choices=("number", "checkbox",), allow_blank=True, required=False)
 
     class Meta:
@@ -55,17 +57,24 @@ class PointTemplateSerializer(AutoSetContestSerializer):
         template_type = data.pop("template_type")
         if template_type == "number":
             self.Meta.model = NumberPointTemplate
+            self.context["serializer"] = NumberPointTemplateSerializer
             return NumberPointTemplateSerializer(context=self.context).to_internal_value(data)
         elif template_type == "checkbox":
             self.Meta.model = CheckboxPointTemplate
+            self.context["serializer"] = CheckboxPointTemplateSerializer
             return CheckboxPointTemplateSerializer(context=self.context).to_internal_value(data)
-
         return super(PointTemplateSerializer, self).to_internal_value(data)
 
+    def validate(self, attrs):
+        if "serializer" in self.context:
+            return self.context["serializer"](context=self.context).validate(attrs)
+        else:
+            return super().validate(attrs)
 
-class NumberPointTemplateSerializer(AutoSetContestSerializer):
-    section = ContestFilteredPrimaryKeyRelatedField(object_name="sections", to_repr_class=Section,
-                                                    to_repr_field="label")
+
+class NumberPointTemplateSerializer(serializers.ModelSerializer):
+    section = ContestFilteredPrimaryKeyRelatedField(helper_function_name="get_contest_sections",
+                                                    to_repr_class=Section, to_repr_field="label")
     template_type = serializers.ReadOnlyField()
 
     class Meta:
@@ -74,13 +83,13 @@ class NumberPointTemplateSerializer(AutoSetContestSerializer):
 
     def validate(self, attrs):
         if not attrs["upper_units_bound"] > attrs["lower_units_bound"]:
-            raise ValidationError("upper_units_bound > lower_units_bound")
+            raise ValidationError(gettext("upper_point>lower_point validation"))
         return super().validate(attrs)
 
 
 class CheckboxPointTemplateSerializer(AutoSetContestSerializer):
-    section = ContestFilteredPrimaryKeyRelatedField(object_name="sections", to_repr_class=Section,
-                                                    to_repr_field="label")
+    section = ContestFilteredPrimaryKeyRelatedField(helper_function_name="get_contest_sections",
+                                                    to_repr_class=Section, to_repr_field="label")
     template_type = serializers.ReadOnlyField()
 
     class Meta:
@@ -90,6 +99,7 @@ class CheckboxPointTemplateSerializer(AutoSetContestSerializer):
 
 class ListCreateGroupSerializer(AutoSetContestSerializer):
     members_count = serializers.ReadOnlyField()
+    admins_count = serializers.ReadOnlyField()
 
     class Meta:
         model = Group
@@ -106,11 +116,13 @@ class RetrieveUpdateGroupSerializer(AutoSetContestSerializer):
         fields = ('name', "admins", "members", "members_count")
 
     def get_admins(self, instance):
-        objects = models_helper.get_group_admins(instance.id).values("username", "first_name", "last_name")
+        objects = models_helper.get_group_admins_person_objects(instance.id) \
+            .values("username", "first_name", "last_name")
         return PersonSerializer(objects, many=True, read_only=True).data
 
     def get_members(self, instance):
-        objects = models_helper.get_group_members(instance.id).values("person__username", "person__first_name", "person__last_name")
+        objects = models_helper.get_group_members_person_objects(instance.id) \
+            .values("username", "first_name", "last_name")
         return PersonSerializer(objects, many=True, read_only=True).data
 
 
@@ -119,25 +131,25 @@ class AddRemovePersonsToGroup(serializers.Serializer):
     action = serializers.ChoiceField(choices=["add", "remove"], default="add")
 
     def validate_persons(self, data):
-        contest_id = util.get_current_contest_dict(self.context)["id"]
-        for username in data:
-            cp = ContestPerson.objects.filter(contest_id=contest_id, person__username=username)
-            if not cp.exists():
-                raise ValidationError(f"No user with username {username} exists for this competition")
-        return data
+        contest_id = util_methods.get_current_contest_dict(self.context)["id"]
+        ids = ContestPerson.objects.filter(contest_id=contest_id, person__username__in=data).values_list("id")
+        if len(data) > len(ids):
+            raise ValidationError(gettext("add user to group username not in contest"))
+        return ids
 
     def create(self, validated_data):
-        contest_id = util.get_current_contest_dict(self.context)["id"]
-        person_usernames = validated_data["persons"]
+        person_ids = validated_data["persons"]
         group_id = validated_data["group_id"]
-
-        if validated_data["action"] == "remove":
-            ContestPersonGroups.objects \
-                .filter(group_id=group_id, contest_person__person__username__in=person_usernames) \
+        action = validated_data["action"]
+        if action == "remove":
+            ContestPersonGroups.objects.filter(group_id=group_id, contest_person_id__in=person_ids) \
                 .delete()
-        if validated_data["action"] == "add":
+        elif action == "add":
             group_role = 2 if validated_data["person_type"] == "admin" else 1
-            defaults = dict(group_id=group_id, group_role=group_role)
-            for username in person_usernames:
-                contest_person_id = ContestPerson.objects.get(contest_id=contest_id, person__username=username).id
-                ContestPersonGroups.objects.update_or_create(contest_person_id=contest_person_id, defaults=defaults)
+            objs = [
+                ContestPersonGroups(contest_person_id=pid[0], group_id=group_id, group_role=group_role)
+                for pid in person_ids
+            ]
+            ContestPersonGroups.objects.bulk_create(objs, update_conflicts=True,
+                                                    update_fields=["group_id", "group_role"],
+                                                    unique_fields=["contest_person_id", "group_id"])
