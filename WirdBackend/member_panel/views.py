@@ -17,14 +17,14 @@ class ResultsByDateView(generics.ListCreateAPIView):
     serializer_class = PointRecordSerializer
 
     def get_queryset(self):
-        date = self.request.query_params.get("date", datetime.date.today())
+        date = self.kwargs["date"]
         username = util_methods.get_username_from_session(self.request)
         return PointRecord.objects.filter(person__person__username=username, record_date=date) \
             .order_by('point_template__section__position', 'point_template__order_in_section')
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context["record_date"] = self.request.query_params.get("date", datetime.date.today())
+        context["record_date"] = self.kwargs["date"]
         return context
 
 
