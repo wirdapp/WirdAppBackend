@@ -67,7 +67,7 @@ def get_person_managed_groups(username, contest_id):
         return Group.objects.filter(contest__id=contest_id)
     elif is_admin:
         group_ids = ContestPersonGroups.objects.filter(contest_person__person__username=username) \
-            .filter(group_role=2) .values_list("group__id", flat=True)
+            .filter(group_role=2).values_list("group__id", flat=True)
         return Group.objects.filter(id__in=group_ids)
     else:
         return Group.objects.none()
@@ -81,10 +81,15 @@ def get_group_admins(group_id):
 
 
 @cache_returned_values
+def get_group_members_ids(group_id):
+    return ContestPersonGroups.objects.filter(group__id=group_id, group_role=1) \
+        .values_list('contest_person_id', flat=True)
+
+
+@cache_returned_values
 def get_group_members(group_id):
-    person_ids = ContestPersonGroups.objects.filter(group__id=group_id, group_role=1) \
-        .values_list('contest_person__person__id', flat=True)
-    return Person.objects.filter(id__in=person_ids)
+    contest_person_ids = get_group_members_ids(group_id)
+    return ContestPerson.objects.prefetch_related("person").filter(id__in=contest_person_ids)
 
 
 @cache_returned_values
