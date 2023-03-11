@@ -1,25 +1,31 @@
+import datetime
+
 from rest_condition import And
-from rest_framework import mixins
+from rest_framework import mixins, generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 
 from admin_panel.serializers import PointTemplateSerializer
 from core import util_methods, models_helper
 from core.permissions import IsContestMember
-from core.util_classes import MyModelViewSet
 from member_panel.models import PointRecord
 from member_panel.serializers import PointRecordSerializer
 
 
-class PointRecordsView(MyModelViewSet):
-    super_admin_allowed_methods = []
-    admin_allowed_methods = []
-    member_allowed_methods = ['retrieve', 'list', 'create', 'update', 'partial_update']
+class ResultsByDateView(generics.ListCreateAPIView):
+    permission_classes = [And(IsAuthenticated(), IsContestMember())]
     serializer_class = PointRecordSerializer
 
     def get_queryset(self):
+        date = self.request.query_params.get("date", datetime.date.today())
         username = util_methods.get_username_from_session(self.request)
-        return PointRecord.objects.filter(person__person__username=username)
+        return PointRecord.objects.filter(person__person__username=username, record_date=date) \
+            .order_by('point_template__section__position', 'point_template__order_in_section')
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["record_date"] = self.request.query_params.get("date", datetime.date.today())
+        return context
 
 
 class ReadOnlyPointTemplateView(mixins.ListModelMixin, GenericViewSet):
