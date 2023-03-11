@@ -70,6 +70,7 @@ class ContestPerson(models.Model):
         PENDING_MEMBER = (4, 'pending_member')
         DEACTIVATED = (5, 'deactivated')
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     contest = models.ForeignKey(Contest, on_delete=models.PROTECT, blank=True, null=True)
     person = models.ForeignKey(Person, on_delete=models.PROTECT)
     group = models.ForeignKey(Group, on_delete=models.PROTECT, blank=True, null=True)
