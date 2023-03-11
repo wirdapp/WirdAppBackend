@@ -1,12 +1,10 @@
-from WirdBackend.settings import BASE_DIR
+from .settings import *
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '1234'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
 ALLOWED_HOSTS = ['*']
+
+DEBUG = True
 
 DATABASES = {
     "default": {
@@ -34,5 +32,33 @@ REST_FRAMEWORK = {
     ],
 }
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+        }
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+        }
+    }
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
