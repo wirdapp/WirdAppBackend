@@ -36,13 +36,11 @@ class ContestPerson(models.Model):
         (2, 'admin'),
         (3, 'super_admin'),
         (4, 'pending_member'),
-        (5, 'pending_admin'),
-        (6, 'deactivated'),
+        (5, 'deactivated'),
     )
     GROUP_ROLE = (
         (1, 'member'),
         (2, 'admin'),
-        (3, 'pending_admin'),
     )
     contest = models.ForeignKey(Contest, on_delete=models.PROTECT, blank=True, null=True)
     person = models.ForeignKey(Person, on_delete=models.PROTECT)
