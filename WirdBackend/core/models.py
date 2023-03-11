@@ -3,7 +3,6 @@ import uuid
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import integer_validator, MinLengthValidator
 from django.db import models
-from django.db.models import Q
 from django.utils.functional import cached_property
 from django_resized import ResizedImageField
 
@@ -81,6 +80,9 @@ class ContestPerson(models.Model):
                                     name="unique_contest_person",
                                     violation_error_message="Can't Create more than one person in a contest"),
         ]
+
+    def __str__(self):
+        return f"{self.person.username} @ {self.contest.name}"
 
 
 class ContestPersonGroups(models.Model):
