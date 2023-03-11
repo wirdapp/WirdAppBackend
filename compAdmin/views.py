@@ -3,11 +3,10 @@ import os
 
 import pandas as pandas
 from django.db.models import Sum
-from django.http import HttpResponse
 from rest_condition import Or
 from rest_framework import viewsets, views
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAdminUser, AllowAny
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from Ramadan_Competition_Rest import settings
@@ -160,16 +159,13 @@ class ExportInformation(views.APIView):
         to_date = int(self.request.query_params['to_date']) + 1 if 'to_date' in self.request.query_params else 31
         comp = self.request.user.competition
         comp_id = comp.id
-        filename = f'{comp_id}_{from_date}-{to_date}_{datetime.date.today()}.xlsx'
+        filename = f'{str(hash(comp_id))[2:7]}_{datetime.date.today()}.xlsx'
         filepath = settings.EXCEL_FILES + filename
         df = self.check_file_existence(filepath)
         if df is None:
             df = self.generate_comp_df_file(comp_id, from_date, to_date)
             df.to_excel(filepath, index=False)
-        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = f'attachment; filename="{filename}"'
-        df.to_excel(response, index=False)
-        return response
+        return Response(filepath)
 
     @staticmethod
     def generate_comp_df_file(comp_id, from_date, to_date):
