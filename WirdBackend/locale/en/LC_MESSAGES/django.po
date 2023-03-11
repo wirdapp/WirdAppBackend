@@ -19,11 +19,88 @@ msgid "add user to group username not in contest"
 msgstr "One or multiple username doesn't exists for this contest"
 
 msgid "user added to the group"
-msgstr "User added to the group"
+msgstr "User is now in the group"
 
 msgid "contest switched successfully"
-msgstr "contest switched successfully"
+msgstr "Contest switched successfully!"
 
-msgid "person is not enrolled in this context"
-msgstr "person is not enrolled in this context"
+msgid "point record help text"
+msgstr "Number in case of Number Template, 0 and 1 for the Boolean Template, 0 (empty) and 1 (filled) for other templates"
 
+msgid "readonly_mode"
+msgstr "In the Read Only mode members can't score points, they can only see it"
+
+msgid "person exists in contest"
+msgstr "User is already in this contest!"
+
+msgid "person is member of group"
+msgstr "User is already in this group!"
+
+msgid "user has no contests"
+msgstr "User has no Contests!"
+
+msgid "person is not enrolled in this contest"
+msgstr "Person is not enrolled in this contest!"
+
+msgid "post contest-name only"
+msgstr "Post the desired 'contest-name' only as a data parameter"
+
+msgid "contest created"
+msgstr "Contest has been Created"
+
+msgid "post access-code only"
+msgstr "Post contest's 'access-code' only as a data parameter"
+
+msgid "joined the new contest"
+msgstr "You have joined the new Contest successfully. You can switch to it from the home page."
+
+msgid "access code is not correct"
+msgstr "The access code you entered is not correct"
+
+msgid "not found"
+msgstr "Not Found!"
+
+msgid "post username and received token"
+msgstr "Please post Username and the Received token"
+
+msgid "valid token"
+msgstr "Valid Token"
+
+msgid "invalid token"
+msgstr "Invalid Token"
+
+msgid "password reset"
+msgstr "Password has been reset successfully!"
+
+msgid "user with this username was not found"
+msgstr "User with this Username was not found!"
+
+msgid "post username"
+msgstr "Post your 'username' only as a data parameter"
+
+msgid "password reset subject"
+msgstr "Wird App Password Reset Token"
+
+msgid "password reset success"
+msgstr "Password Reset email sent successfully, please check your email!"
+
+msgid "member can't review points"
+msgstr "Members Can't set their points as 'reviewed'"
+
+msgid "point not active day"
+msgstr "This point is not active for this day, choose another day"
+
+msgid "point not active"
+msgstr "This point is not active"
+
+msgid "point not shown"
+msgstr "This point shouldn't be active today since it's not shown"
+
+msgid "units_scored > upper_unit_bound"
+msgstr "Units Scored can't be higher than the Upper Units Bound"
+
+msgid "units_scored < lower_unit_bound"
+msgstr "Units Scored can't be lower than Lower Units Bound"
+
+msgid "boolean fields should be in [0,1]"
+msgstr "Boolean fields should only contain 0 or 1"
