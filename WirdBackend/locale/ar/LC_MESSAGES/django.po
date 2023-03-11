@@ -14,4 +14,94 @@ msgstr ""
 "&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
 msgid "upper_point>lower_point validation"
-msgstr "الحد الأعلى للنقاط يجب أن يكون أكبر من الحد الأدنى للنقاط"
+msgstr "حد النقاط العلوي يجب أن يكون أعلى من حد النقاط السفلي"
+
+msgid "add user to group username not in contest"
+msgstr "مستخدم واحد أو أكثر غير موجود في هذه المسابقة"
+
+msgid "user added to the group"
+msgstr "تم إضافة المستخدم إلى المجموعة"
+
+msgid "contest switched successfully"
+msgstr "تم تبديل المسابقة بناجح"
+
+msgid "point record help text"
+msgstr "إدخل رقماً في حالة النقاط الرقمية ، ٠ أو ١ في حالة النقاط الثنائية"
+
+msgid "readonly_mode"
+msgstr "إذا كانت المسابقة في حالة القراءة فقط فلا يستطيع الأعضاء تسجيل نقاط جديدة أو التغيير على النقاط السابقة"
+
+msgid "person exists in contest"
+msgstr "المستخدم عضو حالي في هذه المسابقة"
+
+msgid "person is member of group"
+msgstr "المستخدم عضو حالي في هذه المجموعة"
+
+msgid "user has no contests"
+msgstr "لا يوجد مسابقات فعالة لدى هذا المستخدم"
+
+msgid "person is not enrolled in this contest"
+msgstr "المستخدم غير مشترك في هذه المسابقة"
+
+msgid "post contest-name only"
+msgstr "قم بإدخال اسم المسابقة فقط بإرسال المدخل contest-name"
+
+msgid "contest created"
+msgstr "Contest has been Created"
+
+msgid "post access-code only"
+msgstr "قم بإدخال رمز المسابقة فقط بإرسال المدخل access-code"
+
+msgid "joined the new contest"
+msgstr "لقد اشتركت في المسابقة بنجاح ، يمكنك الذهاب إلى الصفحة الرئيسية وبالبدء بإدخال النقاط"
+
+msgid "access code is not correct"
+msgstr "الرمز المدخل غير صحيح"
+
+msgid "not found"
+msgstr "غير موجود"
+
+msgid "post username and received token"
+msgstr "الرجاء إدخال اسم المستخدم والرمز المرسل"
+
+msgid "valid token"
+msgstr "رمز صحيح"
+
+msgid "invalid token"
+msgstr "رمز غير صحيح"
+
+msgid "password reset"
+msgstr "لقد تمت إعادة ضبط كلمة السر بنجاح"
+
+msgid "user with this username was not found"
+msgstr "لا يوجد مستخدم يحمل اسم المستخدم المدخل"
+
+msgid "post username"
+msgstr "قم بإدخال اسم المستخدم فقط بإرسال المدخل username"
+
+msgid "password reset subject"
+msgstr "رمز إستعادة كلمة السر الخاص بموقع ورد"
+
+msgid "password reset success"
+msgstr "لقد تم إرسال رمزاستعادة كلمة السر عبر البريد الإلكتروني"
+
+msgid "member can't review points"
+msgstr "لا يمكن للمستخدمين مراجعة النقاط الخاصة بهم"
+
+msgid "point not active day"
+msgstr "هذه النقطة غير فاعلة لهذا اليوم ، الرجاء اختار يوم آخر"
+
+msgid "point not active"
+msgstr "هذه النقطة غير فاعلة"
+
+msgid "point not shown"
+msgstr "لا يمكن إدخال هذه النقطة في هذا اليوم"
+
+msgid "units_scored > upper_unit_bound"
+msgstr "لا يمكن إدخال نقاط أكثر من الحد الأعلى للنقاط"
+
+msgid "units_scored < lower_unit_bound"
+msgstr "لا يمكن إدخال نقاط أقل من الحد الأدنى للنقاط"
+
+msgid "boolean fields should be in [0,1]"
+msgstr "النقاط الثنائية تقبل ٠ أو ١ فقط"
