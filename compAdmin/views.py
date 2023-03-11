@@ -156,15 +156,15 @@ class ExportInformation(views.APIView):
     permission_classes = (IsCompetitionSuperAdmin,)
 
     def get(self, request, *args, **kwargs):
-        from_date = self.request.query_params['from_date'] if 'from_date' in self.request.query_params else 1
-        to_date = self.request.query_params['to_date'] if 'to_date' in self.request.query_params else 30
+        from_date = int(self.request.query_params['from_date']) if 'from_date' in self.request.query_params else 1
+        to_date = int(self.request.query_params['to_date']) + 1 if 'to_date' in self.request.query_params else 31
         comp = self.request.user.competition
         comp_id = comp.id
         filename = f'{comp_id}_{from_date}-{to_date}_{datetime.date.today()}.xlsx'
         filepath = settings.EXCEL_FILES + filename
         df = self.check_file_existence(filepath)
         if df is None:
-            df = self.generate_comp_df_file(comp_id, from_date, to_date, filepath)
+            df = self.generate_comp_df_file(comp_id, from_date, to_date)
             df.to_excel(filepath, index=False)
         response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
