@@ -1,5 +1,4 @@
-import datetime
-
+from django.db.models import Q
 from rest_condition import And
 from rest_framework import mixins, generics
 from rest_framework.permissions import IsAuthenticated
@@ -35,5 +34,6 @@ class ReadOnlyPointTemplateView(mixins.ListModelMixin, GenericViewSet):
 
     def get_queryset(self):
         contest_id = util_methods.get_current_contest_dict(self.request)["id"]
-        # TODO: Filter by custom_days
-        return models_helper.get_contest_point_templates(contest_id)
+        date = self.kwargs["date"]
+        return models_helper.get_contest_point_templates(contest_id) \
+            .filter(Q(custom_days__contains=[date]) | Q(custom_days__len=0))
