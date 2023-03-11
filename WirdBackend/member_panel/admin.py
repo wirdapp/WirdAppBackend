@@ -1,7 +1,5 @@
-# from django.contrib import admin
-#
-# # Register your models here.
-# from member_panel.models import StudentUser, PointRecord
-#
-# admin.site.register(StudentUser)
-# admin.site.register(PointRecord)
+from django.contrib import admin
+
+from member_panel.models import PointRecord
+
+admin.site.register(PointRecord)
