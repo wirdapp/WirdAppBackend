@@ -22,7 +22,7 @@ def destroy(instance):
 
 
 def get_username_from_session(request):
-    if not "username" in request.session:
+    if not "username" in request.session or request.session['username'] == '':
         username = request.user.username
         request.session["username"] = username
     return request.session["username"]
