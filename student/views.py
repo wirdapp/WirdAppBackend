@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from compAdmin.serializers import PointTemplateSerializer
 from core import util
 from core.permissions import NoPermission
-from core.util import current_hijri_date
 from core.views import user_points_stats
 from .serializers import *
 
@@ -77,11 +76,12 @@ class PointTemplatesView(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'id'
 
     def get_queryset(self):
+        date = self.request.query_params['date'] if 'date' in self.request.query_params else util.current_hijri_date
         comp = self.request.user.competition
         return comp.competition_point_templates\
             .filter(is_active=True) \
             .filter(is_shown=True) \
-            .filter(Q(custom_days__contains=current_hijri_date) | Q(custom_days=''))
+            .filter(Q(custom_days__contains=date) | Q(custom_days=''))
 
     def get_permissions(self):
         return IsAuthenticated(),
