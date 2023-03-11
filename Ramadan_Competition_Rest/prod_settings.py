@@ -25,7 +25,7 @@ DATABASES = {
         "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.postgresql"),
         "NAME": os.environ.get("SQL_DATABASE", "ramadan_comp"),
         "USER": os.environ.get("SQL_USER", "user"),
-        "PASSWORD": os.environ.get("SQL_PASSWORD", SECRET_KEY),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
         "HOST": os.environ.get("SQL_HOST", "localhost"),
         "PORT": os.environ.get("SQL_PORT", "5432"),
         "CONN_MAX_AGE": 60,
@@ -35,7 +35,7 @@ DATABASES = {
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379',
+        'LOCATION': os.environ.get("REDIS_URL", "redis://127.0.0.1:6379"),
         'TIMEOUT': 60
     }
 }
@@ -85,7 +85,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': f'{settings.BASE_DIR}/log/backend.log',
+            'filename': '/var/log/wird_app/backend.log',
             'when': 'D',
             'backupCount': 30,
             'interval': 1,
