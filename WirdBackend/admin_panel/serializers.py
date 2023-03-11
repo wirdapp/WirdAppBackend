@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from rest_polymorphic.serializers import PolymorphicSerializer
 
 import core.serializers
 from core import models_helper, util
@@ -24,13 +23,35 @@ class SectionSerializer(AutoSetContestSerializer):
 
 class PointTemplateSerializer(AutoSetContestSerializer):
     section = ContextFilteredPrimaryKeyRelatedField(object_name="sections")
+    template_type = serializers.ChoiceField(choices=("number", "checkbox",), allow_blank=True, required=False)
 
     class Meta:
         model = PointTemplate
         exclude = ["contest", "polymorphic_ctype"]
 
+    def to_representation(self, obj):
+        if isinstance(obj, NumberPointTemplate):
+            return NumberPointTemplateSerializer(obj, context=self.context).to_representation(obj)
+        elif isinstance(obj, CheckboxPointTemplate):
+            return CheckboxPointTemplateSerializer(obj, context=self.context).to_representation(obj)
+        return super(PointTemplateSerializer, self).to_representation(obj)
 
-class NumberPointTemplateSerializer(PointTemplateSerializer):
+    def to_internal_value(self, data):
+        data = data.copy()
+        template_type = data.pop("template_type")
+        if template_type == "number":
+            self.Meta.model = NumberPointTemplate
+            return NumberPointTemplateSerializer(context=self.context).to_internal_value(data)
+        elif template_type == "checkbox":
+            self.Meta.model = CheckboxPointTemplate
+            return CheckboxPointTemplateSerializer(context=self.context).to_internal_value(data)
+
+        return super(PointTemplateSerializer, self).to_internal_value(data)
+
+
+class NumberPointTemplateSerializer(AutoSetContestSerializer):
+    type = serializers.ReadOnlyField()
+
     class Meta:
         model = NumberPointTemplate
         exclude = PointTemplateSerializer.Meta.exclude
@@ -41,24 +62,12 @@ class NumberPointTemplateSerializer(PointTemplateSerializer):
         return super().validate(attrs)
 
 
-class CheckboxPointTemplateSerializer(PointTemplateSerializer):
+class CheckboxPointTemplateSerializer(AutoSetContestSerializer):
+    type = serializers.ReadOnlyField()
+
     class Meta:
         model = CheckboxPointTemplate
         exclude = PointTemplateSerializer.Meta.exclude
-
-
-class PointTemplatePolymorphicSerializer(PolymorphicSerializer):
-    resource_type_field_name = 'type'
-    resource_names_matching = dict(NumberPointTemplate='number', CheckboxPointTemplate='check_box',
-                                   PointTemplate='general')
-    model_serializer_mapping = {
-        NumberPointTemplate: NumberPointTemplateSerializer,
-        CheckboxPointTemplate: CheckboxPointTemplateSerializer,
-        PointTemplate: PointTemplateSerializer
-    }
-
-    def to_resource_type(self, model_or_instance):
-        return self.resource_names_matching[model_or_instance._meta.object_name]
 
 
 class ListCreateGroupSerializer(AutoSetContestSerializer):
