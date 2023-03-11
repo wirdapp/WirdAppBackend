@@ -4,7 +4,7 @@ from collections.abc import Iterable
 from django.core.cache import cache
 
 from admin_panel.models import PointTemplate, Section
-from core.models import ContestPerson, Contest, Person, Group
+from core.models import ContestPerson, Contest, Person, Group, ContestPersonGroups
 
 
 def cache_returned_values(func):
@@ -23,6 +23,12 @@ def cache_returned_values(func):
 @cache_returned_values
 def get_contest_people(contest_id, contest_role=(1, 2, 3)):
     return ContestPerson.objects.filter(contest__id=contest_id, contest_role__in=contest_role)
+
+
+@cache_returned_values
+def get_contest_person_groups(contest_id, group_roles=(1, 2)):
+    return ContestPersonGroups.objects.filter(contest_person__contest__id=contest_id, group_role__in=group_roles)
+
 
 @cache_returned_values
 def get_contest_person_objects(contest_id, contest_role=(1, 2, 3)):
@@ -54,27 +60,30 @@ def get_person_contests_managed(username):
 
 @cache_returned_values
 def get_person_managed_groups(username, contest_id):
-    is_super_admin = ContestPerson.objects.filter(person__username=username, contest_id=contest_id,
-                                                  contest_role=3).exists()
+    persons = ContestPerson.objects.filter(person__username=username, contest_id=contest_id)
+    is_super_admin = persons.filter(contest_role=3).exists()
+    is_admin = persons.filter(contest_role=2).exists()
     if is_super_admin:
         return Group.objects.filter(contest__id=contest_id)
-    else:
-        group_ids = ContestPerson.objects.filter(person__username=username, contest_id=contest_id, contest_role=2) \
-            .values_list("group__id", flat=True)
+    elif is_admin:
+        group_ids = ContestPersonGroups.objects.filter(contest_person__person__username=username) \
+            .filter(group_role=2) .values_list("group__id", flat=True)
         return Group.objects.filter(id__in=group_ids)
+    else:
+        return Group.objects.none()
 
 
 @cache_returned_values
 def get_group_admins(group_id):
-    person_ids = ContestPerson.objects.filter(group__id=group_id, contest_role=2) \
-        .values_list('person__id', flat=True)
+    person_ids = ContestPersonGroups.objects.filter(group__id=group_id, group_role=2) \
+        .values_list('contest_person__person__id', flat=True)
     return Person.objects.filter(id__in=person_ids)
 
 
 @cache_returned_values
 def get_group_members(group_id):
-    person_ids = ContestPerson.objects.filter(group__id=group_id, contest_role=1) \
-        .values_list('person_id', flat=True)
+    person_ids = ContestPersonGroups.objects.filter(group__id=group_id, group_role=1) \
+        .values_list('contest_person__person__id', flat=True)
     return Person.objects.filter(id__in=person_ids)
 
 
@@ -86,3 +95,8 @@ def get_contest_point_templates(contest_id):
 @cache_returned_values
 def get_contest_sections(contest_id):
     return Section.objects.filter(contest__id=contest_id)
+
+
+@cache_returned_values
+def get_contest_groups(contest_id):
+    return Group.objects.filter(contest__id=contest_id)
