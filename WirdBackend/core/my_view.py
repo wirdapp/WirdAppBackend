@@ -13,8 +13,6 @@ class MyModelViewSet(ModelViewSet):
     filter_qs = True
 
     def get_permissions(self):
-        if True:
-            return AllowAny(),
         if self.action in self.non_member_allowed_methods:
             return AllowAny(),
         elif self.action in self.member_allowed_methods:
