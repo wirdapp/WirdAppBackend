@@ -2,7 +2,7 @@ import os
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 1234
+SECRET_KEY = '1234'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
