@@ -44,11 +44,12 @@ class CompetitionView(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, name='List Top Students')
     def list_top_students(self, request, *args, **kwargs):
         competition = self.request.user.competition
+        num = int(request.query_params['num']) if 'num' in request.query_params else 10
         if competition.show_standings:
             students = StudentUser.objects.filter(competition__id=competition.id)
             serializer = TopStudentsSerializer(students, many=True)
             sorted_res = sorted(serializer.data, key=lambda x: x['total_points'], reverse=True)
-            return Response(sorted_res)
+            return Response(sorted_res[:num])
         return Response('تم إخفاء لائحة الأوائل من المشرف المسؤول عن المسابقة')
 
 
