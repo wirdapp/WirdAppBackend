@@ -1,16 +1,15 @@
 import datetime
+import os.path
 
-import numpy as np
 import pandas as pd
-from django.db.models import Value, Sum
-from django.db.models.functions import Concat
+from django.db.models import Sum
 from rest_condition import And
 from rest_framework import generics, views
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from core.permissions import IsContestAdmin, IsGroupAdmin
+from core.permissions import *
 from core.util_classes import MyModelViewSet, MyPageNumberPagination
 from member_panel.models import PointRecord
 from member_panel.serializers import PointRecordSerializer
@@ -146,59 +145,56 @@ class GroupMemberResultsView(generics.ListAPIView):
         return dict(username=user_name, points=points, total_day=total_day)
 
 
-class ExportResultsView(views.APIView):
+def process_dataframe(file_path, results):
+    data = dict()
+    for row in results:
+        if str(row[1]) in data:
+            data[str(row[1])].update({row[0]: row[2]})
+        else:
+            data[str(row[1])] = dict({row[0]: row[2]})
+    data = pd.DataFrame(data)
+    data = data.fillna(value=0)
+    data.to_excel(file_path)
+
+
+def process_export_request(request, members, file_path):
+    from_date = request.query_params.get("from_date", None)
+    to_date = request.query_params.get("to_date", None)
+    if not (from_date and to_date):
+        return Response(gettext("from_date and to_date param should be provided"), status=400)
+    from_date = datetime.date.fromisoformat(from_date)
+    to_date = datetime.date.fromisoformat(to_date)
+    if (to_date - from_date).days > 30:
+        return Response(gettext("can't export more than 30 days"), status=400)
+    results = PointRecord.objects.filter(person__id__in=members, record_date__range=[from_date, to_date]) \
+        .values_list("person__person__username") \
+        .annotate(total_points=Sum("point_total")) \
+        .values_list("person__person__username", "record_date", "total_points")
+    if results.count() == 0:
+        return Response(gettext("no data to extract"))
+    process_dataframe(file_path, results)
+    return Response(file_path)
+
+
+class ExportGroupResultsView(views.APIView):
     permission_classes = [And(IsAuthenticated(), IsContestAdmin(), IsGroupAdmin())]
 
     def get(self, request, *args, **kwargs):
         group_id = self.kwargs["group_id"]
-        from_date = datetime.date.fromisoformat(request.query_params.get("from_date")) \
-            if request.query_params.get("from_date") else datetime.date.today()
-        to_date = datetime.date.fromisoformat(request.query_params.get("to_date")) \
-            if request.query_params.get("to_date") else datetime.date.today()
-        detailed_day = request.query_params.get("detailed_day", False)
-        if from_date == to_date and detailed_day:
-            return self.get_detailed_day(request, group_id, from_date)
-        else:
-            return self.get_days_results(request, group_id, from_date, to_date)
-
-    @staticmethod
-    def get_detailed_day(request, group_id, from_date):
-        members = models_helper.get_group_members_contest_person_ids(group_id)
-        f_name = "person__person__first_name"
-        l_name = "person__person__last_name"
-        points = PointRecord.objects.filter(person__id__in=members, record_date=from_date) \
-            .annotate(name=Concat(f_name, Value(' '), l_name)) \
-            .order_by("name", "point_template__label")
-
-        index = points.values_list("name", flat=True).order_by("name").distinct()
-        columns = points.values_list("point_template__label", flat=True).order_by("point_template__label").distinct()
-        data = points.values_list("point_total", flat=True)
-        data = np.reshape(data, (len(index), len(index))).tolist()
-        df = pd.DataFrame(columns=columns, index=index, data=data)
-        file_path = f"{group_id[-6:-1]}_{from_date}_generated_on_{datetime.date.today()}_detailed_day_results.xlsx"
-        df.to_excel(file_path)
-        return Response(file_path)
-
-    @staticmethod
-    def get_days_results(request, group_id, from_date, to_date):
-        if (to_date - from_date).days > 30:
-            return Response(gettext("can't export more than 30 days"), status=400)
-        members = models_helper.get_group_members_contest_person_ids(group_id)
-        username = "person__person__username"
-        results = PointRecord.objects.filter(person__id__in=members, record_date__range=[from_date, to_date]) \
-            .values_list(username) \
-            .annotate(total_points=Sum("point_total")) \
-            .values_list(username, "record_date", "total_points")
-        data = dict()
-        for row in results:
-            date = row[1].isoformat()
-            if date in data:
-                data[date].update({row[0]: row[2]})
-            else:
-                data[date] = dict({row[0]: row[2]})
-        data = pd.DataFrame(data)
-        data = data.fillna(value=0)
         file_path = f"total_results_for_group_{group_id[-6:-1]}_generated_on_{datetime.date.today()}.xlsx"
-        data.to_excel(file_path)
-        # TODO: Cache results and return full file path
-        return Response(file_path)
+        if os.path.exists(file_path):
+            return Response(f"{gettext('data was generated today under url')} {file_path}")
+        members = models_helper.get_group_members_contest_person_ids(group_id)
+        return process_export_request(request, members, file_path)
+
+
+class ExportAllResultsView(views.APIView):
+    permission_classes = [And(IsAuthenticated(), IsContestSuperAdmin)]
+
+    def get(self, request, *args, **kwargs):
+        current_contest = util_methods.get_current_contest_dict(request)["id"]
+        file_path = f"total_results_for_contest_{current_contest[-6:-1]}_generated_on_{datetime.date.today()}.xlsx"
+        if os.path.exists(file_path):
+            return Response(f"{gettext('data was generated today under url')} {file_path}")
+        members = models_helper.get_contest_people(current_contest, contest_role=[1])
+        return process_export_request(request, members, file_path)
