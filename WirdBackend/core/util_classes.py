@@ -6,7 +6,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 from core import util_methods, models_helper
-from core.permissions import IsContestAdmin, IsContestSuperAdmin, NoPermission
+from core.permissions import IsContestAdmin, IsContestSuperAdmin, NoPermission, IsContestMember
 
 
 class DateConverter:
@@ -31,7 +31,7 @@ class MyModelViewSet(ModelViewSet):
         if self.action in self.non_member_allowed_methods:
             return AllowAny(),
         elif self.action in self.member_allowed_methods:
-            return IsAuthenticated(),
+            return And(IsAuthenticated(), IsContestMember()),
         elif self.action in self.admin_allowed_methods:
             return And(IsAuthenticated(), IsContestAdmin()),
         elif self.action in self.super_admin_allowed_methods:
@@ -77,6 +77,8 @@ class ContestFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
 
     def to_representation(self, value):
         if self.to_repr_class:
-            return getattr(self.to_repr_class.objects.get(pk=value.pk), self.to_repr_field)
+            label = getattr(self.to_repr_class.objects.get(pk=value.pk), self.to_repr_field)
+            pk = value.pk
+            return f"{pk} ({label})"
         else:
             return super(ContestFilteredPrimaryKeyRelatedField, self).to_representation(value)
