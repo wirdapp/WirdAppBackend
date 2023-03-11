@@ -32,19 +32,20 @@ class MyModelViewSet(ModelViewSet):
     admin_allowed_methods = ['retrieve', 'list', 'create', 'update', 'partial_update']
     member_allowed_methods = []
     non_member_allowed_methods = []
-    filter_qs = True
+    contest_related = True
 
     def get_permissions(self):
         if self.action in self.non_member_allowed_methods:
             return AllowAny(),
-        elif self.action in self.member_allowed_methods:
+        if self.action in self.member_allowed_methods and not self.contest_related:
+            return IsAuthenticated(),
+        if self.action in self.member_allowed_methods:
             return And(IsAuthenticated(), IsContestMember()),
-        elif self.action in self.admin_allowed_methods:
+        if self.action in self.admin_allowed_methods:
             return And(IsAuthenticated(), IsContestAdmin()),
-        elif self.action in self.super_admin_allowed_methods:
+        if self.action in self.super_admin_allowed_methods:
             return And(IsAuthenticated(), IsContestSuperAdmin()),
-        else:
-            return NoPermission(),
+        return NoPermission(),
 
 
 class DynamicFieldsCategorySerializer(serializers.ModelSerializer):
