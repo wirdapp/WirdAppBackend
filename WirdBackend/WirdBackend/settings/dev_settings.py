@@ -30,3 +30,4 @@ CACHES = {
 }
 
 LOGGING = {}
+ALLOWED_HOSTS = ["*"]
