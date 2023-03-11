@@ -68,8 +68,8 @@ class PointTemplateSerializer(AutoSetContestSerializer):
     def validate(self, attrs):
         if "serializer" in self.context:
             return self.context["serializer"](context=self.context).validate(attrs)
-        else:
-            return super().validate(attrs)
+
+        return super().validate(attrs)
 
 
 class NumberPointTemplateSerializer(serializers.ModelSerializer):
