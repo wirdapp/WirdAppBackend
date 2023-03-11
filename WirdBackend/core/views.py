@@ -32,6 +32,7 @@ class ContestView(MyModelViewSet):
         contests = self.get_queryset()
         new_contest = request.data["contest_id"]
         if contests.filter(contest__id=new_contest).exists():
+            util_methods.update_current_contest_dict(request, new_contest)
             return Response(gettext("contest switched successfully"), status=status.HTTP_200_OK)
         else:
             return Response(gettext("person is not enrolled in this contest"), status=status.HTTP_404_NOT_FOUND)

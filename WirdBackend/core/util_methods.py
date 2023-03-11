@@ -40,6 +40,13 @@ def get_current_contest_dict(request):
     return {"id": request.session["current_contest_id"], "role": request.session["current_contest_role"]}
 
 
+def update_current_contest_dict(request, contest_id):
+    username = get_username_from_session(request)
+    contest = models_helper.get_person_contests_ids_and_roles(username).get(contest__id=contest_id)
+    request.session["current_contest_id"] = contest[0].hex
+    request.session["current_contest_role"] = contest[1]
+
+
 def get_current_contest_object(request):
     current_contest_id = get_current_contest_dict(request)["id"]
     return Contest.objects.get(id=current_contest_id)
