@@ -72,8 +72,8 @@ RUN pip install /wheels/*
 
 # copy entrypoint.prod.sh
 COPY ./entrypoint.prod.sh .
-RUN sed -i 's/\r$//g'  $APP_HOME/entrypoint.prod.sh
-RUN chmod +x  $APP_HOME/entrypoint.prod.sh
+RUN sed -i 's/\r$//g'  $APP_HOME/entrypoint.sh
+RUN chmod +x  $APP_HOME/entrypoint.sh
 
 #Gunicorn
 RUN mkdir -p /var/log/gunicorn/
