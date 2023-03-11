@@ -1,15 +1,17 @@
 from rest_framework import serializers
 from rest_polymorphic.serializers import PolymorphicSerializer
 
+from core.models import ContestPerson
 from core.serializers import ContextFilteredPrimaryKeyRelatedField
 from member_panel.models import PointRecord, UserInputPointRecord
 
 
 class PointRecordSerializer(serializers.ModelSerializer):
     point_template = ContextFilteredPrimaryKeyRelatedField(object_name="point_templates")
+    person = ContextFilteredPrimaryKeyRelatedField(queryset=ContestPerson.objects)
 
     class Meta:
-        exclude = ["person", "polymorphic_ctype"]
+        exclude = ["polymorphic_ctype"]
         model = PointRecord
 
 
