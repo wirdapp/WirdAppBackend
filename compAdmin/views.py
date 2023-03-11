@@ -133,7 +133,7 @@ class AdminCompetitionView(viewsets.ModelViewSet):
             .annotate(total_day=Sum('point_total')).order_by('-total_day').first()
         stats['students_count'] = StudentUser.objects.filter(competition__id=competition_id).count()
         stats['ramadan_date'] = current_hijri_date
-        save_to_cache(key, stats, timeout=3600)
+        save_to_cache(key, stats, timeout=600)
         return Response({**stats})
 
 
