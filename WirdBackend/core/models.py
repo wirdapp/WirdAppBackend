@@ -8,7 +8,7 @@ from django_resized import ResizedImageField
 
 class Contest(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=30, default='')
+    name = models.CharField(max_length=128, default='')
     show_standings = models.BooleanField(default=True)
     announcements = models.TextField(default="", blank=True)
     readonly_mode = models.BooleanField(default=False, help_text='Stop scoring points and only show scored points')

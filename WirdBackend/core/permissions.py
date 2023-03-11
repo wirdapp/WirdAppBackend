@@ -12,7 +12,7 @@ def person_role_in_contest(request, expected_roles):
     if not isinstance(expected_roles, Iterable):
         expected_roles = [expected_roles]
     current_contest = util.get_current_contest_dict(request)
-    return bool(current_contest["current_contest_role"] in expected_roles)
+    return bool(current_contest["role"] in expected_roles)
 
 
 # TODO: Remove is_staff part from the conditions

@@ -38,8 +38,11 @@ def get_user_contests(request):
 def get_current_contest_dict(request):
     if not ("current_contest_id" in request.session and "current_contest_role" in request.session):
         contests = get_user_contests(request)
-        request.session["current_contest_id"] = contests[0][0] if len(contests) > 0 else ""
-        request.session["current_contest_role"] = contests[0][1] if len(contests) > 0 else 6
+        if len(contests) > 0:
+            request.session["current_contest_id"] = contests[0][0]
+            request.session["current_contest_role"] = contests[0][1]
+        else:
+            raise Exception("User Have No Contests!")
     return {"id": request.session["current_contest_id"], "role": request.session["current_contest_role"]}
 
 

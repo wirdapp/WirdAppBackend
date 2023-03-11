@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 
 from core import util
@@ -32,13 +33,24 @@ class AutoSetContestSerializer(serializers.ModelSerializer):
 
 
 class CreatorSignupSerializer(serializers.ModelSerializer):
+    contest_name = serializers.CharField(min_length=5, max_length=128, write_only=True)
+
     class Meta:
-        fields = ["name"]
-        model = Contest
+        fields = ["contest_name", "username", "password", 'first_name', 'last_name', 'profile_photo', 'phone_number',
+                  'email']
+        model = Person
+
+    def create(self, validated_data):
+        contest_name = validated_data.pop('contest_name').lower()
+        contest = Contest.objects.create(name=contest_name)
+        validated_data['password'] = make_password(validated_data['password'])
+        person = super().create(validated_data)
+        ContestPerson.objects.create(person=person, contest=contest, contest_role=3)
+        return person
 
 
 class ParticipantSignupSerializer(serializers.ModelSerializer):
-    access_code = serializers.CharField(max_length=6, min_length=6, write_only=True)
+    access_code = serializers.CharField(min_length=6, max_length=6, write_only=True)
 
     class Meta:
         fields = ["access_code", "username", "password", 'first_name', 'last_name', 'profile_photo', 'phone_number',
@@ -48,6 +60,7 @@ class ParticipantSignupSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         access_code = validated_data.pop('access_code').lower()
         contest = Contest.objects.get(id__endswith=access_code)
+        validated_data['password'] = make_password(validated_data['password'])
         if contest:
             person = super().create(validated_data)
             ContestPerson.objects.create(person=person, contest=contest, contest_role=4)
