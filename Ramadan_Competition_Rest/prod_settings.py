@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import os
+from django.conf import settings
 
 try:
     SECRET_KEY = os.environ["SECRET_KEY"]
@@ -20,14 +21,14 @@ except KeyError as e:
 DEBUG = False
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'HOST': 'localhost',
-        'NAME': 'ramadan_comp',
-        'USER': 'osama',
-        'PASSWORD': SECRET_KEY,
-        'PORT': '5432',
-        'CONN_MAX_AGE': 60,
+    "default": {
+        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.postgresql"),
+        "NAME": os.environ.get("SQL_DATABASE", "ramadan_comp"),
+        "USER": os.environ.get("SQL_USER", "user"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", SECRET_KEY),
+        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        "PORT": os.environ.get("SQL_PORT", "5432"),
+        "CONN_MAX_AGE": 60,
     }
 }
 
@@ -84,9 +85,9 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': f'{os.environ.get("HOME")}/backend_log/backend.log',
+            'filename': f'{settings.BASE_DIR}/log/backend.log',
             'when': 'D',
-            'backupCount': 5,
+            'backupCount': 30,
             'interval': 1,
             'formatter': 'large'
         },
