@@ -1,8 +1,12 @@
-from django.core.validators import validate_comma_separated_integer_list
+import uuid
+
+from django.core.validators import validate_comma_separated_integer_list, MinValueValidator
 from django.db import models
+from polymorphic.models import PolymorphicModel
 
 
 class Section(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     label = models.CharField(default='', max_length=32)
     position = models.IntegerField(default=1)
     contest = models.ForeignKey("core.Contest", on_delete=models.PROTECT, related_name='contest_sections')
@@ -11,28 +15,30 @@ class Section(models.Model):
         return self.label
 
 
-class PointTemplate(models.Model):
-    class FormType(models.IntegerChoices):
-        NUM = (1, 'Number')
-        CHECKBOX = (2, 'Check Box')
-        OTHER = (3, 'Other')
-
+class PointTemplate(PolymorphicModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    order_in_section = models.IntegerField()
     is_active = models.BooleanField(default=True)
     is_shown = models.BooleanField(default=True)
-    order_in_section = models.IntegerField()
-    custom_days = models.CharField(validators=[validate_comma_separated_integer_list], max_length=64, blank=True)
+    custom_days = models.CharField(max_length=300, blank=True)
     contest = models.ForeignKey("core.Contest", on_delete=models.PROTECT, related_name="contest_point_templates")
-    section = models.ForeignKey(Section, on_delete=models.PROTECT, related_name="contest_sections")
+    section = models.ForeignKey(Section, on_delete=models.PROTECT)
 
     label = models.CharField(max_length=128, default='')
     description = models.CharField(max_length=256, default='')
-    form_type = models.PositiveSmallIntegerField(choices=FormType.choices, default=FormType.NUM)
-    upper_units_bound = models.IntegerField(default=1)
-    lower_units_bound = models.IntegerField(default=0)
-    points_per_unit = models.IntegerField(default=1)
 
     class Meta:
         ordering = ('section__position', 'order_in_section')
 
     def __str__(self):
         return self.label
+
+
+class NumberPointTemplate(PointTemplate):
+    upper_units_bound = models.IntegerField(default=5)
+    lower_units_bound = models.IntegerField(default=0, validators=[MinValueValidator(0)])
+    points_per_unit = models.IntegerField(default=1, validators=[MinValueValidator(1)])
+
+
+class CheckboxPointTemplate(PointTemplate):
+    points_if_done = models.IntegerField(default=1, validators=[MinValueValidator(1)], )
