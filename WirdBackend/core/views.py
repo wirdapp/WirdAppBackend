@@ -1,6 +1,7 @@
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, mixins, permissions
 
-from core import models_helper
 from core.my_view import MyModelViewSet
 from core.serializers import *
 
@@ -26,3 +27,8 @@ class SignUpView(mixins.CreateModelMixin, viewsets.GenericViewSet):
             return ParticipantSignupSerializer
         elif user_type == "creator":
             return CreatorSignupSerializer
+
+    @swagger_auto_schema(manual_parameters=[
+        openapi.Parameter('type', openapi.IN_QUERY, enum=['creator', 'participant'], type=openapi.TYPE_STRING)])
+    def create(self, request, *args, **kwargs):
+        super().create(request, *args, **kwargs)
