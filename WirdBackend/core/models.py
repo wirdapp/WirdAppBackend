@@ -69,7 +69,9 @@ class ContestPerson(models.Model):
         MEMBER = (1, 'member')
         ADMIN = (2, 'admin')
         SUPER_ADMIN = (3, 'super_admin')
-        DEACTIVATED = (4, 'deactivated')
+        READ_ONLY_MEMBER = (4, 'read_only_member')
+        PENDING_MEMBER = (5, 'pending_member')
+        DEACTIVATED = (6, 'deactivated')
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     contest = models.ForeignKey(Contest, on_delete=models.PROTECT)

@@ -96,7 +96,7 @@ class ContestPersonView(MyModelViewSet):
     pagination_class = MyPageNumberPagination
 
     def get_queryset(self):
-        contest_role = self.request.query_params.getlist('contest_role', (1, 2, 3, 4))
+        contest_role = self.request.query_params.getlist('contest_role', (1, 2, 3, 4, 5, 6))
         current_contest = util_methods.get_current_contest_dict(self.request)["id"]
         return models_helper.get_contest_people(current_contest, contest_role=contest_role)
 
