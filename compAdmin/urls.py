@@ -15,4 +15,5 @@ router.register(r'students', student_views.StudentView, basename='Students')
 urlpatterns = [
     path('', include(router.urls)),
     path('admin-info/', views.AdminInformationView.as_view(), name='Admin info'),
+    path('export-comp-info/', views.ExportInformation.as_view(), name='Export Competition Info'),
 ]

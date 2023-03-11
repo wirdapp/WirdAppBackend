@@ -1,13 +1,19 @@
+import datetime
+import os
+
+import pandas as pandas
 from django.db.models import Sum
+from django.http import HttpResponse
 from rest_condition import Or
 from rest_framework import viewsets, views
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework.response import Response
 
+from Ramadan_Competition_Rest import settings
 from core import util
 from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
-from core.util import current_hijri_date, get_from_cache, save_to_cache
+from core.util import current_hijri_date
 from core.views import ChangePasswordViewSet
 from student.models import PointRecord
 from .serializers import *
@@ -144,3 +150,50 @@ class AdminInformationView(views.APIView):
         result['email'] = user.email
         result['phone_number'] = user.phone_number
         return Response({**result})
+
+
+class ExportInformation(views.APIView):
+    permission_classes = (AllowAny,)
+
+    def get(self, request, *args, **kwargs):
+        from_date = self.request.query_params['from_date'] if 'from_date' in self.request.query_params else 1
+        to_date = self.request.query_params['to_date'] if 'to_date' in self.request.query_params else 30
+        comp = self.request.user.competition
+        comp_id = comp.id
+        filename = f'{comp_id}_{from_date}-{to_date}_{datetime.date.today()}.xlsx'
+        filepath = settings.EXCEL_FILES + filename
+        df = self.check_file_existence(filepath)
+        if df is None:
+            df = self.generate_comp_df_file(comp_id, from_date, to_date, filepath)
+            df.to_excel(filepath, index=False)
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        df.to_excel(response, index=False)
+        return response
+
+    @staticmethod
+    def generate_comp_df_file(comp_id, from_date, to_date):
+        results = {"الاسم": [], 'المجموعة': []}
+        for i in range(from_date, to_date):
+            results[f"{i}رمضان "] = list()
+        students = StudentUser.objects.filter(competition__id=comp_id)
+        for student in students:
+            results["الاسم"].append(f'{student.first_name} {student.last_name}')
+            results["المجموعة"].append(f'{student.group if student.group else "لا يوجد"}')
+            result = dict(student.total_points_by_day(from_date, to_date))
+            for i in range(from_date, to_date):
+                results[f"{i}رمضان "].append(result[i] if i in result else 0)
+        df = pandas.DataFrame(results)
+        return df
+
+    @staticmethod
+    def check_file_existence(filepath):
+        if os.path.exists(filepath):
+            filename = os.path.basename(filepath)
+            date = datetime.date.fromisoformat(filename.split('_')[-1].replace(".xlsx", ''))
+            if date != datetime.date.today():
+                return None
+            else:
+                df = pandas.read_excel(filepath, sheet_name='Sheet1')
+                return df
+

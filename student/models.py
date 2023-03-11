@@ -1,6 +1,5 @@
 import os
 
-from PIL import Image
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import Sum
@@ -14,8 +13,8 @@ from core.models import GeneralUser
 def upload_location(instance, filename):
     filebase, extension = filename.split('.')
     filename = f'{instance.competition.id}/{instance.username}.{extension}'
-    if os.path.exists(settings.MEDIA_URL+filename):
-        os.remove(settings.MEDIA_URL+filename)
+    if os.path.exists(settings.MEDIA_URL + filename):
+        os.remove(settings.MEDIA_URL + filename)
     return filename
 
 
@@ -36,11 +35,11 @@ class StudentUser(GeneralUser):
         total = self.student_points.filter(point_scored_units__gte=0).aggregate(Sum('point_total'))['point_total__sum']
         return total if total else 0
 
-    def total_points_on_day(self, ramadan_day):
-        total = self.student_points.filter(ramadan_record_date=ramadan_day).values('student__first_name',
-                                                                                   'student__last_name',
-                                                                                   'ramadan_record_date').annotate(
-            points_per_day=Sum('point_total'))
+    def total_points_by_day(self, from_date, to_date):
+        total = self.student_points.filter(ramadan_record_date__range=[from_date, to_date])\
+            .values_list('ramadan_record_date')\
+            .annotate(points_per_day=Sum('point_total')).order_by('ramadan_record_date')
+
         return total
 
     def __str__(self):
