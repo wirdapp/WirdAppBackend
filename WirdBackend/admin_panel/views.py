@@ -5,7 +5,7 @@ import pandas as pd
 from django.contrib.auth.hashers import make_password
 from django.db.models import Sum
 from rest_condition import And
-from rest_framework import generics, views, mixins
+from rest_framework import generics, views, mixins, filters
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -88,17 +88,17 @@ class GroupView(MyModelViewSet):
 class ContestPersonView(MyModelViewSet):
     name = 'contest-people'
     lookup_field = 'person__username'
-    filterset_fields = {'contest_role': ["in", "exact"],
-                        'person__username': ["in", "exact"], 'person__email': ["in", "exact"],
-                        'person__first_name': ["in"], 'person__last_name': ["in"]}
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["person__username", "person__first_name", "person__last_name", "person__email"]
     serializer_class = ContestPersonSerializer
     admin_allowed_methods = []
     super_admin_allowed_methods = ['retrieve', 'list', 'update', 'partial_update']
     pagination_class = MyPageNumberPagination
 
     def get_queryset(self):
+        contest_role = self.request.query_params.getlist('contest_role', (1, 2, 3, 4))
         current_contest = util_methods.get_current_contest_dict(self.request)["id"]
-        return models_helper.get_contest_people(current_contest, contest_role=(1, 2, 3, 4))
+        return models_helper.get_contest_people(current_contest, contest_role=contest_role)
 
 
 class ResultsView(views.APIView):
