@@ -175,17 +175,30 @@ class ExportResultsView(views.APIView):
         data = points.values_list("point_total", flat=True)
         data = np.reshape(data, (len(index), len(index))).tolist()
         df = pd.DataFrame(columns=columns, index=index, data=data)
-        file_path = f"{group_id}_{from_date}_generated_on_{datetime.date.today()}_detailed_day_results.xlsx"
+        file_path = f"{group_id[-6:-1]}_{from_date}_generated_on_{datetime.date.today()}_detailed_day_results.xlsx"
         df.to_excel(file_path)
         return Response(file_path)
 
     @staticmethod
     def get_days_results(request, group_id, from_date, to_date):
+        if (to_date - from_date).days > 30:
+            return Response(gettext("can't export more than 30 days"), status=400)
         members = models_helper.get_group_members_contest_person_ids(group_id)
-        first_name = "person__person__first_name"
-        last_name = "person__person__last_name"
+        username = "person__person__username"
         results = PointRecord.objects.filter(person__id__in=members, record_date__range=[from_date, to_date]) \
-            .annotate(name=Concat(first_name, Value(' '), last_name)) \
-            .values("person_id", 'name') \
-            .annotate(total_points=Sum("point_total")).order_by("-total_points") \
-            .values_list("name", "record_date", "total_points")
+            .values_list(username) \
+            .annotate(total_points=Sum("point_total")) \
+            .values_list(username, "record_date", "total_points")
+        data = dict()
+        for row in results:
+            date = row[1].isoformat()
+            if date in data:
+                data[date].update({row[0]: row[2]})
+            else:
+                data[date] = dict({row[0]: row[2]})
+        data = pd.DataFrame(data)
+        data = data.fillna(value=0)
+        file_path = f"total_results_for_group_{group_id[-6:-1]}_generated_on_{datetime.date.today()}.xlsx"
+        data.to_excel(file_path)
+        # TODO: Cache results and return full file path
+        return Response(file_path)
