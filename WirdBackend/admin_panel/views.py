@@ -2,13 +2,16 @@ import datetime
 import os.path
 
 import pandas as pd
+from django.contrib.auth.hashers import make_password
 from django.db.models import Sum
 from rest_condition import And
-from rest_framework import generics, views
+from rest_framework import generics, views, mixins
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.viewsets import GenericViewSet
 
+from core.models import Person
 from core.permissions import *
 from core.util_classes import MyModelViewSet, MyPageNumberPagination
 from member_panel.models import PointRecord
@@ -117,7 +120,7 @@ class ResultsView(views.APIView):
         return Response(result)
 
 
-class GroupMemberResultsView(generics.ListAPIView):
+class GroupMembersResultsView(generics.ListAPIView):
     permission_classes = [And(IsAuthenticated(), IsContestAdmin(), IsGroupAdmin())]
     pagination_class = MyPageNumberPagination
 
@@ -143,6 +146,32 @@ class GroupMemberResultsView(generics.ListAPIView):
         points = PointRecordSerializer(points, many=True, read_only=True).data
         total_day = sum([point["point_total"] for point in points])
         return dict(username=user_name, points=points, total_day=total_day)
+
+
+class ReviewUserInputPoints(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericViewSet):
+    permission_classes = [And(IsAuthenticated(), IsContestAdmin()), ]
+    serializer_class = UserInputRecordReviewSerializer
+    filterset_fields = ["reviewed_by_admin", 'record_date', "person__person__username"]
+
+    def get_queryset(self):
+        contest_id = util_methods.get_current_contest_dict(self.request)["id"]
+        return UserInputPointRecord.objects.filter(point_template__contest__id=contest_id)
+
+
+class ResetMemberPassword(views.APIView):
+    permission_classes = [And(IsAuthenticated(), IsContestAdmin(), MemberBelongsToAdminGroups())]
+
+    def get(self, request, *args, **kwargs):
+        return Response(gettext("post person username and new password"))
+
+    def post(self, request, *args, **kwargs):
+        username = request.data["username"]
+        password = request.data["password"]
+        if not (username and password):
+            Response(gettext("post person username and new password"), status=400)
+        password = make_password(password)
+        Person.objects.filter(username="username").update(password=password)
+        return Response(gettext("password updated by admin"), status=200)
 
 
 def process_dataframe(file_path, results):
