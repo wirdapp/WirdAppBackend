@@ -39,7 +39,8 @@ class ContestPersonSerializer(serializers.ModelSerializer):
 class PointTemplateSerializer(AutoSetContestSerializer):
     section = ContestFilteredPrimaryKeyRelatedField(helper_function_name="get_contest_sections",
                                                     to_repr_class=Section, to_repr_field="label")
-    template_type = serializers.ChoiceField(choices=("number", "checkbox",), allow_blank=True, required=False)
+    template_type = serializers.ChoiceField(choices=("NumberPointTemplate", "CheckboxPointTemplate", "PointTemplate"),
+                                            required=False)
 
     class Meta:
         model = PointTemplate
@@ -55,11 +56,11 @@ class PointTemplateSerializer(AutoSetContestSerializer):
     def to_internal_value(self, data):
         data = data.copy()
         template_type = data.pop("template_type")
-        if template_type == "number":
+        if template_type == "NumberPointTemplate":
             self.Meta.model = NumberPointTemplate
             self.context["serializer"] = NumberPointTemplateSerializer
             return NumberPointTemplateSerializer(context=self.context).to_internal_value(data)
-        elif template_type == "checkbox":
+        elif template_type == "CheckboxPointTemplate":
             self.Meta.model = CheckboxPointTemplate
             self.context["serializer"] = CheckboxPointTemplateSerializer
             return CheckboxPointTemplateSerializer(context=self.context).to_internal_value(data)
