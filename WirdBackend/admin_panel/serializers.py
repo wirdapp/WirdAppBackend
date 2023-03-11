@@ -6,6 +6,7 @@ from core import models_helper, util_methods
 from core.models import Group, ContestPerson, ContestPersonGroups
 from core.serializers import PersonSerializer
 from core.util_classes import ContestFilteredPrimaryKeyRelatedField
+from member_panel.models import UserInputPointRecord
 from .models import *
 
 
@@ -154,3 +155,10 @@ class AddRemovePersonsToGroup(serializers.Serializer):
             ContestPersonGroups.objects.bulk_create(objs, update_conflicts=True,
                                                     update_fields=["group_id", "group_role"],
                                                     unique_fields=["contest_person_id", "group_id"])
+
+
+class UserInputRecordReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        exclude = ["polymorphic_ctype"]
+        read_only_fields = ["person", "point_template", "record_date"]
+        model = UserInputPointRecord
