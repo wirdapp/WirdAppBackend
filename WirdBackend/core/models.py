@@ -21,13 +21,11 @@ class Contest(models.Model):
 
     @cached_property
     def admin_count(self):
-        return ContestPerson.objects.filter(contest__id=self.id, contest_role__in=[2, 3]).values_list("person__id") \
-            .distinct().count()
+        return ContestPerson.objects.filter(contest__id=self.id, contest_role__in=[2, 3]).count()
 
     @cached_property
     def member_count(self):
-        return ContestPerson.objects.filter(contest__id=self.id, contest_role=1).values_list("person__id") \
-            .distinct().count()
+        return ContestPerson.objects.filter(contest__id=self.id, contest_role=1).count()
 
     @cached_property
     def group_count(self):
@@ -57,6 +55,10 @@ class Group(models.Model):
     def members_count(self):
         return ContestPersonGroups.objects.filter(group_role=1, group__id=self.id).count()
 
+    @cached_property
+    def admins_count(self):
+        return ContestPersonGroups.objects.filter(group_role=2, group__id=self.id).count()
+
     def __str__(self):
         return self.name
 
@@ -70,7 +72,7 @@ class ContestPerson(models.Model):
         DEACTIVATED = (5, 'deactivated')
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    contest = models.ForeignKey(Contest, on_delete=models.PROTECT, blank=True, null=True)
+    contest = models.ForeignKey(Contest, on_delete=models.PROTECT)
     person = models.ForeignKey(Person, on_delete=models.PROTECT)
     contest_role = models.PositiveSmallIntegerField(choices=ContestRole.choices, default=ContestRole.MEMBER)
 
@@ -96,7 +98,7 @@ class ContestPersonGroups(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['contest_person_id', 'group_id', 'group_role'],
+            models.UniqueConstraint(fields=['contest_person_id', 'group_id'],
                                     name="unique_group_person",
                                     violation_error_message="A person can be a Group member or a Group Admin"),
         ]
