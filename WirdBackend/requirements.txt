@@ -5,6 +5,7 @@ charset-normalizer==2.1.1
 coreapi==2.3.3
 coreschema==0.0.4
 Django==4.1.3
+django-cachalot==2.5.2
 django-cors-headers==3.13.0
 django-filter==22.1
 django-permissions-policy==4.13.0
