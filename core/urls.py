@@ -1,8 +1,6 @@
-from django.conf.urls.static import static
 from django.urls import path, include
 from rest_framework import routers
 
-from Ramadan_Competition_Rest import settings
 from . import views
 
 router = routers.DefaultRouter()
@@ -12,4 +10,4 @@ router.register(r'create-competition', views.CreateCompetitionView, basename='Cr
 urlpatterns = [
     path('', include(router.urls)),
     path('check_username_pwd/', views.CheckUserNamePasswordView.as_view(), name='check_username_pwd'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]  # + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

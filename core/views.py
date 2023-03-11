@@ -45,14 +45,9 @@ class CompetitionView(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, name='List Top Students')
     def list_top_students(self, request, *args, **kwargs):
         competition = self.request.user.competition_id
-        key = f'list_top_students_{competition}'
-        res = get_from_cache(key)
-        if res:
-            return Response(res)
         students = StudentUser.objects.filter(competition__id=competition)
         serializer = TopStudentsSerializer(students, many=True)
         sorted_res = sorted(serializer.data, key=lambda x: x['total_points'], reverse=True)
-        save_to_cache(key, sorted_res, timeout=600)
         return Response(sorted_res)
 
 
@@ -65,10 +60,6 @@ class CreateCompetitionView(viewsets.ModelViewSet):
 
 def user_points_stats(user, stats_type, date):
     stats = dict()
-    key = f'user_points_stats_{user}_{stats_type}_{date}'
-    res = get_from_cache(key)
-    if res:
-        return Response(res)
     if stats_type == 'total_points_by_day':
         stats['total_points_by_day'] = user.competition_students.student_points.all() \
             .values('ramadan_record_date') \
@@ -86,7 +77,6 @@ def user_points_stats(user, stats_type, date):
             '?type=[total_points_by_day, total_points_by_type, daily_points_by_type]', status=400)
     if date:
         stats[stats_type] = stats.get(stats_type).filter(ramadan_record_date=date)
-    save_to_cache(key, stats, timeout=600)
     return Response(stats)
 
 
