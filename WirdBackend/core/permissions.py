@@ -33,12 +33,18 @@ class IsContestAdmin(BasePermission):
 
 
 class IsGroupAdmin(BasePermission):
-    #TODO: Support more variations
+    # TODO: Support more variations
     def has_permission(self, request, view):
         contest_id = util_methods.get_current_contest_dict(request)["id"]
         username = util_methods.get_username_from_session(request)
         group_id = view.kwargs["group_id"]
         return models_helper.get_person_managed_groups(username, contest_id).filter(id=group_id).exists()
+
+
+class MemberBelongsToAdminGroups(BasePermission):
+    def has_permission(self, request, view):
+        # FIXME
+        return True
 
 
 class IsContestSuperAdmin(BasePermission):
