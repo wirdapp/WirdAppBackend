@@ -1,8 +1,12 @@
 import datetime
+import random
+import string
 
 from django.core.cache import cache
+from django.core.mail import send_mail
 from django.db.models import Value, Sum, F
 from django.db.models.functions import Concat
+from django.template.loader import render_to_string
 from django.utils.translation import get_language
 from django.utils.translation import gettext
 from drf_yasg import openapi
@@ -165,3 +169,63 @@ class JoinContest(views.APIView):
             return Response("Joined!!")
         else:
             return Response("Access Code is not Correct!!", status=404)
+
+
+class ResetPasswordView(views.APIView):
+    def post(self, request, *args, **kwargs):
+        validate_get_reset = kwargs["validate_get_reset"]
+        if validate_get_reset == "get_token":
+            return self.get_token(request)
+        elif validate_get_reset == "validate_token":
+            return self.validate_token(request)
+        elif validate_get_reset == "reset_password":
+            return self.reset_password(request)
+        else:
+            return Response("Not Found", status=404)
+
+    @staticmethod
+    def validate_token(request):
+        token = request.data.get('token', None)
+        username = request.data.get('username', None)
+        if not (username and token):
+            return Response("Please ensure to post username and received token", status=400)
+        cached_username = cache.get(f"reset_password/{token}")
+        if cached_username == username:
+            return Response("Valid")
+        else:
+            return Response("Invalid", status=400)
+
+    def reset_password(self, request):
+        if self.validate_token(request).status_code == 200:
+            token = request.data.get('token')
+            password = request.data.get('password')
+            cached_username = cache.get(f"reset_password/{token}")
+            password = make_password(password)
+            person = Person.objects.filter(username=cached_username).first()
+            person.password = password
+            person.save()
+            return Response("Password Reset!")
+        else:
+            return Response("Token is not Valid!", status=400)
+
+    @staticmethod
+    def get_token(request):
+        username = request.data.get('username', None)
+        if username:
+            person = Person.objects.filter(username=username).first()
+            if not person:
+                return Response("User with this username/email was not found", status=404)
+        else:
+            return Response("Post your email address or username", status=400)
+
+        subject = 'Wird App Password Reset'
+        token = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
+        cache.set(f"reset_password/{token}", username, 2 * 60 * 60)
+        lang = get_language()
+        context = {'token': token, "username": person.username}
+        html_message = render_to_string(f'reset_password_{lang}.html', context)
+        plain_message = render_to_string(f'reset_password_{lang}.txt', context)
+        from_email = 'Wird App <no-reply@wird.app>'
+        to_emails = [person.email]
+        send_mail(subject, plain_message, from_email, to_emails, html_message=html_message)
+        return Response("Sent!")
