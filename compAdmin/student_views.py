@@ -66,7 +66,7 @@ class StudentView(ChangePasswordViewSet):
             return Response({**serializer.data})
         elif self.request.method == 'DELETE':
             point.delete()
-            return Response("Deleted Successfully")
+            return Response("Deleted Successfully", status=204)
         else:
             return Response("Action is not supported", status=404)
 
