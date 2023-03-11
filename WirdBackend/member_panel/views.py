@@ -1,6 +1,6 @@
 from rest_framework.permissions import AllowAny
 
-from core.my_view import MyModelViewSet
+from core.util_classes import MyModelViewSet
 from member_panel.models import PointRecord
 from member_panel.serializers import PointRecordSerializer
 
