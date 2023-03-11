@@ -75,7 +75,7 @@ class ParticipantSignupSerializer(serializers.ModelSerializer):
         return person
 
 
-class ContextFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
+class ContestFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
     def __init__(self, **kwargs):
         self.object_name = kwargs.pop("object_name", "")
         super().__init__(**kwargs)
@@ -87,31 +87,7 @@ class ContextFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
             func = getattr(models_helper, "get_contest_" + self.object_name)
             queryset = func(contest["id"])
         else:
-            queryset = super(ContextFilteredPrimaryKeyRelatedField, self).get_queryset()
+            queryset = super(ContestFilteredPrimaryKeyRelatedField, self).get_queryset()
             queryset = queryset.filter(contest__id=contest["id"])
         return queryset
 
-
-class MyRelatedField(serializers.RelatedField):
-    display_value_fields = {"id"}
-
-    def to_internal_value(self, data):
-        return self.get_queryset().get(pk=data)
-
-    def to_representation(self, value):
-        return getattr(value, "id")
-
-    def display_value(self, instance):
-        values = []
-        for field in self.display_value_fields:
-            try:
-                values.append(getattr(instance, field))
-            except:
-                values.append("")
-
-        return " ".join(values)
-
-    def get_queryset(self):
-        raise NotImplementedError(
-            f'{self.__class__.__name__}.get_queryset() must be implemented for field {self.field_name}.'
-        )

@@ -1,13 +1,13 @@
 from rest_framework import serializers
 
 from core.models import ContestPerson
-from core.serializers import ContextFilteredPrimaryKeyRelatedField
+from core.serializers import ContestFilteredPrimaryKeyRelatedField
 from member_panel.models import PointRecord, UserInputPointRecord
 
 
 class PointRecordSerializer(serializers.ModelSerializer):
-    point_template = ContextFilteredPrimaryKeyRelatedField(object_name="point_templates")
-    person = ContextFilteredPrimaryKeyRelatedField(queryset=ContestPerson.objects)
+    point_template = ContestFilteredPrimaryKeyRelatedField(object_name="point_templates")
+    person = ContestFilteredPrimaryKeyRelatedField(queryset=ContestPerson.objects)
     record_type = serializers.ChoiceField(choices=["user_input", ], allow_blank=True, required=False)
 
     class Meta:
@@ -30,7 +30,7 @@ class PointRecordSerializer(serializers.ModelSerializer):
 
 class UserInputPointRecordSerializer(serializers.ModelSerializer):
     record_type = serializers.ReadOnlyField()
-    point_template = ContextFilteredPrimaryKeyRelatedField(object_name="point_templates")
+    point_template = ContestFilteredPrimaryKeyRelatedField(object_name="point_templates")
 
     class Meta:
         exclude = PointRecordSerializer.Meta.exclude

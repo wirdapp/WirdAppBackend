@@ -4,7 +4,7 @@ from rest_framework.exceptions import ValidationError
 import core.serializers
 from core import models_helper, util
 from core.models import Group, ContestPerson
-from core.serializers import ContextFilteredPrimaryKeyRelatedField
+from core.serializers import ContestFilteredPrimaryKeyRelatedField
 from .models import *
 
 
@@ -21,8 +21,14 @@ class SectionSerializer(AutoSetContestSerializer):
         exclude = ('contest',)
 
 
+class ContestPersonSerializer(serializers.ModelSerializer):
+    person = core.serializers.PersonSerializer(read_only=True)
+    class Meta:
+        model = ContestPerson
+        fields = ["person", "group", "contest_role"]
+
 class PointTemplateSerializer(AutoSetContestSerializer):
-    section = ContextFilteredPrimaryKeyRelatedField(object_name="sections")
+    section = ContestFilteredPrimaryKeyRelatedField(object_name="sections")
     template_type = serializers.ChoiceField(choices=("number", "checkbox",), allow_blank=True, required=False)
 
     class Meta:
