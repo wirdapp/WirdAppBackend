@@ -101,6 +101,7 @@ class UserInputPointRecordSerializer(serializers.ModelSerializer):
 
     class Meta:
         exclude = PointRecordSerializer.Meta.exclude
+        read_only_fields = ["point_total"]
         model = UserInputPointRecord
 
     def validate_reviewed_by_admin(self, value):
