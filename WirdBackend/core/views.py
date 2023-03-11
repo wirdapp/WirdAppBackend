@@ -1,13 +1,20 @@
+from django.core.cache import cache
+from django.db.models import Value, Sum, F
+from django.db.models.functions import Concat
 from django.utils.translation import gettext
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema, no_body
-from rest_framework import viewsets, mixins, permissions, status
+from rest_condition import And
+from rest_framework import viewsets, mixins, permissions, status, views
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from core import util_methods, models_helper
+from core.permissions import IsContestMember
 from core.serializers import *
 from core.util_classes import MyModelViewSet
+from member_panel.models import PointRecord
 
 
 class ContestView(MyModelViewSet):
@@ -70,3 +77,44 @@ class CurrentContestPersonView(MyModelViewSet):
         current_contest = util_methods.get_current_contest_dict(self.request)
         data = dict(person=person.data, contest=current_contest)
         return Response(data)
+
+
+class TopMembersOverall(views.APIView):
+    permission_classes = [And(IsAuthenticated(), IsContestMember()), ]
+
+    def get(self, request, *args, **kwargs):
+        contest_id = util_methods.get_current_contest_dict(request)["id"]
+        results = cache.get(contest_id)
+        if not results:
+            first_name = "person__person__first_name"
+            last_name = "person__person__last_name"
+            username = "person__person__username"
+            results = PointRecord.objects.filter(person__contest__id=contest_id) \
+                .annotate(username=F(username), name=Concat(first_name, Value(' '), last_name)) \
+                .values("username", "person_id", 'name') \
+                .annotate(total_points=Sum("point_total")).order_by("-total_points")
+            cache.set(contest_id, results, 60 * 10)
+
+        return Response(results)
+
+
+class TopMembersByDate(views.APIView):
+    permission_classes = [And(IsAuthenticated(), IsContestMember()), ]
+
+    def get(self, request, *args, **kwargs):
+        contest_id = util_methods.get_current_contest_dict(request)["id"]
+        date = kwargs["date"]
+        key = f"{contest_id}_{date}"
+        results = cache.get(key)
+        if not results:
+            first_name = "person__person__first_name"
+            last_name = "person__person__last_name"
+            username = "person__person__username"
+            results = PointRecord.objects.filter(record_date=date, person__contest__id=contest_id) \
+                .annotate(username=F(username), name=Concat(first_name, Value(' '), last_name)) \
+                .values("username", "person_id", 'name') \
+                .annotate(total_daily_points=Sum("point_total")) \
+                .order_by('-total_daily_points')
+            cache.set(key, results, 60 * 10)
+
+        return Response(results)
