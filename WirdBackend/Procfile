@@ -1,1 +1,1 @@
-web: gunicorn Ramadan_Competition_Rest.wsgi
+web: gunicorn WirdBackend.wsgi

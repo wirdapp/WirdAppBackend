@@ -21,7 +21,7 @@ class PointRecordsView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        date = self.request.query_params['date'] if 'date' in self.request.query_params else util.current_hijri_date
+        date = self.request.query_params['date'] if 'date' in self.request.query_params else util.get_today_date_hijri()
         if hasattr(user, 'competition_students'):
             student = user.competition_students
             points = student.student_points.filter(point_scored_units__gte=0)
@@ -77,7 +77,7 @@ class PointTemplatesView(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'id'
 
     def get_queryset(self):
-        date = self.request.query_params['date'] if 'date' in self.request.query_params else util.current_hijri_date
+        date = self.request.query_params['date'] if 'date' in self.request.query_params else util.get_today_date_hijri()
         comp = self.request.user.competition
         return comp.competition_point_templates\
             .filter(is_active=True) \

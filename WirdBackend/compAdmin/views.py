@@ -9,10 +9,10 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
-from Ramadan_Competition_Rest import settings
+from WirdBackend import settings
 from core import util
 from core.permissions import IsCompetitionSuperAdmin, IsCompetitionAdmin
-from core.util import current_hijri_date
+from core.util import get_today_date_hijri, get_today_date_hijri
 from core.views import ChangePasswordViewSet
 from student.models import PointRecord
 from .serializers import *
@@ -119,7 +119,7 @@ class AdminCompetitionView(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], name='General Comp Stats')
     def general_stats(self, request, *args, **kwargs):
         competition_id = self.request.user.competition_id
-        ramadan_date = current_hijri_date - 1
+        ramadan_date = get_today_date_hijri() - 1
         stats = dict()
         top_on_day = StudentUser.objects.filter(competition__id=competition_id) \
             .values('username', 'first_name', 'last_name', 'student_points__point_total') \
@@ -132,7 +132,7 @@ class AdminCompetitionView(viewsets.ModelViewSet):
             .values('ramadan_record_date') \
             .annotate(total_day=Sum('point_total')).order_by('-total_day').first()
         stats['students_count'] = StudentUser.objects.filter(competition__id=competition_id).count()
-        stats['ramadan_date'] = current_hijri_date
+        stats['ramadan_date'] = get_today_date_hijri()
         return Response({**stats})
 
 

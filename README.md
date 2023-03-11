@@ -1,4 +1,4 @@
-# Ramadan_Competition_Rest
+# WirdBackend
 RESTful version of 'Ramadan Competition' using Django Rest framework
 
 Check the description of the website at wird.app/

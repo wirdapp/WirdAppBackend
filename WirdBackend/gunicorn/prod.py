@@ -2,7 +2,7 @@
 import multiprocessing
 
 # Django WSGI application path in pattern MODULE_NAME:VARIABLE_NAME
-wsgi_app = "Ramadan_Competition_Rest.wsgi:application"
+wsgi_app = "WirdBackend.wsgi:application"
 # The number of worker processes for handling requests
 workers = multiprocessing.cpu_count() * 2 + 1
 # Write access and error info to /var/log

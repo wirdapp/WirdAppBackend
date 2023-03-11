@@ -74,7 +74,7 @@ class StudentView(ChangePasswordViewSet):
     @action(detail=True, methods=['get'], name='Get User Input Records')
     def get_user_input_records(self, request, *args, **kwargs):
         user = self.get_object()
-        date = request.query_params['date'] if 'date' in request.query_params else util.current_hijri_date
+        date = request.query_params['date'] if 'date' in request.query_params else util.get_today_date_hijri()
         points = user.student_points.filter(point_template__form_type='oth', point_scored_units=-1,
                                             ramadan_record_date=date)
         serializer = self.get_serializer(points, many=True)

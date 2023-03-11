@@ -1,6 +1,3 @@
-import os
-
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '1234'
 
@@ -31,7 +28,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',  # TODO REMOVE
+        'rest_framework.authentication.BasicAuthentication',
     ],
     'EXCEPTION_HANDLER': 'core.global_exception_handler.custom_exception_handler',
     'DEFAULT_THROTTLE_CLASSES': [

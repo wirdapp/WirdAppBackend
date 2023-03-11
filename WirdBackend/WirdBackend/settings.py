@@ -4,13 +4,12 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-if os.environ.get('django_env') == 'dev':
+if os.environ.get('django_env') == 'prod':
+    from .prod_settings import *
+elif os.environ.get('django_env') == 'dev':
     from .dev_settings import *
 else:
-    from .prod_settings import *
-
-ALLOWED_HOSTS = ['ramadan-comp-rest.herokuapp.com', '127.0.0.1', 'wird.app', '159.65.93.82', 'localhost',
-                 'student.wird.app', 'admin.wird.app', '0.0.0.0']
+    from .local_settings import *
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -40,7 +39,7 @@ MIDDLEWARE = [
     "django_permissions_policy.PermissionsPolicyMiddleware",
 ]
 
-ROOT_URLCONF = 'Ramadan_Competition_Rest.urls'
+ROOT_URLCONF = 'WirdBackend.urls'
 
 TEMPLATES = [
     {
@@ -59,7 +58,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'Ramadan_Competition_Rest.wsgi.application'
+WSGI_APPLICATION = 'WirdBackend.wsgi.application'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -82,7 +81,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
-LANGUAGE_CODE = 'ar'
+LANGUAGE_CODE = 'en'
 
 TIME_ZONE = 'UTC'
 
@@ -114,19 +113,3 @@ SIMPLE_JWT = {
 }
 
 AUTH_USER_MODEL = 'core.GeneralUser'
-
-# Security Headers
-SECURE_HSTS_PRELOAD = True
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-SECURE_HSTS_SECONDS = 2_592_000
-SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
-# Application definition
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'DENY'
-PERMISSIONS_POLICY = {"fullscreen": "*", }
-SESSION_COOKIE_HTTPONLY = True
-
