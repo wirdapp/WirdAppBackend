@@ -24,7 +24,7 @@ class DynamicFieldsCategorySerializer(serializers.ModelSerializer):
 class PersonSerializer(DynamicFieldsCategorySerializer):
     class Meta:
         model = Person
-        fields = ['id', 'username', 'email', 'phone_number', 'first_name', 'last_name', 'profile_photo']
+        fields = ['username', 'email', 'phone_number', 'first_name', 'last_name', 'profile_photo']
 
 
 class ContestSerializer(serializers.ModelSerializer):
@@ -76,6 +76,8 @@ class ParticipantSignupSerializer(serializers.ModelSerializer):
 
 
 class ContestFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
+    to_repr_field = None
+
     def __init__(self, **kwargs):
         self.object_name = kwargs.pop("object_name", "")
         super().__init__(**kwargs)
