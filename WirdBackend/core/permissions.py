@@ -35,7 +35,7 @@ class IsContestAdmin(BasePermission):
 class IsContestSuperAdmin(BasePermission):
     def has_permission(self, request, view):
         try:
-            return person_role_in_contest(request, [3])
+            return request.user.is_staff or person_role_in_contest(request, [3])
         except:
             return False
 
