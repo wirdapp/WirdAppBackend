@@ -35,7 +35,8 @@ class ContestPersonSerializer(serializers.ModelSerializer):
 
 
 class PointTemplateSerializer(AutoSetContestSerializer):
-    section = ContestFilteredPrimaryKeyRelatedField(object_name="sections")
+    section = ContestFilteredPrimaryKeyRelatedField(object_name="sections", to_repr_class=Section,
+                                                    to_repr_field="label")
     template_type = serializers.ChoiceField(choices=("number", "checkbox",), allow_blank=True, required=False)
 
     class Meta:
@@ -63,7 +64,9 @@ class PointTemplateSerializer(AutoSetContestSerializer):
 
 
 class NumberPointTemplateSerializer(AutoSetContestSerializer):
-    type = serializers.ReadOnlyField()
+    section = ContestFilteredPrimaryKeyRelatedField(object_name="sections", to_repr_class=Section,
+                                                    to_repr_field="label")
+    template_type = serializers.ReadOnlyField()
 
     class Meta:
         model = NumberPointTemplate
@@ -76,7 +79,9 @@ class NumberPointTemplateSerializer(AutoSetContestSerializer):
 
 
 class CheckboxPointTemplateSerializer(AutoSetContestSerializer):
-    type = serializers.ReadOnlyField()
+    section = ContestFilteredPrimaryKeyRelatedField(object_name="sections", to_repr_class=Section,
+                                                    to_repr_field="label")
+    template_type = serializers.ReadOnlyField()
 
     class Meta:
         model = CheckboxPointTemplate
@@ -105,7 +110,7 @@ class RetrieveUpdateGroupSerializer(AutoSetContestSerializer):
         return PersonSerializer(objects, many=True, read_only=True).data
 
     def get_members(self, instance):
-        objects = models_helper.get_group_members(instance.id).values("username", "first_name", "last_name")
+        objects = models_helper.get_group_members(instance.id).values("person__username", "person__first_name", "person__last_name")
         return PersonSerializer(objects, many=True, read_only=True).data
 
 
@@ -136,28 +141,3 @@ class AddRemovePersonsToGroup(serializers.Serializer):
             for username in person_usernames:
                 contest_person_id = ContestPerson.objects.get(contest_id=contest_id, person__username=username).id
                 ContestPersonGroups.objects.update_or_create(contest_person_id=contest_person_id, defaults=defaults)
-
-
-class UpdateContestPersonRole(serializers.Serializer):
-    contest_roles_dict = [
-        ("add_moderator", 2),
-        ("delete_moderator", 1,),
-        ("add_super_admin", 3,),
-        ("delete_super_admin", 1,),
-        ("accept_participant", 1,),
-        ("reject_participant", 5,),
-    ]
-
-    username = serializers.CharField()
-    action = serializers.ChoiceField(choices=contest_roles_dict)
-
-    def validate_username(self, data):
-        contest_id = util.get_current_contest_dict(self.context)["id"]
-        for username in data:
-            cp = ContestPerson.objects.filter(contest_id=contest_id, person__username=username)
-            if not cp.exists():
-                raise ValidationError(f"No user with username {username} exists for this competition")
-        return data
-
-    def create(self, validated_data):
-        pass
