@@ -1,26 +1,27 @@
-from django.core.validators import MinValueValidator, MaxValueValidator
+import datetime
+import uuid
+
 from django.db import models
+from polymorphic.models import PolymorphicModel
 
 from admin_panel.models import PointTemplate
-from core.models import Person
+from core.models import ContestPerson
 
 
-class PointRecord(models.Model):
+class PointRecord(PolymorphicModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    person = models.ForeignKey(ContestPerson, on_delete=models.PROTECT, null=True, related_name='contest_person_points')
     point_template = models.ForeignKey(PointTemplate, on_delete=models.PROTECT)
-    person = models.ForeignKey(Person, on_delete=models.PROTECT, null=True, related_name='student_points')
-    point_scored_units = models.IntegerField(default=0)
-    ramadan_record_date = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(30)])
-    user_input = models.TextField(default="", blank=True, max_length=512)
+    record_date = models.DateField(default=datetime.date.today)
     point_total = models.IntegerField(default=0)
 
-    def set_student(self, student):
-        self.student = student
-
-    def set_point_total(self, point_total):
-        self.point_total = point_total
-
     class Meta:
-        ordering = ('-ramadan_record_date',)
+        ordering = ('-record_date',)
 
     def __str__(self):
-        return f'{self.student.username}:{self.point_template.label}:date:{self.ramadan_record_date}'
+        return f'{self.person.person_id}:{self.point_template.label}:date:{self.record_date}'
+
+
+class UserInputPointRecord(PointRecord):
+    user_input = models.TextField(default="", blank=True, max_length=1024)
+    reviewed_by_admin = models.BooleanField(default=False)
