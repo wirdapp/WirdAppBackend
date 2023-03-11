@@ -7,7 +7,7 @@ WORKDIR /app
 COPY . /app
 
 # Install PostgreSQL and Gunicorn
-RUN apt-get update && apt-get install -y libpq-dev postgresql-client
+RUN apt-get update && apt-get install -y libpq-dev postgresql-client netcat
 RUN pip install gunicorn
 
 # Install any needed packages specified in requirements.txt
