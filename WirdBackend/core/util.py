@@ -36,7 +36,7 @@ def get_current_contest_dict(request):
             request.session["current_contest_id"] = contests[0][0].hex
             request.session["current_contest_role"] = contests[0][1]
         else:
-            raise Exception("User Have No Contests!")
+            raise Exception("User Has No Contests!")
     return {"id": request.session["current_contest_id"], "role": request.session["current_contest_role"]}
 
 
