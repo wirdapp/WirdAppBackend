@@ -10,5 +10,7 @@ router.register(r'signup', views.SignUpView, basename='signup')
 urlpatterns = [
     path('current-user/', views.CurrentContestPersonView.as_view({'get': 'retrieve', "post": "update"}),
          name='current-persons'),
+    path("top-members/", views.TopMembersOverall.as_view()),
+    path("top-members/<date:date>", views.TopMembersByDate.as_view()),
     path('', include(router.urls)),
 ]
