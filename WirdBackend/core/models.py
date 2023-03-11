@@ -56,7 +56,7 @@ class Group(models.Model):
 
     @cached_property
     def members_count(self):
-        return ContestPerson.objects.filter(contest_role=1, group__id=self.id).count()
+        return ContestPersonGroups.objects.filter(group_role=1, group__id=self.id).count()
 
     def __str__(self):
         return self.name
@@ -65,9 +65,10 @@ class Group(models.Model):
 class ContestPerson(models.Model):
     class ContestRole(models.IntegerChoices):
         MEMBER = (1, 'member')
-        SUPER_ADMIN = (2, 'super_admin')
-        PENDING_MEMBER = (3, 'pending_member')
-        DEACTIVATED = (4, 'deactivated')
+        ADMIN = (2, 'admin')
+        SUPER_ADMIN = (3, 'super_admin')
+        PENDING_MEMBER = (4, 'pending_member')
+        DEACTIVATED = (5, 'deactivated')
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     contest = models.ForeignKey(Contest, on_delete=models.PROTECT, blank=True, null=True)
@@ -77,7 +78,7 @@ class ContestPerson(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['contest_id', 'person_id'],
-                                    name="unique_group_person",
+                                    name="unique_contest_person",
                                     violation_error_message="Can't Create more than one person in a contest"),
         ]
 
@@ -91,9 +92,9 @@ class ContestPersonGroups(models.Model):
     group = models.ForeignKey(Group, on_delete=models.PROTECT)
     group_role = models.PositiveSmallIntegerField(choices=GroupRole.choices, default=GroupRole.MEMBER)
 
-    constraints = [
-        models.UniqueConstraint(fields=['contest_person_id', 'group_id', 'group_role'],
-                                name="unique_group_person",
-                                violation_error_message="A person can be a Group member or a Group Admin"),
-        models.CheckConstraint(check=~Q(contest_person_contest_role=3), name="Super Admin can't be assigned to a Group")
-    ]
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['contest_person_id', 'group_id', 'group_role'],
+                                    name="unique_group_person",
+                                    violation_error_message="A person can be a Group member or a Group Admin"),
+        ]
