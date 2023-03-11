@@ -14,6 +14,7 @@ from .student_serializers import StudentUserSerializer, StudentUserRetrieveSeria
 class StudentView(ChangePasswordViewSet):
     name = 'student-admin-view'
     lookup_field = 'username'
+    lookup_value_regex = '[\w.@+-]+'
     http_method_names = ['put', 'delete', 'get']
 
     def destroy(self, request, *args, **kwargs):

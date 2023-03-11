@@ -43,6 +43,7 @@ class PointRecordsView(viewsets.ModelViewSet):
 class StudentUserView(viewsets.ModelViewSet):
     name = 'student-user-list'
     lookup_field = 'username'
+    lookup_value_regex = '[\w.@+-]+'
     http_method_names = ['get', 'put', 'post', 'options']
 
     def destroy(self, request, *args, **kwargs):
