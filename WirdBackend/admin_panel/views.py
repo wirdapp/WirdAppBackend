@@ -1,3 +1,9 @@
+import datetime
+
+import numpy as np
+import pandas as pd
+from django.db.models import Value, Sum
+from django.db.models.functions import Concat
 from rest_condition import And
 from rest_framework import generics, views
 from rest_framework.decorators import action
@@ -138,3 +144,48 @@ class GroupMemberResultsView(generics.ListAPIView):
         points = PointRecordSerializer(points, many=True, read_only=True).data
         total_day = sum([point["point_total"] for point in points])
         return dict(username=user_name, points=points, total_day=total_day)
+
+
+class ExportResultsView(views.APIView):
+    permission_classes = [And(IsAuthenticated(), IsContestAdmin(), IsGroupAdmin())]
+
+    def get(self, request, *args, **kwargs):
+        group_id = self.kwargs["group_id"]
+        from_date = datetime.date.fromisoformat(request.query_params.get("from_date")) \
+            if request.query_params.get("from_date") else datetime.date.today()
+        to_date = datetime.date.fromisoformat(request.query_params.get("to_date")) \
+            if request.query_params.get("to_date") else datetime.date.today()
+        detailed_day = request.query_params.get("detailed_day", False)
+        if from_date == to_date and detailed_day:
+            return self.get_detailed_day(request, group_id, from_date)
+        else:
+            return self.get_days_results(request, group_id, from_date, to_date)
+
+    @staticmethod
+    def get_detailed_day(request, group_id, from_date):
+        members = models_helper.get_group_members_contest_person_ids(group_id)
+        f_name = "person__person__first_name"
+        l_name = "person__person__last_name"
+        points = PointRecord.objects.filter(person__id__in=members, record_date=from_date) \
+            .annotate(name=Concat(f_name, Value(' '), l_name)) \
+            .order_by("name", "point_template__label")
+
+        index = points.values_list("name", flat=True).order_by("name").distinct()
+        columns = points.values_list("point_template__label", flat=True).order_by("point_template__label").distinct()
+        data = points.values_list("point_total", flat=True)
+        data = np.reshape(data, (len(index), len(index))).tolist()
+        df = pd.DataFrame(columns=columns, index=index, data=data)
+        file_path = f"{group_id}_{from_date}_generated_on_{datetime.date.today()}_detailed_day_results.xlsx"
+        df.to_excel(file_path)
+        return Response(file_path)
+
+    @staticmethod
+    def get_days_results(request, group_id, from_date, to_date):
+        members = models_helper.get_group_members_contest_person_ids(group_id)
+        first_name = "person__person__first_name"
+        last_name = "person__person__last_name"
+        results = PointRecord.objects.filter(person__id__in=members, record_date__range=[from_date, to_date]) \
+            .annotate(name=Concat(first_name, Value(' '), last_name)) \
+            .values("person_id", 'name') \
+            .annotate(total_points=Sum("point_total")).order_by("-total_points") \
+            .values_list("name", "record_date", "total_points")
