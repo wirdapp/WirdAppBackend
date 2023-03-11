@@ -24,6 +24,11 @@ def cache_returned_values(func):
 def get_contest_people(contest_id, contest_role=(1, 2, 3)):
     return ContestPerson.objects.filter(contest__id=contest_id, contest_role__in=contest_role)
 
+@cache_returned_values
+def get_contest_person_objects(contest_id, contest_role=(1, 2, 3)):
+    person_ids = get_contest_people(contest_id, contest_role).values_list("person__id")
+    return Person.objects.filter(id__in=person_ids)
+
 
 @cache_returned_values
 def get_person_contests_ids_and_roles(username, contest_role=(1, 2, 3)):
