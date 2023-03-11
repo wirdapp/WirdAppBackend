@@ -19,4 +19,5 @@ urlpatterns = [
     path('results/', lambda request: redirect('/admin-panel/results/' + datetime.date.today().isoformat())),
     path('results/<date:date>/', views.ResultsView.as_view(), name='Results Page'),
     path('results/<date:date>/<str:group_id>', views.GroupMemberResultsView.as_view(), name='Results Page'),
+    path('export-results/<str:group_id>', views.ExportResultsView.as_view(), name='Export Results Page'),
 ]
