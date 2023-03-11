@@ -10,7 +10,7 @@ router.register(r'section', views.SectionView, basename='Section')
 router.register(r'groups', views.GroupView, basename='Groups')
 router.register(r'contest_people', views.ContestPeopleView, basename='Contest People')
 
-
 urlpatterns = [
     path('', include(router.urls)),
+    path('top_members/', views.TopMembers.as_view(), name='top_members'),
 ]
