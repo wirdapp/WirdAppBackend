@@ -15,6 +15,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
     ],
     'EXCEPTION_HANDLER': 'core.global_exception_handler.custom_exception_handler',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20
 }
 
 CACHES = {
@@ -45,4 +47,3 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',
     'http://localhost:8000',
 ]
-
