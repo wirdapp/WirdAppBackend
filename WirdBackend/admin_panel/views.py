@@ -15,11 +15,14 @@ class SectionView(MyModelViewSet):
 
 
 class PointTemplatesView(MyModelViewSet):
-    serializer_class = PointTemplateSerializer
     name = 'points-templates-list'
     lookup_field = 'id'
-    queryset = PointTemplate.objects
     admin_allowed_methods = ['list', 'retrieve']
+    serializer_class = PointTemplatePolymorphicSerializer
+
+    def get_queryset(self):
+        contest_id = util.get_current_contest_dict(self.request)["id"]
+        return models_helper.get_contest_point_templates(contest_id)
 
 
 class GroupView(MyModelViewSet):
