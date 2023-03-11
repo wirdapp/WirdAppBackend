@@ -118,10 +118,12 @@ class GroupAdminInformationView(views.APIView):
     def get(self, request, *args, **kwargs):
         result = dict()
         user = self.request.user.competition_students
-        admin = user.group.admin
-        result['username'] = admin.username
-        result['first_name'] = admin.first_name
-        result['last_name'] = admin.last_name
-        result['email'] = admin.email
-        result['phone_number'] = admin.phone_number
+        group = user.group
+        if group:
+            admin = group.admin
+            result['username'] = admin.username
+            result['first_name'] = admin.first_name
+            result['last_name'] = admin.last_name
+            result['email'] = admin.email
+            result['phone_number'] = admin.phone_number
         return Response({**result})
