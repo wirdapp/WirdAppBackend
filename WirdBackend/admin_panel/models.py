@@ -1,6 +1,6 @@
 import uuid
 
-from django.core.validators import validate_comma_separated_integer_list, MinValueValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 from polymorphic.models import PolymorphicModel
 
@@ -32,6 +32,10 @@ class PointTemplate(PolymorphicModel):
 
     def __str__(self):
         return self.label
+
+    @property
+    def template_type(self):
+        return self.__class__.__name__
 
 
 class NumberPointTemplate(PointTemplate):
