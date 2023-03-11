@@ -1,10 +1,9 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-import core.serializers
 from core import models_helper, util
-from core.models import Group, ContestPerson
-from core.serializers import ContestFilteredPrimaryKeyRelatedField
+from core.models import Group, ContestPerson, ContestPersonGroups
+from core.serializers import ContestFilteredPrimaryKeyRelatedField, PersonSerializer
 from .models import *
 
 
@@ -22,10 +21,18 @@ class SectionSerializer(AutoSetContestSerializer):
 
 
 class ContestPersonSerializer(serializers.ModelSerializer):
-    person = core.serializers.PersonSerializer(read_only=True)
+    person = serializers.SerializerMethodField()
+
     class Meta:
         model = ContestPerson
-        fields = ["person", "group", "contest_role"]
+        fields = ["person", "contest_role"]
+
+    def get_person(self, value):
+        if self.context["view"].action == "list":
+            return PersonSerializer(value.person, read_only=True, fields=["username", "first_name", "last_name"]).data
+        else:
+            return PersonSerializer(value.person, read_only=True).data
+
 
 class PointTemplateSerializer(AutoSetContestSerializer):
     section = ContestFilteredPrimaryKeyRelatedField(object_name="sections")
@@ -94,31 +101,63 @@ class RetrieveUpdateGroupSerializer(AutoSetContestSerializer):
         fields = ('name', "admins", "members", "members_count")
 
     def get_admins(self, instance):
-        objects = models_helper.get_group_admins(instance.id).values("id", "username", "first_name", "last_name")
-        return core.serializers.PersonSerializer(objects, many=True, read_only=True,
-                                                 fields=["id", "username", "first_name", "last_name"]).data
+        objects = models_helper.get_group_admins(instance.id).values("username", "first_name", "last_name")
+        return PersonSerializer(objects, many=True, read_only=True).data
 
     def get_members(self, instance):
-        objects = models_helper.get_group_members(instance.id).values("id", "username", "first_name", "last_name")
-        return core.serializers.PersonSerializer(objects, many=True, read_only=True,
-                                                 fields=["id", "username", "first_name", "last_name"]).data
+        objects = models_helper.get_group_members(instance.id).values("username", "first_name", "last_name")
+        return PersonSerializer(objects, many=True, read_only=True).data
 
-#
-# class AddRemovePersonsToGroup(serializers.Serializer):
-#     persons = serializers.ListField()
-#     action = serializers.ChoiceField(choices=["add", "remove"], default="add")
-#
-#     def create(self, validated_data):
-#         person_ids = validated_data["persons"]
-#         contest_id = util.get_current_contest_dict(self.context)["id"]
-#         group_id = validated_data["group_id"]
-#         contest_role = 1
-#         if validated_data["person_type"] == "admin":
-#             contest_role = 2
-#         if validated_data["action"] == "remove":
-#             ContestPerson.objects.filter(contest__id=contest_id, person__id__in=person_ids, group__id=group_id).delete()
-#         if validated_data["action"] == "add":
-#             defaults = dict(contest_role=contest_role, group_id=group_id)
-#             for person_id in person_ids:
-#                 ContestPerson.objects.update_or_create(contest_id=contest_id, person_id=person_id,
-#                                                        defaults=defaults)
+
+class AddRemovePersonsToGroup(serializers.Serializer):
+    persons = serializers.ListField(help_text="usernames")
+    action = serializers.ChoiceField(choices=["add", "remove"], default="add")
+
+    def validate_persons(self, data):
+        contest_id = util.get_current_contest_dict(self.context)["id"]
+        for username in data:
+            cp = ContestPerson.objects.filter(contest_id=contest_id, person__username=username)
+            if not cp.exists():
+                raise ValidationError(f"No user with username {username} exists for this competition")
+        return data
+
+    def create(self, validated_data):
+        contest_id = util.get_current_contest_dict(self.context)["id"]
+        person_usernames = validated_data["persons"]
+        group_id = validated_data["group_id"]
+
+        if validated_data["action"] == "remove":
+            ContestPersonGroups.objects \
+                .filter(group_id=group_id, contest_person__person__username__in=person_usernames) \
+                .delete()
+        if validated_data["action"] == "add":
+            group_role = 2 if validated_data["person_type"] == "admin" else 1
+            defaults = dict(group_id=group_id, group_role=group_role)
+            for username in person_usernames:
+                contest_person_id = ContestPerson.objects.get(contest_id=contest_id, person__username=username).id
+                ContestPersonGroups.objects.update_or_create(contest_person_id=contest_person_id, defaults=defaults)
+
+
+class UpdateContestPersonRole(serializers.Serializer):
+    contest_roles_dict = [
+        ("add_moderator", 2),
+        ("delete_moderator", 1,),
+        ("add_super_admin", 3,),
+        ("delete_super_admin", 1,),
+        ("accept_participant", 1,),
+        ("reject_participant", 5,),
+    ]
+
+    username = serializers.CharField()
+    action = serializers.ChoiceField(choices=contest_roles_dict)
+
+    def validate_username(self, data):
+        contest_id = util.get_current_contest_dict(self.context)["id"]
+        for username in data:
+            cp = ContestPerson.objects.filter(contest_id=contest_id, person__username=username)
+            if not cp.exists():
+                raise ValidationError(f"No user with username {username} exists for this competition")
+        return data
+
+    def create(self, validated_data):
+        pass
