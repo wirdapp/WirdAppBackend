@@ -2,6 +2,7 @@ from datetime import datetime
 
 from rest_condition import And
 from rest_framework import serializers
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
@@ -18,6 +19,12 @@ class DateConverter:
 
     def to_url(self, value):
         return value.strftime(self.format)
+
+
+class MyPageNumberPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 10
 
 
 class MyModelViewSet(ModelViewSet):
