@@ -13,6 +13,7 @@ urlpatterns = [
     path("top-members/", views.TopMembersOverall.as_view()),
     path("top-members/<date:date>", views.TopMembersByDate.as_view()),
     path("calendar/", views.CalendarView.as_view()),
+    path("calendar/<str:date>/", views.CalendarView.as_view()),
     path("create-contest/", views.CreateNewContest.as_view()),
     path("join-contest/", views.JoinContest.as_view()),
     path("reset-password/<str:validate_get_reset>", views.ResetPasswordView.as_view()),

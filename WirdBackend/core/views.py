@@ -127,17 +127,28 @@ class CalendarView(views.APIView):
         results = []
         today = datetime.datetime.today().date()
         lang = get_language()
-        for delta in range(-5, 3):  # 5 days before today and 3 days after
-            greg_date = today + datetime.timedelta(days=delta)
-            hijri_date = Gregorian.fromdate(greg_date).to_hijri()
-            hijri_date_words = f"{hijri_date.day} {hijri_date.month_name(language=lang)} {hijri_date.year}"
-            greg_date_words = greg_date.strftime('%d %B %Y')
-            date_dict = dict(greg_date=greg_date.strftime("%d-%m-%Y"), greg_date_words=greg_date_words,
-                             hijri_date=hijri_date.dmyformat(separator="-"),
-                             hijri_date_words=hijri_date_words)
+        date = kwargs.get('date', None)
+        if date:
+            if date == "today":
+                return Response(self.get_date_dict(0, lang, today))
+            else:
+                return Response(self.get_date_dict(0, lang, datetime.date.fromisoformat(date)))
+        for delta in range(-15, 15):
+            date_dict = self.get_date_dict(delta, lang, today)
             results.append(date_dict)
 
         return Response(results)
+
+    @staticmethod
+    def get_date_dict(delta, lang, day):
+        greg_date = day + datetime.timedelta(days=delta)
+        hijri_date = Gregorian.fromdate(greg_date).to_hijri()
+        hijri_date_words = f"{hijri_date.day} {hijri_date.month_name(language=lang)} {hijri_date.year}"
+        greg_date_words = greg_date.strftime('%d %B %Y')
+        date_dict = dict(greg_date=greg_date, greg_date_words=greg_date_words,
+                         hijri_date=hijri_date.dmyformat(separator="-"),
+                         hijri_date_words=hijri_date_words)
+        return date_dict
 
 
 class CreateNewContest(views.APIView):
