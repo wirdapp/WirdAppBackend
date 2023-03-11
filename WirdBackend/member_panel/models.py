@@ -1,5 +1,6 @@
 import datetime
 import uuid
+from gettext import gettext
 
 from django.db import models
 from polymorphic.models import PolymorphicModel
@@ -13,12 +14,7 @@ class PointRecord(PolymorphicModel):
     person = models.ForeignKey(ContestPerson, on_delete=models.PROTECT, related_name='contest_person_points')
     point_template = models.ForeignKey(PointTemplate, on_delete=models.PROTECT)
     record_date = models.DateField(default=datetime.date.today)
-    units_scored = models.PositiveIntegerField(
-        help_text="Number in case of Number Template, "
-                  "0 and 1 for the Boolean Template, "
-                  "0 (empty) and 1 (filled) for other templates"
-        , default=0
-    )
+    units_scored = models.PositiveIntegerField(help_text=gettext("point record help text"), default=0)
     point_total = models.PositiveIntegerField(default=0)
 
     class Meta:
