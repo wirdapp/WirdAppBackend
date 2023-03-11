@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from core.my_view import MyModelViewSet
 from core.permissions import IsContestAdmin
 from member_panel.models import PointRecord
+from member_panel.serializers import PointRecordSerializer
 from .serializers import *
 
 
@@ -118,16 +119,9 @@ class TopMembers(generics.ListAPIView):
 
 
 class ResultsView(views.APIView):
-    def get(self, request, *args, **kwargs):
-        username = kwargs.get("username", None)
-        date = kwargs.get("date", None)
-        if date and username:
-            return self.show_user_date_results(username, date)
-        elif date:
-            return self.show_date_results(request, date)
-
     @staticmethod
-    def show_date_results(request, date):
+    def get(request, *args, **kwargs):
+        date = kwargs.get("date", None)
         contest_id = util.get_current_contest_dict(request)["id"]
         username = util.get_username_from_session(request)
         group_list = models_helper.get_person_managed_groups(username, contest_id).values_list("id", "name")
@@ -141,18 +135,29 @@ class ResultsView(views.APIView):
             result.append(data)
         return Response(result)
 
-    @staticmethod
-    def show_user_date_results(username, date):
-        return Response("")
-
 
 class GroupMemberResultsView(generics.ListAPIView):
+    permission_classes = [And(IsAuthenticated(), IsContestAdmin()), ]
+
     def get_queryset(self):
         group_id = self.kwargs["group_id"]
-        members = ContestPersonGroups.objects.filter(group_id=group_id, group_role=1)
+        members = ContestPersonGroups.objects.prefetch_related("contest_person__person").filter(group_id=group_id,
+                                                                                                group_role=1)
         return members
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        page = self.paginate_queryset(queryset)
-        return self.get_paginated_response(page[0].id)
+        date = self.kwargs["date"]
+        paginated_queryset = self.paginate_queryset(queryset)
+        results = list()
+        for member in paginated_queryset:
+            results.append(self.get_member_results(member, date))
+        return self.get_paginated_response(results)
+
+    @staticmethod
+    def get_member_results(member, date):
+        user_name = member.contest_person.person.username
+        points = list(PointRecord.objects.filter(person__id=member.contest_person_id, record_date=date))
+        points = PointRecordSerializer(points, many=True, read_only=True).data
+        total_day = sum([point["point_total"] for point in points])
+        return dict(username=user_name, points=points, total_day=total_day)
