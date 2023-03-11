@@ -1,3 +1,5 @@
+import datetime
+
 from django.utils.translation import gettext
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -14,6 +16,7 @@ class PointRecordSerializer(serializers.ModelSerializer):
                                                            to_repr_field="label",
                                                            to_repr_class=PointTemplate)
     record_type = serializers.ChoiceField(choices=["UserInputPointRecord", "PointRecord"], required=False)
+    record_date = serializers.HiddenField(default=datetime.date.today())
 
     class Meta:
         exclude = ["person", "polymorphic_ctype"]
@@ -35,6 +38,7 @@ class PointRecordSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         point_template = attrs["point_template"]
+        attrs['record_date'] = self.context["record_date"]
         errors = dict()
         if point_template.template_type == "NumberPointTemplate":
             self.validate_number_point_template(attrs, point_template, errors)
