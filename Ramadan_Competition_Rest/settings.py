@@ -2,13 +2,12 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 if os.environ.get('django_env') == 'dev':
     from .dev_settings import *
 else:
     from .prod_settings import *
-
-BASE_DIR = Path(__file__).resolve().parent.parent
 
 ALLOWED_HOSTS = ['ramadan-comp-rest.herokuapp.com', '127.0.0.1', 'wird.app', '159.65.93.82', 'localhost',
                  'student.wird.app', 'admin.wird.app', '0.0.0.0']
