@@ -86,6 +86,9 @@ class ContestFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
         if self.to_repr_class:
             label = getattr(self.to_repr_class.objects.get(pk=value.pk), self.to_repr_field)
             pk = value.pk
-            return f"{pk} ({label})"
+            if self.context["view"].action in ["list", "retrieve"]:
+                return dict(id=pk, label=label)
+            else:
+                return pk
         else:
             return super(ContestFilteredPrimaryKeyRelatedField, self).to_representation(value)
