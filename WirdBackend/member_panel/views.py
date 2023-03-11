@@ -11,7 +11,7 @@ from member_panel.models import PointRecord
 from member_panel.serializers import PointRecordSerializer
 
 
-class ResultsByDateView(generics.ListCreateAPIView):
+class ResultsByDateView(mixins.ListModelMixin, mixins.CreateModelMixin, GenericViewSet):
     permission_classes = [And(IsAuthenticated(), IsContestMember())]
     serializer_class = PointRecordSerializer
 
