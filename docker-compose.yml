@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  wird_back:
+    build:
+      context: ./Ramadan_Competition_Rest
+    command: ./start_server.sh 
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    expose:
+      - 8000
+    env_file:
+      - ./.wird_back.env
+    depends_on:
+      - db
+    networks:
+      - wird-network
+
+  wird_front:
+    build: ./ramadan-front
+    volumes:
+      - wird_front_files:/app/build 
+    expose:
+      - 3000
+    tty: true
+    stdin_open: true
+    networks:
+      - wird-network
+
+  db:
+    image: postgres:13.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.wird_db.env
+    networks:
+      - wird-network
+
+#  certbot:
+#    build: ./certbot
+#    volumes:
+#      - certbot-etc:/etc/letsencrypt
+#      - certbot-var:/var/lib/letsencrypt
+#    command: certonly --email osamaabuhamdan@yahoo.com  --non-interactive --agree-tos --manual --preferred-challenges=dns --manual-auth-hook /var/lib/letsencrypt/authenticator.sh --manual-cleanup-hook /var/lib/letsencrypt/cleanup.sh  --manual-public-ip-logging-ok -d *.wird.app -d wird.app
+  
+  wirdapp_nginx:
+    build: ./nginx
+    restart: always
+    container_name: wirdapp_nginx 
+    hostname: wirdapp_nginx
+    volumes:
+      - ./home:/var/www/html
+#      - certbot-etc:/etc/letsencrypt
+#      - certbot-var:/var/lib/letsencrypt
+      - /etc/letsencrypt/:/etc/letsencrypt/
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+      - wird_front_files:/home/app/web/wird_front
+    ports:
+        - "2345:80"
+        - "2346:443"
+    depends_on:
+      - wird_back
+#      - certbot
+      - wird_front    
+    networks:
+      - wird-network
+    
+  redis:
+    image: redis:7.0.2-alpine
+    command: redis-server
+    expose:
+      - "6379"
+    networks:
+      - wird-network
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+ # certbot-etc:
+ # certbot-var:
+  web-root:
+  wird_front_files:
+
+networks:
+  wird-network:
+    driver: bridge

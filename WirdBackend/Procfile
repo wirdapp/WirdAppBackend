@@ -1,0 +1,1 @@
+web: gunicorn Ramadan_Competition_Rest.wsgi
