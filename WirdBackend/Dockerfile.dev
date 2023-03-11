@@ -6,9 +6,6 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY . /app
 
-RUN addgroup --system app && adduser --system --no-create-home --disabled-login --disabled-password app
-RUN adduser app app
-
 # Install PostgreSQL and Gunicorn
 RUN apt-get update && apt-get install -y libpq-dev postgresql-client
 RUN pip install gunicorn
@@ -19,21 +16,11 @@ RUN pip install -r requirements.txt
 # Make port 8000 available to the world outside this container
 EXPOSE 8000
 
-#Gunicorn
-RUN mkdir -p /var/log/gunicorn/
-RUN mkdir -p /var/run/gunicorn/
-RUN chown -cR app:app /var/log/gunicorn/
-RUN chown -cR app:app /var/run/gunicorn/
+# Copy gunicorn configuration file and start script
 COPY ./gunicorn .
 
 RUN chmod +x  ./start_server.sh
 RUN chmod +x  ./entrypoint.sh
 
-# chown all the files to the app user
-RUN chown -R app:app /app
-
-# change to the app user
-USER app
-
-# run entrypoint.prod.sh
-ENTRYPOINT ["/home/app/web/entrypoint.sh"]
+# Run entrypoint script
+ENTRYPOINT ["/app/entrypoint.sh"]
