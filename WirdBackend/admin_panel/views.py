@@ -27,7 +27,7 @@ class PointTemplatesView(MyModelViewSet):
     name = 'points-templates-list'
     lookup_field = 'id'
     admin_allowed_methods = ['list', 'retrieve']
-    serializer_class = PointTemplatePolymorphicSerializer
+    serializer_class = PointTemplateSerializer
 
     def get_queryset(self):
         contest_id = util.get_current_contest_dict(self.request)["id"]
