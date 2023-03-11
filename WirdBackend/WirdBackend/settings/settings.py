@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 from django.core.management.utils import get_random_secret_key
+from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -122,7 +123,8 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'polymorphic',
-    'drf_yasg'
+    'drf_yasg',
+    "cachalot"
 ]
 
 MIDDLEWARE = [
@@ -136,6 +138,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django_permissions_policy.PermissionsPolicyMiddleware",
+    'django.middleware.locale.LocaleMiddleware',
 ]
 
 ROOT_URLCONF = 'WirdBackend.urls'
@@ -175,6 +178,13 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'en'
+
+LANGUAGES = [
+    ('ar', _('Arabic')),
+    ('en', _('English')),
+]
+
+LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale'), ]
 
 TIME_ZONE = 'UTC'
 
