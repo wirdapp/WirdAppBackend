@@ -8,7 +8,7 @@ router = routers.DefaultRouter()
 router.register(r'point-template', views.PointTemplatesView, basename='PointTemplate')
 router.register(r'section', views.SectionView, basename='Section')
 router.register(r'groups', views.GroupView, basename='Groups')
-router.register(r'contest_person', views.ContestPersonView, basename='Contest Person')
+router.register(r'contest-people', views.ContestPersonView, basename='Contest People')
 
 urlpatterns = [
     path('', include(router.urls)),
