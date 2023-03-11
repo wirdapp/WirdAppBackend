@@ -76,14 +76,14 @@ class GroupView(MyModelViewSet):
             return Response({**serializer.errors}, status=400)
 
 
-class ContestPeopleView(MyModelViewSet):
+class ContestPersonView(MyModelViewSet):
     name = 'contest-people'
-    lookup_field = 'id'
-    serializer_class = PersonSerializer
+    lookup_field = 'person__username'
+    serializer_class = ContestPersonSerializer
 
     def get_queryset(self):
         current_contest = util.get_current_contest_dict(self.request)["id"]
-        return models_helper.get_contest_people(current_contest).values("id", "username", "first_name", "last_name")
+        return models_helper.get_contest_people(current_contest)
 
 
 class TopMembers(views.APIView):
