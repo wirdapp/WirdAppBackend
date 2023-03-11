@@ -9,7 +9,6 @@ from compAdmin.models import Competition
 from core.models import GeneralUser
 from core.permissions import IsCompetitionAdmin
 from core.serializers import CompetitionReadOnlySerializer, TopStudentsSerializer, CompetitionSerializer
-from core.util import get_from_cache, save_to_cache
 from student.models import StudentUser
 
 
@@ -45,10 +44,12 @@ class CompetitionView(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, name='List Top Students')
     def list_top_students(self, request, *args, **kwargs):
         competition = self.request.user.competition_id
-        students = StudentUser.objects.filter(competition__id=competition)
-        serializer = TopStudentsSerializer(students, many=True)
-        sorted_res = sorted(serializer.data, key=lambda x: x['total_points'], reverse=True)
-        return Response(sorted_res)
+        if competition.show_standings:
+            students = StudentUser.objects.filter(competition__id=competition)
+            serializer = TopStudentsSerializer(students, many=True)
+            sorted_res = sorted(serializer.data, key=lambda x: x['total_points'], reverse=True)
+            return Response(sorted_res)
+        return Response('تم إخفاء لائحة الأوائل من المشرف المسؤول عن المسابقة')
 
 
 class CreateCompetitionView(viewsets.ModelViewSet):
