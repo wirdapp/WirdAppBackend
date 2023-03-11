@@ -65,15 +65,13 @@ class Group(models.Model):
 class ContestPerson(models.Model):
     class ContestRole(models.IntegerChoices):
         MEMBER = (1, 'member')
-        ADMIN = (2, 'admin')
-        SUPER_ADMIN = (3, 'super_admin')
-        PENDING_MEMBER = (4, 'pending_member')
-        DEACTIVATED = (5, 'deactivated')
+        SUPER_ADMIN = (2, 'super_admin')
+        PENDING_MEMBER = (3, 'pending_member')
+        DEACTIVATED = (4, 'deactivated')
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     contest = models.ForeignKey(Contest, on_delete=models.PROTECT, blank=True, null=True)
     person = models.ForeignKey(Person, on_delete=models.PROTECT)
-    group = models.ForeignKey(Group, on_delete=models.PROTECT, blank=True, null=True)
     contest_role = models.PositiveSmallIntegerField(choices=ContestRole.choices, default=ContestRole.MEMBER)
 
     class Meta:
@@ -81,6 +79,21 @@ class ContestPerson(models.Model):
             models.UniqueConstraint(fields=['contest_id', 'person_id'],
                                     name="unique_group_person",
                                     violation_error_message="Can't Create more than one person in a contest"),
-            models.CheckConstraint(check=~Q(contest_role=3) | Q(group=None),
-                                   name="Super Admin can't be assigned to a group")
         ]
+
+
+class ContestPersonGroups(models.Model):
+    class GroupRole(models.IntegerChoices):
+        MEMBER = (1, 'member')
+        ADMIN = (2, 'admin')
+
+    contest_person = models.ForeignKey(ContestPerson, on_delete=models.PROTECT)
+    group = models.ForeignKey(Group, on_delete=models.PROTECT)
+    group_role = models.PositiveSmallIntegerField(choices=GroupRole.choices, default=GroupRole.MEMBER)
+
+    constraints = [
+        models.UniqueConstraint(fields=['contest_person_id', 'group_id', 'group_role'],
+                                name="unique_group_person",
+                                violation_error_message="A person can be a Group member or a Group Admin"),
+        models.CheckConstraint(check=~Q(contest_person_contest_role=3), name="Super Admin can't be assigned to a Group")
+    ]
