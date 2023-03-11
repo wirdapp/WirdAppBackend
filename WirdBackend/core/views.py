@@ -1,17 +1,20 @@
 from rest_framework import viewsets, mixins, permissions
 
+from core import models_helper
 from core.my_view import MyModelViewSet
 from core.serializers import *
 
 
 class ContestView(MyModelViewSet):
     serializer_class = ContestSerializer
-    queryset = Contest.objects
     name = 'create-contest-view'
-    non_member_allowed_methods = ["create"]
-    member_allowed_methods = ['retrieve']
-    admin_allowed_methods = ['retrieve', 'update', 'partial_update']
-    super_admin_allowed_methods = admin_allowed_methods
+    member_allowed_methods = ['retrieve', 'list']
+    admin_allowed_methods = ['retrieve', 'list']
+    super_admin_allowed_methods = ['retrieve', 'list', 'update', 'partial_update']
+
+    def get_queryset(self):
+        username = util.get_username_from_session(self.request)
+        return models_helper.get_person_contests_queryset(username)
 
 
 class SignUpView(mixins.CreateModelMixin, viewsets.GenericViewSet):
