@@ -3,8 +3,8 @@ from collections.abc import Iterable
 
 from django.core.cache import cache
 
-from admin_panel.models import Group
-from core.models import ContestPerson, Contest, Person
+
+from core.models import ContestPerson, Contest, Person, Group
 
 
 def cache_returned_values(func):
@@ -56,20 +56,20 @@ def get_person_managed_groups(username, contest_id):
     if is_super_admin:
         return Group.objects.filter(contest__id=contest_id)
     else:
-        group_ids = ContestPerson.objects.filter(person__username=username, contest_id=contest_id, contest_role=2,
-                                                 group_role=2).values_list("group__id", flat=True)
+        group_ids = ContestPerson.objects.filter(person__username=username, contest_id=contest_id, contest_role=2)\
+            .values_list("group__id", flat=True)
         return Group.objects.filter(id__in=group_ids)
 
 
 @cache_returned_values
 def get_group_admins(group_id):
-    person_ids = ContestPerson.objects.filter(group__id=group_id, contest_role__in=[2, 3], group_role=2) \
-        .values('person__id')
+    person_ids = ContestPerson.objects.filter(group__id=group_id, contest_role=2) \
+        .values_list('person__id', flat=True)
     return Person.objects.filter(id__in=person_ids)
 
 
 @cache_returned_values
 def get_group_members(group_id):
-    person_ids = ContestPerson.objects.filter(group__id=group_id, contest_role__in=[1, 2, 3], group_role=1) \
-        .values('person_id')
+    person_ids = ContestPerson.objects.filter(group__id=group_id, contest_role=1) \
+        .values_list('person_id', flat=True)
     return Person.objects.filter(id__in=person_ids)
