@@ -3,13 +3,13 @@ from collections import OrderedDict
 from django.db.models import Sum, Value
 from django.db.models.functions import Concat
 from rest_condition import And
-from rest_framework import generics
+from rest_framework import generics, views
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from core.my_view import MyModelViewSet
 from core.permissions import IsContestAdmin, IsGroupAdmin
+from core.util_classes import MyModelViewSet
 from member_panel.models import PointRecord
 from member_panel.serializers import PointRecordSerializer
 from .serializers import *
@@ -22,8 +22,8 @@ class SectionView(MyModelViewSet):
     admin_allowed_methods = ['list', 'retrieve']
 
     def get_queryset(self):
-        contest_id = util.get_current_contest_dict(self.request)["id"]
-        return Section.objects.filter(contest_id=contest_id)
+        contest_id = util_methods.get_current_contest_dict(self.request)["id"]
+        return models_helper.get_contest_sections(contest_id)
 
 
 class PointTemplatesView(MyModelViewSet):
@@ -33,7 +33,7 @@ class PointTemplatesView(MyModelViewSet):
     serializer_class = PointTemplateSerializer
 
     def get_queryset(self):
-        contest_id = util.get_current_contest_dict(self.request)["id"]
+        contest_id = util_methods.get_current_contest_dict(self.request)["id"]
         return models_helper.get_contest_point_templates(contest_id)
 
 
@@ -41,8 +41,8 @@ class GroupView(MyModelViewSet):
     name = 'contest-group-list'
     lookup_field = 'id'
     admin_allowed_methods = ['list', 'update', 'partial_update', 'retrieve', "add_or_remove_member"]
-    super_admin_allowed_methods = [None, "create", 'list', 'update', 'partial_update', 'retrieve',
-                                   "add_or_remove_admin", "add_or_remove_member"]
+    super_admin_allowed_methods = MyModelViewSet.super_admin_allowed_methods + ["add_or_remove_admin",
+                                                                                "add_or_remove_member"]
 
     def get_serializer_class(self):
         if self.action in ["list", "create"]:
@@ -53,8 +53,8 @@ class GroupView(MyModelViewSet):
             return AddRemovePersonsToGroup
 
     def get_queryset(self):
-        username = util.get_username_from_session(self.request)
-        current_contest = util.get_current_contest_dict(self.request)["id"]
+        username = util_methods.get_username_from_session(self.request)
+        current_contest = util_methods.get_current_contest_dict(self.request)["id"]
         return models_helper.get_person_managed_groups(username, current_contest)
 
     @action(methods=["post"], detail=True)
@@ -74,7 +74,7 @@ class GroupView(MyModelViewSet):
             serializer.validated_data["person_type"] = person_type
             serializer.validated_data["group_id"] = group_id
             serializer.create(serializer.validated_data)
-            return Response("Created!", status=200)
+            return Response(gettext("user added to the group"), status=200)
         else:
             return Response({**serializer.errors}, status=400)
 
@@ -84,21 +84,23 @@ class ContestPersonView(MyModelViewSet):
     lookup_field = 'person__username'
     filterset_fields = {'contest_role': ["in", "exact"]}
     serializer_class = ContestPersonSerializer
-    admin_allowed_methods = ["retrieve", "list"]
+    admin_allowed_methods = []
     super_admin_allowed_methods = ['retrieve', 'list', 'update', 'partial_update']
 
     def get_queryset(self):
-        current_contest = util.get_current_contest_dict(self.request)["id"]
+        current_contest = util_methods.get_current_contest_dict(self.request)["id"]
         return models_helper.get_contest_people(current_contest, contest_role=(1, 2, 3, 4, 5))
 
 
-class TopMembers(generics.ListAPIView):
+class TopMembers(views.APIView):
     permission_classes = [And(IsAuthenticated(), IsContestAdmin()), ]
 
     def get(self, request, *args, **kwargs):
-        contest_id = util.get_current_contest_dict(request)["id"]
+        contest_id = util_methods.get_current_contest_dict(request)["id"]
+        first_name = "person__person__first_name"
+        last_name = "person__person__last_name"
         top_members = PointRecord.objects.filter(person__contest__id=contest_id) \
-                          .annotate(name=Concat("person__person__first_name", Value(' '), "person__person__last_name")) \
+                          .annotate(name=Concat(first_name, Value(' '), last_name)) \
                           .values("person_id", 'name') \
                           .annotate(total_points=Sum("point_total")).order_by("-total_points")[:5]
 
@@ -118,17 +120,17 @@ class TopMembers(generics.ListAPIView):
         return Response(user_results)
 
 
-class ResultsView(generics.ListAPIView):
+class ResultsView(views.APIView):
     permission_classes = [And(IsAuthenticated(), IsContestAdmin())]
 
     def get(self, request, *args, **kwargs):
         date = kwargs.get("date", None)
-        contest_id = util.get_current_contest_dict(request)["id"]
-        username = util.get_username_from_session(request)
+        contest_id = util_methods.get_current_contest_dict(request)["id"]
+        username = util_methods.get_username_from_session(request)
         group_list = models_helper.get_person_managed_groups(username, contest_id).values_list("id", "name")
         result = []
         for group in group_list:
-            group_people = models_helper.get_group_members_ids(group[0])
+            group_people = models_helper.get_group_members_contest_person_ids(group[0])
             submitted = PointRecord.objects.filter(person__id__in=group_people, record_date=date) \
                 .order_by("person_id").distinct('person_id').count()
             not_submitted = len(group_people) - submitted
