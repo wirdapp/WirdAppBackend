@@ -2,7 +2,13 @@ from .settings import *
 
 DEBUG = True
 SECRET_KEY = get_random_secret_key()
-
+MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+]
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny'
@@ -24,18 +30,3 @@ CACHES = {
 }
 
 LOGGING = {}
-
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
-ALLOWED_HOSTS = ['*']
-SECURE_HSTS_PRELOAD = False
-SECURE_HSTS_INCLUDE_SUBDOMAINS = False
-SECURE_PROXY_SSL_HEADER = None
-SECURE_HSTS_SECONDS = 2_592_000
-# Application definition
-CSRF_COOKIE_SECURE = False
-SESSION_COOKIE_SECURE = False
-SECURE_BROWSER_XSS_FILTER = False
-SECURE_CONTENT_TYPE_NOSNIFF = False
-X_FRAME_OPTIONS = 'Allow'
-SESSION_COOKIE_HTTPONLY = False
