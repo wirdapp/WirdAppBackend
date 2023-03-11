@@ -43,9 +43,9 @@ class CompetitionView(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=False, name='List Top Students')
     def list_top_students(self, request, *args, **kwargs):
-        competition = self.request.user.competition_id
+        competition = self.request.user.competition
         if competition.show_standings:
-            students = StudentUser.objects.filter(competition__id=competition)
+            students = StudentUser.objects.filter(competition__id=competition.id)
             serializer = TopStudentsSerializer(students, many=True)
             sorted_res = sorted(serializer.data, key=lambda x: x['total_points'], reverse=True)
             return Response(sorted_res)
