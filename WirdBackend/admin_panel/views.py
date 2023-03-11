@@ -25,8 +25,9 @@ class PointTemplatesView(MyModelViewSet):
 class GroupView(MyModelViewSet):
     name = 'contest-group-list'
     lookup_field = 'id'
-    admin_allowed_methods = ['list', 'update', 'partial_update', 'retrieve']
-    super_admin_allowed_methods = ['list', 'update', 'partial_update', 'retrieve']
+    admin_allowed_methods = ['list', 'update', 'partial_update', 'retrieve', "add_or_remove_member"]
+    super_admin_allowed_methods = ['list', 'update', 'partial_update', 'retrieve',
+                                   "add_or_remove_admin", "add_or_remove_member"]
 
     def get_serializer_class(self):
         if self.action in ["list", "create"]:
