@@ -31,4 +31,4 @@ class SignUpView(mixins.CreateModelMixin, viewsets.GenericViewSet):
     @swagger_auto_schema(manual_parameters=[
         openapi.Parameter('type', openapi.IN_QUERY, enum=['creator', 'participant'], type=openapi.TYPE_STRING)])
     def create(self, request, *args, **kwargs):
-        super().create(request, *args, **kwargs)
+        return super().create(request, *args, **kwargs)
