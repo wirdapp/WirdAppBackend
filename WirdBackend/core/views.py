@@ -1,6 +1,7 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, mixins, permissions
+from rest_framework.response import Response
 
 from core.my_view import MyModelViewSet
 from core.serializers import *
@@ -32,3 +33,21 @@ class SignUpView(mixins.CreateModelMixin, viewsets.GenericViewSet):
         openapi.Parameter('type', openapi.IN_QUERY, enum=['creator', 'participant'], type=openapi.TYPE_STRING)])
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
+
+
+class CurrentContestPersonView(MyModelViewSet):
+    serializer_class = PersonSerializer
+    member_allowed_methods = ['retrieve', 'update', 'partial_update']
+    admin_allowed_methods = []
+    super_admin_allowed_methods = []
+
+    def get_object(self):
+        username = util.get_username_from_session(self.request)
+        return Person.objects.get(username=username)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        person = self.get_serializer(instance)
+        current_contest = util.get_current_contest_dict(self.request)
+        data = dict(person=person.data, contest=current_contest)
+        return Response(data)
