@@ -81,7 +81,7 @@ class PointTemplatesView(viewsets.ReadOnlyModelViewSet):
         return comp.competition_point_templates\
             .filter(is_active=True) \
             .filter(is_shown=True) \
-            .filter(Q(custom_days__contains=current_hijri_date) or Q(custom_days=''))
+            .filter(Q(custom_days__contains=current_hijri_date) | Q(custom_days=''))
 
     def get_permissions(self):
         return IsAuthenticated(),
