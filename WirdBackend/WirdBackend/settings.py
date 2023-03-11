@@ -5,11 +5,11 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 if os.environ.get('django_env') == 'prod':
-    from .prod_settings import *
+    from prod_settings import *
 elif os.environ.get('django_env') == 'dev':
-    from .dev_settings import *
+    from dev_settings import *
 else:
-    from .local_settings import *
+    from local_settings import *
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -18,8 +18,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'student.apps.StudentConfig',
-    'compAdmin.apps.CompadminConfig',
+    'member_panel.apps.StudentConfig',
+    'admin_panel.apps.AdminPanelConfig',
     'core.apps.CoreConfig',
     'rest_framework',
     'django_filters',
@@ -96,20 +96,49 @@ MEDIA_URL = 'media/'
 EXCEL_FILES = MEDIA_URL + 'excelfiles/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+#
+# SIMPLE_JWT = {
+#     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+#     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+#     'ROTATE_REFRESH_TOKENS': False,
+#     'BLACKLIST_AFTER_ROTATION': True,
+#     'UPDATE_LAST_LOGIN': False,
+#     'ALGORITHM': 'HS256',
+#     'SIGNING_KEY': SECRET_KEY,
+#     'VERIFYING_KEY': None,
+#     'AUDIENCE': None,
+#     'ISSUER': None,
+#     'AUTH_HEADER_TYPES': ('Bearer',),
+#     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+# }
 
-SIMPLE_JWT = {
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
-    'ROTATE_REFRESH_TOKENS': False,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'UPDATE_LAST_LOGIN': False,
-    'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
-    'VERIFYING_KEY': None,
-    'AUDIENCE': None,
-    'ISSUER': None,
-    'AUTH_HEADER_TYPES': ('Bearer',),
-    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+AUTH_USER_MODEL = 'core.Person'
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
 }
 
-AUTH_USER_MODEL = 'core.GeneralUser'
+LOGGING = {
+    'version': 1,
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+        }
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+        }
+    }
+}

@@ -1,5 +1,5 @@
 # WirdBackend
-RESTful version of 'Ramadan Competition' using Django Rest framework
+RESTful version of 'Ramadan contest' using Django Rest framework
 
 Check the description of the website at wird.app/
 

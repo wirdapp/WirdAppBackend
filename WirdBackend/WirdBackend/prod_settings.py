@@ -20,7 +20,7 @@ except KeyError as e:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['student.wird.app', 'admin.wird.app', '0.0.0.0']
+ALLOWED_HOSTS = ['member_panel.wird.app', 'admin.wird.app', '0.0.0.0']
 
 DATABASES = {
     "default": {
