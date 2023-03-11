@@ -1,5 +1,6 @@
 import uuid
 
+from django.contrib.postgres import fields
 from django.core.validators import MinValueValidator
 from django.db import models
 from polymorphic.models import PolymorphicModel
@@ -20,7 +21,7 @@ class PointTemplate(PolymorphicModel):
     order_in_section = models.IntegerField()
     is_active = models.BooleanField(default=True)
     is_shown = models.BooleanField(default=True)
-    custom_days = models.CharField(max_length=300, blank=True)
+    custom_days = fields.ArrayField(models.DateField(), blank=True)  # Only available for postgresSQL
     contest = models.ForeignKey("core.Contest", on_delete=models.PROTECT, related_name="contest_point_templates")
     section = models.ForeignKey(Section, on_delete=models.PROTECT)
 
@@ -45,4 +46,4 @@ class NumberPointTemplate(PointTemplate):
 
 
 class CheckboxPointTemplate(PointTemplate):
-    points_if_done = models.IntegerField(default=1, validators=[MinValueValidator(1)], )
+    points_if_done = models.PositiveIntegerField(default=1)
