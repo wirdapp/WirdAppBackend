@@ -68,6 +68,7 @@ build-essential libssl-dev libffi-dev libblas3 libc6 \
  liblapack3 gcc python3-dev python3-pip cython3 libpq-dev
 RUN apt install -y netcat
 RUN pip install "gunicorn==20.0.4"
+RUN pip install psycopg2-binary
 COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
 RUN pip install /wheels/*
