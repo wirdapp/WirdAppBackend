@@ -29,7 +29,7 @@ def get_username_from_session(request):
     return request.session["username"]
 
 
-def get_current_contest_dict(request):
+def get_current_contest_dict(request, raise_exception=True):
     if not ("current_contest_id" in request.session and "current_contest_role" in request.session):
         username = get_username_from_session(request)
         contests = models_helper.get_person_contests_ids_and_roles(username)
@@ -37,7 +37,10 @@ def get_current_contest_dict(request):
             request.session["current_contest_id"] = contests[0][0].hex
             request.session["current_contest_role"] = contests[0][1]
         else:
-            raise Exception(gettext("user has no contests"))
+            if raise_exception:
+                raise Exception(gettext("user has no contests"))
+            else:
+                return None
     return {"id": request.session["current_contest_id"], "role": request.session["current_contest_role"]}
 
 
