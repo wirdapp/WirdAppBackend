@@ -114,15 +114,14 @@ class AdminCompetitionView(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], name='General Comp Stats')
     def general_stats(self, request, *args, **kwargs):
         competition_id = self.request.user.competition_id
-        ramadan_date = current_hijri_date
+        ramadan_date = current_hijri_date - 1
         key = f'general_stats_{competition_id}_{ramadan_date}'
         res = get_from_cache(key)
         if res:
             return Response({**res})
         stats = dict()
         top_on_day = StudentUser.objects.filter(competition__id=competition_id) \
-            .values('username', 'first_name', 'last_name', 'student_points__point_total',
-                    'student_points__ramadan_record_date') \
+            .values('username', 'first_name', 'last_name', 'student_points__point_total') \
             .filter(student_points__ramadan_record_date=ramadan_date) \
             .annotate(points_per_day=Sum('student_points__point_total')) \
             .order_by('-points_per_day').first()
