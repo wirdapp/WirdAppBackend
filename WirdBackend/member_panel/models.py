@@ -21,6 +21,10 @@ class PointRecord(PolymorphicModel):
     def __str__(self):
         return f'{self.person.person_id}:{self.point_template.label}:date:{self.record_date}'
 
+    @property
+    def record_type(self):
+        return self.__class__.__name__
+
 
 class UserInputPointRecord(PointRecord):
     user_input = models.TextField(default="", blank=True, max_length=1024)
