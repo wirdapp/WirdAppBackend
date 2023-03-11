@@ -1,9 +1,13 @@
+import datetime
+
+from django.utils.translation import get_language
 from django.core.cache import cache
 from django.db.models import Value, Sum, F
 from django.db.models.functions import Concat
 from django.utils.translation import gettext
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema, no_body
+from hijri_converter import Gregorian
 from rest_condition import And
 from rest_framework import viewsets, mixins, permissions, status, views
 from rest_framework.decorators import action
@@ -116,5 +120,25 @@ class TopMembersByDate(views.APIView):
                 .annotate(total_daily_points=Sum("point_total")) \
                 .order_by('-total_daily_points')
             cache.set(key, results, 60 * 10)
+
+        return Response(results)
+
+
+class CalendarView(views.APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def get(self, request, *args, **kwargs):
+        results = []
+        today = datetime.datetime.today().date()
+        lang = get_language()
+        for delta in range(-5, 3):  # 5 days before today and 3 days after
+            greg_date = today + datetime.timedelta(days=delta)
+            hijri_date = Gregorian.fromdate(greg_date).to_hijri()
+            hijri_date_words = f"{hijri_date.day} {hijri_date.month_name(language=lang)} {hijri_date.year}"
+            greg_date_words = greg_date.strftime('%d %B %Y')
+            date_dict = dict(greg_date=greg_date.strftime("%d-%m-%Y"), greg_date_words=greg_date_words,
+                             hijri_date=hijri_date.dmyformat(separator="-"),
+                             hijri_date_words=hijri_date_words)
+            results.append(date_dict)
 
         return Response(results)
