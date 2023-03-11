@@ -29,16 +29,13 @@ class PersonSerializer(DynamicFieldsCategorySerializer):
 
 class ContestSerializer(serializers.ModelSerializer):
     access_code = serializers.ReadOnlyField()
+    admin_count = serializers.ReadOnlyField()
+    member_count = serializers.ReadOnlyField()
+    group_count = serializers.ReadOnlyField()
 
     class Meta:
         fields = "__all__"
         model = Contest
-
-
-class ContestPersonSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = "__all__"
-        model = ContestPerson
 
 
 class CreatorSignupSerializer(serializers.ModelSerializer):
@@ -50,7 +47,7 @@ class CreatorSignupSerializer(serializers.ModelSerializer):
         model = Person
 
     def create(self, validated_data):
-        contest_name = validated_data.pop('contest_name').lower()
+        contest_name = validated_data.pop('contest_name')
         contest = Contest.objects.create(name=contest_name)
         validated_data['password'] = make_password(validated_data['password'])
         person = super().create(validated_data)
@@ -76,13 +73,6 @@ class ParticipantSignupSerializer(serializers.ModelSerializer):
         else:
             raise serializers.ValidationError({"access_code": "Access Code is not correct"})
         return person
-
-
-class AutoSetContestSerializer(serializers.ModelSerializer):
-    def create(self, validated_data):
-        contest = util.get_current_contest_object(self.context["request"])
-        validated_data["contest"] = contest
-        return super().create(validated_data)
 
 
 class ContextFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
