@@ -1,4 +1,5 @@
 import uuid
+from gettext import gettext
 
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import integer_validator, MinLengthValidator
@@ -13,7 +14,7 @@ class Contest(models.Model):
     description = models.TextField(default='')
     show_standings = models.BooleanField(default=True)
     announcements = models.TextField(default="", blank=True)
-    readonly_mode = models.BooleanField(default=False, help_text='Stop scoring points and only show scored points')
+    readonly_mode = models.BooleanField(default=False, help_text=gettext('readonly_mode'))
 
     @cached_property
     def access_code(self):
@@ -68,8 +69,7 @@ class ContestPerson(models.Model):
         MEMBER = (1, 'member')
         ADMIN = (2, 'admin')
         SUPER_ADMIN = (3, 'super_admin')
-        PENDING_MEMBER = (4, 'pending_member')
-        DEACTIVATED = (5, 'deactivated')
+        DEACTIVATED = (4, 'deactivated')
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     contest = models.ForeignKey(Contest, on_delete=models.PROTECT)
@@ -80,7 +80,7 @@ class ContestPerson(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['contest_id', 'person_id'],
                                     name="unique_contest_person",
-                                    violation_error_message="Can't Create more than one person in a contest"),
+                                    violation_error_message=gettext("person exists in contest")),
         ]
 
     def __str__(self):
@@ -100,5 +100,5 @@ class ContestPersonGroups(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['contest_person_id', 'group_id'],
                                     name="unique_group_person",
-                                    violation_error_message="A person can be a Group member or a Group Admin"),
+                                    violation_error_message=gettext("person is member of group")),
         ]

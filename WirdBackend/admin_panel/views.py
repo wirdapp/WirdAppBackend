@@ -80,7 +80,9 @@ class GroupView(MyModelViewSet):
 class ContestPersonView(MyModelViewSet):
     name = 'contest-people'
     lookup_field = 'person__username'
-    filterset_fields = {'contest_role': ["in", "exact"]}
+    filterset_fields = {'contest_role': ["in", "exact"],
+                        'person__username': ["in", "exact"], 'person__email': ["in", "exact"],
+                        'person__first_name': ["in"], 'person__last_name': ["in"]}
     serializer_class = ContestPersonSerializer
     admin_allowed_methods = []
     super_admin_allowed_methods = ['retrieve', 'list', 'update', 'partial_update']
@@ -88,7 +90,7 @@ class ContestPersonView(MyModelViewSet):
 
     def get_queryset(self):
         current_contest = util_methods.get_current_contest_dict(self.request)["id"]
-        return models_helper.get_contest_people(current_contest, contest_role=(1, 2, 3, 4, 5))
+        return models_helper.get_contest_people(current_contest, contest_role=(1, 2, 3, 4))
 
 
 class ResultsView(views.APIView):

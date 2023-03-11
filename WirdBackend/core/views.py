@@ -142,7 +142,7 @@ class CreateNewContest(views.APIView):
     permission_classes = [IsAuthenticated, ]
 
     def get(self, request, *args, **kwargs):
-        return Response("Post contest-name only!!")
+        return Response(gettext("post contest-name only"))
 
     def post(self, request, *args, **kwargs):
         contest_name = request.data.pop('contest-name')
@@ -150,25 +150,25 @@ class CreateNewContest(views.APIView):
         username = util_methods.get_username_from_session(request)
         person = Person.objects.get(username=username)
         ContestPerson.objects.create(person=person, contest=contest, contest_role=3)
-        return Response("Created!!")
+        return Response(gettext("contest created"))
 
 
 class JoinContest(views.APIView):
     permission_classes = [IsAuthenticated, ]
 
     def get(self, request, *args, **kwargs):
-        return Response("Post access-code only!!")
+        return Response(gettext("post access-code only"))
 
     def post(self, request, *args, **kwargs):
-        access_code = request.data.pop('access_code')
+        access_code = request.data.pop('access-code')
         contest = Contest.objects.filter(id__endswith=access_code).first()
         if contest:
             username = util_methods.get_username_from_session(request)
             person = Person.objects.get(username=username)
-            ContestPerson.objects.create(person=person, contest=contest, contest_role=4)
-            return Response("Joined!!")
+            ContestPerson.objects.create(person=person, contest=contest, contest_role=1)
+            return Response(gettext("joined the new contest"))
         else:
-            return Response("Access Code is not Correct!!", status=404)
+            return Response(gettext("access code is not correct"), status=404)
 
 
 class ResetPasswordView(views.APIView):
@@ -181,19 +181,19 @@ class ResetPasswordView(views.APIView):
         elif validate_get_reset == "reset_password":
             return self.reset_password(request)
         else:
-            return Response("Not Found", status=404)
+            return Response(gettext("not found"), status=404)
 
     @staticmethod
     def validate_token(request):
         token = request.data.get('token', None)
         username = request.data.get('username', None)
         if not (username and token):
-            return Response("Please ensure to post username and received token", status=400)
+            return Response(gettext("post username and received token"), status=400)
         cached_username = cache.get(f"reset_password/{token}")
         if cached_username == username:
-            return Response("Valid")
+            return Response(gettext("valid token"))
         else:
-            return Response("Invalid", status=400)
+            return Response(gettext("invalid token"), status=400)
 
     def reset_password(self, request):
         if self.validate_token(request).status_code == 200:
@@ -204,9 +204,9 @@ class ResetPasswordView(views.APIView):
             person = Person.objects.filter(username=cached_username).first()
             person.password = password
             person.save()
-            return Response("Password Reset!")
+            return Response(gettext("password reset"))
         else:
-            return Response("Token is not Valid!", status=400)
+            return Response(gettext("invalid token"), status=400)
 
     @staticmethod
     def get_token(request):
@@ -214,11 +214,11 @@ class ResetPasswordView(views.APIView):
         if username:
             person = Person.objects.filter(username=username).first()
             if not person:
-                return Response("User with this username/email was not found", status=404)
+                return Response(gettext("user with this username was not found"), status=404)
         else:
-            return Response("Post your email address or username", status=400)
+            return Response(gettext("post username only"), status=400)
 
-        subject = 'Wird App Password Reset'
+        subject = gettext('password reset subject')
         token = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
         cache.set(f"reset_password/{token}", username, 2 * 60 * 60)
         lang = get_language()
@@ -228,4 +228,4 @@ class ResetPasswordView(views.APIView):
         from_email = 'Wird App <no-reply@wird.app>'
         to_emails = [person.email]
         send_mail(subject, plain_message, from_email, to_emails, html_message=html_message)
-        return Response("Sent!")
+        return Response(gettext("password reset success"))
