@@ -62,8 +62,7 @@ class SignUpView(mixins.CreateModelMixin, viewsets.GenericViewSet):
 class CurrentContestPersonView(MyModelViewSet):
     serializer_class = PersonSerializer
     member_allowed_methods = ['retrieve', 'update', 'partial_update']
-    admin_allowed_methods = []
-    super_admin_allowed_methods = []
+    contest_related = False
 
     def get_object(self):
         username = util_methods.get_username_from_session(self.request)
@@ -72,8 +71,11 @@ class CurrentContestPersonView(MyModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         person = self.get_serializer(instance)
-        current_contest = util_methods.get_current_contest_dict(self.request)
-        data = dict(person=person.data, contest=current_contest)
+        current_contest = util_methods.get_current_contest_dict(self.request, raise_exception=False)
+        if current_contest:
+            data = dict(person=person.data, contest=current_contest)
+        else:
+            data = dict(person=person.data)
         return Response(data)
 
 
