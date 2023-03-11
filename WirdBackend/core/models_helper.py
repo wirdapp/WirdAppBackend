@@ -1,39 +1,75 @@
+import functools
 from collections.abc import Iterable
-from functools import cache
 
-from core.models import ContestPerson
+from django.core.cache import cache
 
-
-@cache
-def get_contest_students(contest_id):
-    return ContestPerson.objects.filter(contest_id=contest_id, contest_status=1, group_status=1).values('person')
+from admin_panel.models import Group
+from core.models import ContestPerson, Contest, Person
 
 
-def get_person_contests(username, contest_status):
-    if not isinstance(contest_status, Iterable):
-        contest_status = [contest_status]
+def cache_returned_values(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        key = hash(args) + hash(kwargs.values())
+        results = cache.get(key)
+        if results is None:
+            results = func(*args, **kwargs)
+            cache.set(key, results)
+        return results
 
-    return ContestPerson.objects.filter(person__username=username, contest_status__in=contest_status) \
-        .values('contest')
-
-
-def get_person_managed_contests(username):
-    return get_person_contests(username, [2, 3])
-
-
-def get_person_contest_ids(username, contest_status):
-    return ContestPerson.objects.filter(person__username=username, contest_status=contest_status) \
-        .values_list('contest__id')
+    return wrapper
 
 
+@cache_returned_values
+def get_contest_people(contest_id, contest_role=(1, 2, 3)):
+    person_ids = ContestPerson.objects.filter(contest__id=contest_id, contest_role__in=contest_role) \
+        .values_list('person__id', flat=True)
+    return Person.objects.filter(id__in=person_ids)
+
+
+@cache_returned_values
+def get_person_contests_ids_and_roles(username, contest_role=(1, 2, 3)):
+    if not isinstance(contest_role, Iterable):
+        contest_role = tuple(contest_role)
+
+    queryset = ContestPerson.objects.filter(person__username=username, contest_role__in=contest_role) \
+        .values_list("contest__id", "contest_role")
+
+    return queryset
+
+
+@cache_returned_values
+def get_person_contests_queryset(username, contest_role=(1, 2, 3)):
+    contest_ids = get_person_contests_ids_and_roles(username, contest_role)
+    contest_ids = [c[0] for c in contest_ids]
+    return Contest.objects.filter(id__in=contest_ids)
+
+
+def get_person_contests_managed(username):
+    return get_person_contests_queryset(username, [2, 3])
+
+
+@cache_returned_values
 def get_person_managed_groups(username, contest_id):
-    return ContestPerson.objects.filter(person__username=username, contest_id=contest_id, contest_status__in=[2, 3],
-                                        group_status=2).values('group')
+    is_super_admin = ContestPerson.objects.filter(person__username=username, contest_id=contest_id,
+                                                  contest_role=3).exists()
+    if is_super_admin:
+        return Group.objects.filter(contest__id=contest_id)
+    else:
+        group_ids = ContestPerson.objects.filter(person__username=username, contest_id=contest_id, contest_role=2,
+                                                 group_role=2).values_list("group__id", flat=True)
+        return Group.objects.filter(id__in=group_ids)
 
 
+@cache_returned_values
 def get_group_admins(group_id):
-    return ContestPerson.objects.filter(group__id=group_id, contest_status__in=[2, 3], group_status=2).values('person')
+    person_ids = ContestPerson.objects.filter(group__id=group_id, contest_role__in=[2, 3], group_role=2) \
+        .values('person__id')
+    return Person.objects.filter(id__in=person_ids)
 
 
-def get_group_students(group_id):
-    return ContestPerson.objects.filter(group__id=group_id, contest_status=1, group_status=1).values('person')
+@cache_returned_values
+def get_group_members(group_id):
+    person_ids = ContestPerson.objects.filter(group__id=group_id, contest_role__in=[1, 2, 3], group_role=1) \
+        .values('person_id')
+    return Person.objects.filter(id__in=person_ids)
