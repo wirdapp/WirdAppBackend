@@ -2,11 +2,9 @@ from collections import OrderedDict
 
 from django.db.models import Sum, Value
 from django.db.models.functions import Concat
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_condition import And
-from rest_framework import views, filters
+from rest_framework import views
 from rest_framework.decorators import action
-from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -41,54 +39,57 @@ class PointTemplatesView(MyModelViewSet):
 class GroupView(MyModelViewSet):
     name = 'contest-group-list'
     lookup_field = 'id'
-    admin_allowed_methods = ['list', 'update', 'partial_update', 'retrieve']
-    super_admin_allowed_methods = ["create", 'list', 'update', 'partial_update', 'retrieve',]
+    admin_allowed_methods = ['list', 'update', 'partial_update', 'retrieve', "add_or_remove_member"]
+    super_admin_allowed_methods = [None, "create", 'list', 'update', 'partial_update', 'retrieve',
+                                   "add_or_remove_admin",
+                                   "add_or_remove_member"]
 
     def get_serializer_class(self):
         if self.action in ["list", "create"]:
             return ListCreateGroupSerializer
         elif self.action in ["retrieve", "update", "partial_update"]:
             return RetrieveUpdateGroupSerializer
-        # elif self.action in ["add_or_remove_admin", "add_or_remove_member"]:
-        #     return AddRemovePersonsToGroup
+        elif self.action in ["add_or_remove_admin", "add_or_remove_member"]:
+            return AddRemovePersonsToGroup
 
     def get_queryset(self):
         username = util.get_username_from_session(self.request)
         current_contest = util.get_current_contest_dict(self.request)["id"]
         return models_helper.get_person_managed_groups(username, current_contest)
 
-    # @action(methods=["post"], detail=True)
-    # def add_or_remove_admin(self, request, *args, **kwargs):
-    #     person_type = "admin"
-    #     return self.add_remove_person(request, person_type, kwargs["id"])
-    #
-    # @action(methods=["post"], detail=True)
-    # def add_or_remove_member(self, request, *args, **kwargs):
-    #     person_type = "member"
-    #     return self.add_remove_person(request, person_type, kwargs["id"])
-    #
-    # @staticmethod
-    # def add_remove_person(request, person_type, group_id):
-    #     serializer = AddRemovePersonsToGroup(data=request.data, context=request)
-    #     if serializer.is_valid():
-    #         serializer.validated_data["person_type"] = person_type
-    #         serializer.validated_data["group_id"] = group_id
-    #         serializer.create(serializer.validated_data)
-    #         return Response("Created!", status=200)
-    #     else:
-    #         return Response({**serializer.errors}, status=400)
+    @action(methods=["post"], detail=True)
+    def add_or_remove_admin(self, request, *args, **kwargs):
+        person_type = "admin"
+        return self.add_remove_person(request, person_type, kwargs["id"])
+
+    @action(methods=["post"], detail=True)
+    def add_or_remove_member(self, request, *args, **kwargs):
+        person_type = "member"
+        return self.add_remove_person(request, person_type, kwargs["id"])
+
+    @staticmethod
+    def add_remove_person(request, person_type, group_id):
+        serializer = AddRemovePersonsToGroup(data=request.data, context=request)
+        if serializer.is_valid():
+            serializer.validated_data["person_type"] = person_type
+            serializer.validated_data["group_id"] = group_id
+            serializer.create(serializer.validated_data)
+            return Response("Created!", status=200)
+        else:
+            return Response({**serializer.errors}, status=400)
 
 
 class ContestPersonView(MyModelViewSet):
     name = 'contest-people'
-    lookup_field = 'id'
+    lookup_field = 'person__username'
     filterset_fields = ["contest_role"]
     serializer_class = ContestPersonSerializer
-    admin_allowed_methods = ['retrieve']
+    admin_allowed_methods = ["retrieve", "list"]
+    super_admin_allowed_methods = ['retrieve', 'list', 'update', 'partial_update']
 
     def get_queryset(self):
         current_contest = util.get_current_contest_dict(self.request)["id"]
-        return models_helper.get_contest_people(current_contest, contest_role=(1,2,3,4,5))
+        return models_helper.get_contest_people(current_contest, contest_role=(1, 2, 3, 4, 5))
 
 
 class TopMembers(views.APIView):
