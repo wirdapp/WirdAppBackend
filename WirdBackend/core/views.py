@@ -1,9 +1,9 @@
 import datetime
 
-from django.utils.translation import get_language
 from django.core.cache import cache
 from django.db.models import Value, Sum, F
 from django.db.models.functions import Concat
+from django.utils.translation import get_language
 from django.utils.translation import gettext
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema, no_body
@@ -15,6 +15,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from core import util_methods, models_helper
+from core.models import ContestPerson
 from core.permissions import IsContestMember
 from core.serializers import *
 from core.util_classes import MyModelViewSet
@@ -42,7 +43,7 @@ class ContestView(MyModelViewSet):
     def switch_contest(self, request, *args, **kwargs):
         contests = self.get_queryset()
         new_contest = request.data["contest_id"]
-        if contests.filter(contest__id=new_contest).exists():
+        if contests.filter(id=new_contest).exists():
             util_methods.update_current_contest_dict(request, new_contest)
             return Response(gettext("contest switched successfully"), status=status.HTTP_200_OK)
         else:
@@ -51,18 +52,7 @@ class ContestView(MyModelViewSet):
 
 class SignUpView(mixins.CreateModelMixin, viewsets.GenericViewSet):
     permission_classes = [permissions.AllowAny]
-
-    def get_serializer_class(self):
-        user_type = self.request.query_params.get("type", "participant")
-        if user_type == "participant":
-            return ParticipantSignupSerializer
-        elif user_type == "creator":
-            return CreatorSignupSerializer
-
-    @swagger_auto_schema(manual_parameters=[
-        openapi.Parameter('type', openapi.IN_QUERY, enum=['creator', 'participant'], type=openapi.TYPE_STRING)])
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
+    serializer_class = PersonSignupSerializer
 
 
 class CurrentContestPersonView(MyModelViewSet):
@@ -142,3 +132,36 @@ class CalendarView(views.APIView):
             results.append(date_dict)
 
         return Response(results)
+
+
+class CreateNewContest(views.APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def get(self, request, *args, **kwargs):
+        return Response("Post contest-name only!!")
+
+    def post(self, request, *args, **kwargs):
+        contest_name = request.data.pop('contest-name')
+        contest = Contest.objects.create(name=contest_name)
+        username = util_methods.get_username_from_session(request)
+        person = Person.objects.get(username=username)
+        ContestPerson.objects.create(person=person, contest=contest, contest_role=3)
+        return Response("Created!!")
+
+
+class JoinContest(views.APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def get(self, request, *args, **kwargs):
+        return Response("Post access-code only!!")
+
+    def post(self, request, *args, **kwargs):
+        access_code = request.data.pop('access_code')
+        contest = Contest.objects.filter(id__endswith=access_code).first()
+        if contest:
+            username = util_methods.get_username_from_session(request)
+            person = Person.objects.get(username=username)
+            ContestPerson.objects.create(person=person, contest=contest, contest_role=4)
+            return Response("Joined!!")
+        else:
+            return Response("Access Code is not Correct!!", status=404)
