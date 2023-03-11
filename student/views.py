@@ -1,5 +1,6 @@
 import itertools
 
+from django.db.models import Q
 from rest_framework import permissions, viewsets, views
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -8,6 +9,7 @@ from rest_framework.response import Response
 from compAdmin.serializers import PointTemplateSerializer
 from core import util
 from core.permissions import NoPermission
+from core.util import current_hijri_date
 from core.views import user_points_stats
 from .serializers import *
 
@@ -76,7 +78,10 @@ class PointTemplatesView(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         comp = self.request.user.competition
-        return comp.competition_point_templates.all()
+        return comp.competition_point_templates\
+            .filter(is_active=True) \
+            .filter(is_shown=True) \
+            .filter(Q(custom_days__contains=current_hijri_date) or Q(custom_days=''))
 
     def get_permissions(self):
         return IsAuthenticated(),
