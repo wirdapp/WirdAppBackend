@@ -76,10 +76,11 @@ class ParticipantSignupSerializer(serializers.ModelSerializer):
 
 
 class ContestFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
-    to_repr_field = None
 
     def __init__(self, **kwargs):
-        self.object_name = kwargs.pop("object_name", "")
+        self.object_name = kwargs.pop("object_name", None)
+        self.to_repr_field = kwargs.pop("to_repr_field", None)
+        self.to_repr_class = kwargs.pop("to_repr_class", None)
         super().__init__(**kwargs)
 
     def get_queryset(self):
@@ -93,3 +94,8 @@ class ContestFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
             queryset = queryset.filter(contest__id=contest["id"])
         return queryset
 
+    def to_representation(self, value):
+        if self.to_repr_class:
+            return getattr(self.to_repr_class.objects.get(pk=value.pk), self.to_repr_field)
+        else:
+            return super(ContestFilteredPrimaryKeyRelatedField, self).to_representation(value)
