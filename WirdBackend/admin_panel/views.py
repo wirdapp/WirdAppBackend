@@ -3,7 +3,7 @@ from collections import OrderedDict
 from django.db.models import Sum, Value
 from django.db.models.functions import Concat
 from rest_condition import And
-from rest_framework import views
+from rest_framework import views, generics
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -41,8 +41,7 @@ class GroupView(MyModelViewSet):
     lookup_field = 'id'
     admin_allowed_methods = ['list', 'update', 'partial_update', 'retrieve', "add_or_remove_member"]
     super_admin_allowed_methods = [None, "create", 'list', 'update', 'partial_update', 'retrieve',
-                                   "add_or_remove_admin",
-                                   "add_or_remove_member"]
+                                   "add_or_remove_admin", "add_or_remove_member"]
 
     def get_serializer_class(self):
         if self.action in ["list", "create"]:
@@ -92,7 +91,7 @@ class ContestPersonView(MyModelViewSet):
         return models_helper.get_contest_people(current_contest, contest_role=(1, 2, 3, 4, 5))
 
 
-class TopMembers(views.APIView):
+class TopMembers(generics.ListAPIView):
     permission_classes = [And(IsAuthenticated(), IsContestAdmin()), ]
 
     def get(self, request, *args, **kwargs):
@@ -116,3 +115,44 @@ class TopMembers(views.APIView):
             user_results[person_id].update({str(result['record_date']): result['total_daily_points']})
 
         return Response(user_results)
+
+
+class ResultsView(views.APIView):
+    def get(self, request, *args, **kwargs):
+        username = kwargs.get("username", None)
+        date = kwargs.get("date", None)
+        if date and username:
+            return self.show_user_date_results(username, date)
+        elif date:
+            return self.show_date_results(request, date)
+
+    @staticmethod
+    def show_date_results(request, date):
+        contest_id = util.get_current_contest_dict(request)["id"]
+        username = util.get_username_from_session(request)
+        group_list = models_helper.get_person_managed_groups(username, contest_id).values_list("id", "name")
+        result = []
+        for group in group_list:
+            group_people = models_helper.get_group_members_ids(group[0])
+            submitted = PointRecord.objects.filter(person__id__in=group_people, record_date=date) \
+                .order_by("person_id").distinct('person_id').count()
+            not_submitted = len(group_people) - submitted
+            data = dict(group_id=group[0], group_name=group[1], submitted=submitted, not_submitted=not_submitted)
+            result.append(data)
+        return Response(result)
+
+    @staticmethod
+    def show_user_date_results(username, date):
+        return Response("")
+
+
+class GroupMemberResultsView(generics.ListAPIView):
+    def get_queryset(self):
+        group_id = self.kwargs["group_id"]
+        members = ContestPersonGroups.objects.filter(group_id=group_id, group_role=1)
+        return members
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        return self.get_paginated_response(page[0].id)
