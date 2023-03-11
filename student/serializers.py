@@ -39,8 +39,9 @@ class PointRecordSerializer(serializers.ModelSerializer):
             student = user.competition_students     # user scoring for themselves
         else:
             student = self.initial_data['student']  # admin editing for a student
-        exists = student.student_points.filter(ramadan_record_date=record_date, point_template=point_template).exists()
-        self.check(not exists, 'You can\'t score the same point again', errors)
+        not_exists = not student.student_points.filter(ramadan_record_date=record_date, point_template=point_template).exists()
+        is_update = self.context['request'].method == 'PUT'
+        self.check(not_exists or is_update, 'You can\'t score the same point again', errors)
         self.check(not (student.read_only or competition.readonly_mode), 'You can\'t score new points', errors)
         self.check(point_template.is_active and point_template.is_shown, 'Point is not active', errors)
         if not (point_template.form_type == 'oth' and scored_units == -1):
