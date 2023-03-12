@@ -165,12 +165,12 @@ class ResetMemberPassword(views.APIView):
         return Response(gettext("post person username and new password"))
 
     def post(self, request, *args, **kwargs):
-        username = request.data["username"]
-        password = request.data["password"]
+        username = request.data.get("username", None)
+        password = request.data.get("password", None)
         if not (username and password):
-            Response(gettext("post person username and new password"), status=400)
+            return Response(gettext("post person username and new password"), status=400)
         password = make_password(password)
-        Person.objects.filter(username="username").update(password=password)
+        Person.objects.filter(username=username).update(password=password)
         return Response(gettext("password updated by admin"), status=200)
 
 
