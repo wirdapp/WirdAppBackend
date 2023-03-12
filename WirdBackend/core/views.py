@@ -4,6 +4,7 @@ import string
 
 from django.core.cache import cache
 from django.core.mail import send_mail
+from django.db import IntegrityError
 from django.db.models import Value, Sum, F
 from django.db.models.functions import Concat
 from django.template.loader import render_to_string
@@ -173,13 +174,18 @@ class JoinContest(views.APIView):
         return Response(gettext("post access-code only"))
 
     def post(self, request, *args, **kwargs):
-        access_code = request.data.pop('access-code')
-        contest = Contest.objects.filter(id__endswith=access_code).first()
+        access_code = request.data.get('access-code', None)
+        if not access_code:
+            return Response(gettext("post access-code only"), status=400)
+        contest = Contest.objects.filter(id__endswith=access_code.lower()).first()
         if contest:
             username = util_methods.get_username_from_session(request)
             person = Person.objects.get(username=username)
-            ContestPerson.objects.create(person=person, contest=contest, contest_role=1)
-            return Response(gettext("joined the new contest"))
+            try:
+                ContestPerson.objects.create(person=person, contest=contest, contest_role=1)
+                return Response(gettext("joined the new contest"))
+            except IntegrityError:
+                return Response(gettext("user already member in contest"), status=400)
         else:
             return Response(gettext("access code is not correct"), status=404)
 
