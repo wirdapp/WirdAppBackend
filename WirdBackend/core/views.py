@@ -28,7 +28,7 @@ from member_panel.models import PointRecord
 
 
 class ContestView(MyModelViewSet):
-    serializer_class = ContestSerializer
+    serializer_class = BasicContestSerializer
     name = 'create-contest-view'
     member_allowed_methods = ['switch_contest', 'retrieve', 'list']
     admin_allowed_methods = ['switch_contest', 'retrieve', 'list']
@@ -72,9 +72,9 @@ class CurrentContestPersonView(MyModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         person = self.get_serializer(instance)
-        current_contest = util_methods.get_current_contest_dict(self.request, raise_exception=False)
+        current_contest = util_methods.get_current_contest_object(request)
         if current_contest:
-            data = dict(person=person.data, contest=current_contest)
+            data = dict(person=person.data, contest=ExtendedContestSerializer(current_contest).data)
         else:
             data = dict(person=person.data)
         return Response(data)
@@ -90,7 +90,7 @@ class TopMembersOverall(views.APIView):
             first_name = "person__person__first_name"
             last_name = "person__person__last_name"
             username = "person__person__username"
-            results = PointRecord.objects.filter(person__contest__id=contest_id) \
+            results = PointRecord.objects.filter(person__contest__id=contest_id, person__contest_role__in=[1, 4]) \
                 .annotate(username=F(username), name=Concat(first_name, Value(' '), last_name)) \
                 .values("username", "person_id", 'name') \
                 .annotate(total_points=Sum("point_total")).order_by("-total_points")
@@ -111,7 +111,9 @@ class TopMembersByDate(views.APIView):
             first_name = "person__person__first_name"
             last_name = "person__person__last_name"
             username = "person__person__username"
-            results = PointRecord.objects.filter(record_date=date, person__contest__id=contest_id) \
+            results = PointRecord.objects.filter(record_date=date,
+                                                 person__contest__id=contest_id,
+                                                 person__contest_role__in=[1, 4]) \
                 .annotate(username=F(username), name=Concat(first_name, Value(' '), last_name)) \
                 .values("username", "person_id", 'name') \
                 .annotate(total_daily_points=Sum("point_total")) \
