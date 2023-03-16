@@ -52,5 +52,8 @@ def update_current_contest_dict(request, contest_id):
 
 
 def get_current_contest_object(request):
-    current_contest_id = get_current_contest_dict(request)["id"]
-    return Contest.objects.get(id=current_contest_id)
+    current_contest = get_current_contest_dict(request, raise_exception=False)
+    if current_contest:
+        return Contest.objects.get(id=current_contest["id"])
+    else:
+        return None
