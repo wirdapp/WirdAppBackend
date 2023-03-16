@@ -12,7 +12,15 @@ class PersonSerializer(DynamicFieldsCategorySerializer):
         read_only_fields = ['username']
 
 
-class ContestSerializer(serializers.ModelSerializer):
+class BasicContestSerializer(serializers.ModelSerializer):
+    access_code = serializers.ReadOnlyField()
+
+    class Meta:
+        fields = ["id", "name", "access_code"]
+        model = Contest
+
+
+class ExtendedContestSerializer(serializers.ModelSerializer):
     access_code = serializers.ReadOnlyField()
     admin_count = serializers.ReadOnlyField()
     member_count = serializers.ReadOnlyField()
