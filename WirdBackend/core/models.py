@@ -6,6 +6,7 @@ from django.core.validators import integer_validator, MinLengthValidator
 from django.db import models
 from django.utils.functional import cached_property
 from django_resized import ResizedImageField
+from django.contrib.postgres import fields
 
 
 class Contest(models.Model):
@@ -13,7 +14,7 @@ class Contest(models.Model):
     name = models.CharField(max_length=128, validators=[MinLengthValidator(4)], default='')
     description = models.TextField(default='')
     show_standings = models.BooleanField(default=True)
-    announcements = models.TextField(default="", blank=True)
+    announcements = fields.ArrayField(models.CharField(max_length=255), blank=True)
     readonly_mode = models.BooleanField(default=False, help_text=gettext('readonly_mode'))
 
     @cached_property
