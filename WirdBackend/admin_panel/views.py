@@ -14,7 +14,7 @@ from rest_framework.viewsets import GenericViewSet
 from core.models import Person
 from core.permissions import *
 from core.serializers import ContestSerializer
-from core.util_classes import MyModelViewSet, MyPageNumberPagination
+from core.util_classes import MyModelViewSet
 from member_panel.models import PointRecord
 from member_panel.serializers import PointRecordSerializer
 from .serializers import *
@@ -45,7 +45,6 @@ class PointTemplatesView(MyModelViewSet):
     lookup_field = 'id'
     admin_allowed_methods = ['list', 'retrieve']
     serializer_class = PointTemplateSerializer
-    pagination_class = MyPageNumberPagination
 
     def get_queryset(self):
         contest_id = util_methods.get_current_contest_dict(self.request)["id"]
@@ -58,7 +57,6 @@ class GroupView(MyModelViewSet):
     admin_allowed_methods = ['list', 'update', 'partial_update', 'retrieve', "add_or_remove_member"]
     super_admin_allowed_methods = MyModelViewSet.super_admin_allowed_methods + ["add_or_remove_admin",
                                                                                 "add_or_remove_member"]
-    pagination_class = MyPageNumberPagination
 
     def get_serializer_class(self):
         if self.action in ["list", "create"]:
@@ -103,7 +101,6 @@ class ContestPersonView(MyModelViewSet):
     serializer_class = ContestPersonSerializer
     admin_allowed_methods = []
     super_admin_allowed_methods = ['retrieve', 'list', 'update', 'partial_update']
-    pagination_class = MyPageNumberPagination
 
     def get_queryset(self):
         contest_role = self.request.query_params.getlist('contest_role', (1, 2, 3, 4, 5, 6))
@@ -132,7 +129,6 @@ class ResultsView(views.APIView):
 
 class GroupMembersResultsView(generics.ListAPIView):
     permission_classes = [And(IsAuthenticated(), IsContestAdmin(), IsGroupAdmin())]
-    pagination_class = MyPageNumberPagination
 
     def get_queryset(self):
         group_id = self.kwargs["group_id"]
@@ -141,13 +137,12 @@ class GroupMembersResultsView(generics.ListAPIView):
         return members
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
+        queryset = self.get_queryset()
         date = self.kwargs["date"]
-        paginated_queryset = self.paginate_queryset(queryset)
         results = list()
-        for member in paginated_queryset:
+        for member in queryset:
             results.append(self.get_member_results(member, date))
-        return self.get_paginated_response(results)
+        return results
 
     @staticmethod
     def get_member_results(member, date):
