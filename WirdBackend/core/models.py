@@ -14,7 +14,7 @@ class Contest(models.Model):
     name = models.CharField(max_length=128, validators=[MinLengthValidator(4)], default='')
     description = models.TextField(default='')
     show_standings = models.BooleanField(default=True)
-    announcements = fields.ArrayField(models.CharField(max_length=255), blank=True)
+    announcements = fields.ArrayField(models.CharField(max_length=255), blank=True, default=[])
     readonly_mode = models.BooleanField(default=False, help_text=gettext('readonly_mode'))
 
     @cached_property
