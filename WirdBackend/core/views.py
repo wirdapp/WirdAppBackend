@@ -28,7 +28,6 @@ from member_panel.models import PointRecord
 
 
 class ContestView(MyModelViewSet):
-    serializer_class = BasicContestSerializer
     name = 'create-contest-view'
     member_allowed_methods = ['switch_contest', 'retrieve', 'list', "current_contest"]
     admin_allowed_methods = ['switch_contest', 'retrieve', 'list', "current_contest"]
@@ -51,6 +50,12 @@ class ContestView(MyModelViewSet):
     @action(url_path="current", detail=False)
     def current_contest(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return BasicContestSerializer
+        else:
+            return ContestSerializer
 
     def get_object(self):
         current_contest = util_methods.get_current_contest_object(self.request)
