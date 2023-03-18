@@ -33,7 +33,9 @@ class PointRecordSerializer(serializers.ModelSerializer):
         record_type = data.pop("record_type")
         if record_type == "UserInputPointRecord":
             self.Meta.model = UserInputPointRecord
+            self.context["record_type"] = "UserInputPointRecord"
             return UserInputPointRecordSerializer(context=self.context).to_internal_value(data)
+        self.context["record_type"] = "PointRecord"
         return super(PointRecordSerializer, self).to_internal_value(data)
 
     def validate(self, attrs):
@@ -73,18 +75,20 @@ class PointRecordSerializer(serializers.ModelSerializer):
             errors['Error'] = gettext(error_messages_id)
 
     def create(self, validated_data):
-        request = self.context["request"]
+        if self.context["record_type"] == "UserInputPointRecord":
+            return UserInputPointRecordSerializer(context=self.context).create(validated_data)
+
         point_template = validated_data["point_template"]
-        contest = util_methods.get_current_contest_dict(request)["id"]
-        username = util_methods.get_username_from_session(request)
-        validated_data["person"] = ContestPerson.objects.get(person__username=username, contest__id=contest)
         if point_template.template_type == "NumberPointTemplate":
             validated_data["point_total"] = point_template.points_per_unit * validated_data["units_scored"]
         elif point_template.template_type == "CheckboxPointTemplate":
             validated_data["point_total"] = point_template.points_if_done * validated_data["units_scored"]
         else:
             validated_data["point_total"] = 0
-        point_record = PointRecord.objects.filter(person_id=validated_data["person"].id,
+
+        person = util_methods.get_current_personcontest_object(self.context["request"])
+        validated_data["person"] = person
+        point_record = PointRecord.objects.filter(person_id=person.id,
                                                   record_date=validated_data["record_date"],
                                                   point_template=point_template)
         if point_record.exists():
@@ -108,10 +112,18 @@ class UserInputPointRecordSerializer(serializers.ModelSerializer):
         request = self.context["request"]
         role = util_methods.get_current_contest_dict(request)["role"]
         if role in [ContestPerson.ContestRole.ADMIN.value, ContestPerson.ContestRole.SUPER_ADMIN.value]:
-            return True
-        else:
-            raise ValidationError(gettext("member can't review points"))
-
-    def validate_point_total(self, value):
-        if self.validate_reviewed_by_admin(True):
             return value
+        else:
+            return False
+
+    def create(self, validated_data):
+        validated_data["point_total"] = 0
+        person = util_methods.get_current_personcontest_object(self.context["request"])
+        validated_data["person"] = person
+        point_record = UserInputPointRecord.objects.filter(person_id=person.id,
+                                                           record_date=validated_data["record_date"],
+                                                           point_template=validated_data["point_template"])
+        if point_record.exists():
+            return super(UserInputPointRecordSerializer, self).update(point_record[0], validated_data)
+        else:
+            return super(UserInputPointRecordSerializer, self).create(validated_data)
