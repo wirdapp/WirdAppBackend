@@ -20,7 +20,7 @@ class BasicContestSerializer(serializers.ModelSerializer):
         model = Contest
 
 
-class ExtendedContestSerializer(serializers.ModelSerializer):
+class ContestSerializer(serializers.ModelSerializer):
     access_code = serializers.ReadOnlyField()
     admin_count = serializers.ReadOnlyField()
     member_count = serializers.ReadOnlyField()
