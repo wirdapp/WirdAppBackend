@@ -30,20 +30,14 @@ from member_panel.models import PointRecord
 class ContestView(MyModelViewSet):
     serializer_class = BasicContestSerializer
     name = 'create-contest-view'
-    member_allowed_methods = ['switch_contest', 'retrieve', 'list']
-    admin_allowed_methods = ['switch_contest', 'retrieve', 'list']
-    super_admin_allowed_methods = ['switch_contest', 'retrieve', 'list', 'update', 'partial_update']
+    member_allowed_methods = ['switch_contest', 'retrieve', 'list', "current_contest"]
+    admin_allowed_methods = ['switch_contest', 'retrieve', 'list', "current_contest"]
+    super_admin_allowed_methods = ['switch_contest', 'retrieve', 'list', "current_contest"]
 
     def get_queryset(self):
         username = util_methods.get_username_from_session(self.request)
         return models_helper.get_person_contests_queryset(username)
 
-    @swagger_auto_schema(request_body=no_body,
-                         responses={200: "contest switched successfully",
-                                    404: "person is not enrolled in this contest"},
-                         manual_parameters=[openapi.Parameter('contest_id', openapi.IN_QUERY,
-                                                              description="uuid of the new contest",
-                                                              type=openapi.TYPE_STRING)])
     @action(detail=False, methods=['post'])
     def switch_contest(self, request, *args, **kwargs):
         contests = self.get_queryset()
@@ -53,6 +47,17 @@ class ContestView(MyModelViewSet):
             return Response(gettext("contest switched successfully"), status=status.HTTP_200_OK)
         else:
             return Response(gettext("person is not enrolled in this contest"), status=status.HTTP_404_NOT_FOUND)
+
+    @action(url_path="current", detail=False)
+    def current_contest(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def get_object(self):
+        current_contest = util_methods.get_current_contest_object(self.request)
+        if current_contest:
+            return current_contest
+        else:
+            return Contest.objects.none()
 
 
 class SignUpView(mixins.CreateModelMixin, viewsets.GenericViewSet):
@@ -68,16 +73,6 @@ class CurrentContestPersonView(MyModelViewSet):
     def get_object(self):
         username = util_methods.get_username_from_session(self.request)
         return Person.objects.get(username=username)
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        person = self.get_serializer(instance)
-        current_contest = util_methods.get_current_contest_object(request)
-        if current_contest:
-            data = dict(person=person.data, contest=ExtendedContestSerializer(current_contest).data)
-        else:
-            data = dict(person=person.data)
-        return Response(data)
 
 
 class TopMembersOverall(views.APIView):
