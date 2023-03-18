@@ -5,7 +5,7 @@ from hijri_converter import Hijri
 from rest_framework.response import Response
 
 from core import models_helper
-from core.models import Contest
+from core.models import Contest, ContestPerson
 
 
 def hash_multiple_values(*args):
@@ -57,3 +57,9 @@ def get_current_contest_object(request):
         return Contest.objects.get(id=current_contest["id"])
     else:
         return None
+
+
+def get_current_personcontest_object(request):
+    contest = get_current_contest_dict(request)["id"]
+    username = get_username_from_session(request)
+    return ContestPerson.objects.get(person__username=username, contest__id=contest)
