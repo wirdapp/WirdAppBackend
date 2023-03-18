@@ -74,6 +74,13 @@ class CurrentContestPersonView(MyModelViewSet):
         username = util_methods.get_username_from_session(self.request)
         return Person.objects.get(username=username)
 
+    def retrieve(self, request, *args, **kwargs):
+        person = self.get_object()
+        role = util_methods.get_current_contest_dict(request)["role"]
+        data = PersonSerializer(person).data
+        data.update({"role": role})
+        return Response(data)
+
 
 class TopMembersOverall(views.APIView):
     permission_classes = [And(IsAuthenticated(), IsContestMember()), ]
