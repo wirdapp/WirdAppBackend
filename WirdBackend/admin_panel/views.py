@@ -13,10 +13,20 @@ from rest_framework.viewsets import GenericViewSet
 
 from core.models import Person
 from core.permissions import *
+from core.serializers import ContestSerializer
 from core.util_classes import MyModelViewSet, MyPageNumberPagination
 from member_panel.models import PointRecord
 from member_panel.serializers import PointRecordSerializer
 from .serializers import *
+
+
+class CurrentContestView(MyModelViewSet):
+    super_admin_allowed_methods = ['retrieve', 'list', 'update', 'partial_update']
+    admin_allowed_methods = ['retrieve', 'list']
+    serializer_class = ContestSerializer
+
+    def get_object(self):
+        return util_methods.get_current_contest_object(self.request)
 
 
 class SectionView(MyModelViewSet):
@@ -151,7 +161,8 @@ class GroupMembersResultsView(generics.ListAPIView):
 class ReviewUserInputPoints(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericViewSet):
     permission_classes = [And(IsAuthenticated(), IsContestAdmin()), ]
     serializer_class = UserInputRecordReviewSerializer
-    filterset_fields = ["reviewed_by_admin", 'record_date', "person__person__username"]
+    filterset_fields = ["reviewed_by_admin", 'record_date', "point_template", "person__person__username"]
+    lookup_field = "id"
 
     def get_queryset(self):
         contest_id = util_methods.get_current_contest_dict(self.request)["id"]
