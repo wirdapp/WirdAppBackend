@@ -10,8 +10,6 @@ from django.db.models.functions import Concat
 from django.template.loader import render_to_string
 from django.utils.translation import get_language
 from django.utils.translation import gettext
-from drf_yasg import openapi
-from drf_yasg.utils import swagger_auto_schema, no_body
 from hijri_converter import Gregorian
 from rest_condition import And
 from rest_framework import viewsets, mixins, permissions, status, views
@@ -81,9 +79,10 @@ class CurrentContestPersonView(MyModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         person = self.get_object()
-        role = util_methods.get_current_contest_dict(request)["role"]
         data = PersonSerializer(person).data
-        data.update({"role": role})
+        contest = util_methods.get_current_contest_dict(request, raise_exception=False)
+        if contest:
+            data.update({"role": contest["role"]})
         return Response(data)
 
 
