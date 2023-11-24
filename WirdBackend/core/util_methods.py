@@ -36,6 +36,7 @@ def get_current_contest_dict(request, raise_exception=True):
         if len(contests) > 0:
             request.session["current_contest_id"] = contests[0][0].hex
             request.session["current_contest_role"] = contests[0][1]
+            request.session.modified = True
         else:
             if raise_exception:
                 raise Exception(gettext("user has no contests"))

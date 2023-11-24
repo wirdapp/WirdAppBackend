@@ -21,6 +21,6 @@ urlpatterns = [
     path('results/<date:date>/<str:group_id>', views.GroupMembersResultsView.as_view(), name='Results Page'),
     path('export-results/', views.ExportAllResultsView.as_view(), name='Export All Results Page'),
     path('export-results/<str:group_id>', views.ExportGroupResultsView.as_view(), name='Export Group Results Page'),
-    path('reset-members-password', views.ResetMemberPassword().as_view(), name="Reset Member Password"),
+    path('reset-members-password/', views.ResetMemberPassword().as_view(), name="Reset Member Password"),
     path('contest/', views.CurrentContestView.as_view({"get": "retrieve", "post": "update"}))
 ]
