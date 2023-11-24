@@ -23,9 +23,10 @@ def destroy(instance):
 
 
 def get_username_from_session(request):
-    if not "username" in request.session or request.session['username'] == '':
+    if "username" not in request.session or request.session['username'] == '':
         username = request.user.username
         request.session["username"] = username
+        request.session.modified = True
     return request.session["username"]
 
 
@@ -50,6 +51,7 @@ def update_current_contest_dict(request, contest_id):
     contest = models_helper.get_person_contests_ids_and_roles(username).get(contest__id=contest_id)
     request.session["current_contest_id"] = contest[0].hex
     request.session["current_contest_role"] = contest[1]
+    request.session.modified = True
 
 
 def get_current_contest_object(request):
