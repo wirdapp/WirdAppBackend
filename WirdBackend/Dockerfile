@@ -70,20 +70,13 @@ COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
 RUN pip install /wheels/*
 
-COPY ./entrypoint.sh .
-RUN sed -i 's/\r$//g' $APP_HOME/entrypoint.sh
-RUN chmod +x $APP_HOME/entrypoint.sh
-
 RUN mkdir -p /var/log/gunicorn/ /var/run/gunicorn/ /var/log/wird_app/
 RUN chown -R app:app /var/log/gunicorn/ /var/run/gunicorn/ /var/log/wird_app/
 
 COPY ./gunicorn .
-COPY ./start_server.sh .
-RUN chmod +x $APP_HOME/start_server.sh
 
 COPY . $APP_HOME
 RUN chown -R app:app $APP_HOME
 
 USER app
 
-ENTRYPOINT ["/home/app/web/entrypoint.sh"]
