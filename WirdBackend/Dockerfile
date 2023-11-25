@@ -74,6 +74,8 @@ RUN mkdir -p /var/log/gunicorn/ /var/run/gunicorn/ /var/log/wird_app/
 RUN chown -R app:app /var/log/gunicorn/ /var/run/gunicorn/ /var/log/wird_app/
 
 COPY ./gunicorn .
+COPY ./start-dev-server.sh .
+RUN chmod +x $APP_HOME/start-dev-server.sh
 
 COPY . $APP_HOME
 RUN chown -R app:app $APP_HOME
