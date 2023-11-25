@@ -17,11 +17,6 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'core.global_exception_handler.custom_exception_handler',
 }
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-    }
-}
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -32,7 +27,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.locale.LocaleMiddleware',
 ]
-LOGGING = {}
 ALLOWED_HOSTS = ["*"]
 CORS_ALLOW_CREDENTIALS = False
 CORS_ORIGIN_ALLOW_ALL = True

@@ -19,19 +19,19 @@ CORS_ALLOWED_ORIGINS = ["http://localhost", 'http://0.0.0.0', 'https://student.w
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': os.environ.get("REDIS_URL", "redis://127.0.0.1:6379"),
+        'LOCATION': "redis://" + os.environ.get("REDIS_URL", "127.0.0.1") + os.environ.get("REDIS_PORT", "6379"),
         'TIMEOUT': 60
     }
 }
 
 DATABASES = {
     "default": {
-        "ENGINE": os.environ.get("SQL_ENGINE"),
-        "NAME": os.environ.get("SQL_DATABASE"),
-        "USER": os.environ.get("SQL_USER"),
-        "PASSWORD": os.environ.get("SQL_PASSWORD"),
-        "HOST": os.environ.get("SQL_HOST"),
-        "PORT": os.environ.get("SQL_PORT"),
+        "ENGINE": os.environ.get("DATABASE_ENGINE"),
+        "NAME": os.environ.get("DATABASE_NAME"),
+        "USER": os.environ.get("DATABASE_USER"),
+        "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
+        "HOST": os.environ.get("DATABASE_HOST"),
+        "PORT": os.environ.get("DATABASE_PORT"),
         "CONN_MAX_AGE": 60,
     }
 }
@@ -75,7 +75,6 @@ LOGGING = {
     },
     'handlers': {
         'file': {
-            'level': 'DEBUG',
             'class': 'logging.handlers.TimedRotatingFileHandler',
             'filename': '/var/log/wird_app/backend.log',
             'when': 'D',
@@ -84,26 +83,22 @@ LOGGING = {
             'formatter': 'large'
         },
     },
-    'console': {
-        'level': 'DEBUG',
-        'formatter': 'tiny',
-        'class': 'logging.StreamHandler',
-    },
     'loggers': {
         'django': {
             'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': False,
+            'level': os.environ.get("LOGGING_LEVEL"),
+            'propagate': True,
         },
         'django.request': {
             'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': False,
+            'level': os.environ.get("LOGGING_LEVEL"),
+            'propagate': True,
         },
     },
     'root': {
         'handlers': ['file'],
-        'level': 'DEBUG',
+        'level': os.environ.get("LOGGING_LEVEL"),
+        'propagate': True,
     },
 }
 
@@ -202,11 +197,11 @@ AUTH_USER_MODEL = 'core.Person'
 
 # Email Backend
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp-relay.sendinblue.com'
+EMAIL_HOST = os.environ.get("EMAIL_HOST_SMTP")
 EMAIL_PORT = 587
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = 'Wird App <info@wird.app>'
+DEFAULT_FROM_EMAIL = 'Wird App <no-reply@wird.app>'
 
 # Security Headers
 SECURE_HSTS_PRELOAD = True
