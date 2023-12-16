@@ -8,17 +8,14 @@ def get_contest_people(contest_id, contest_role=(1, 2, 3)):
     return ContestPerson.objects.filter(contest__id=contest_id, contest_role__in=contest_role)
 
 
-def get_person_contests_ids_and_roles(username, contest_role=(1, 2, 3)):
-    if not isinstance(contest_role, Iterable):
-        contest_role = tuple(contest_role)
-
+def get_person_contests_ids_and_roles(username, contest_role=(0, 1, 2, 3, 4, 5)):
     queryset = ContestPerson.objects.filter(person__username=username, contest_role__in=contest_role) \
         .values_list("contest__id", "contest_role")
 
     return queryset
 
 
-def get_person_contests_queryset(username, contest_role=(1, 2, 3)):
+def get_person_contests_queryset(username, contest_role=(0, 1, 2, 3)):
     contest_ids = get_person_contests_ids_and_roles(username, contest_role)
     contest_ids = [c[0] for c in contest_ids]
     return Contest.objects.filter(id__in=contest_ids)
