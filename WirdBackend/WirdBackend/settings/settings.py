@@ -46,16 +46,18 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend'
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
     ],
     'EXCEPTION_HANDLER': 'core.global_exception_handler.custom_exception_handler',
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle'
+        'rest_framework.throttling.ScopeRateThrottle'
     ],
     'DEFAULT_THROTTLE_RATES': {
         'anon': '300/day',
-        'user': '30/minute'
+        'user': '30/minute',
+        'contest_view': '100/day'
     },
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
@@ -113,6 +115,12 @@ INSTALLED_APPS = [
     'admin_panel.apps.AdminPanelConfig',
     'core.apps.CoreConfig',
     'rest_framework',
+    "rest_framework.authtoken",
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
     'django_filters',
     'corsheaders',
     'polymorphic',
@@ -132,6 +140,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django_permissions_policy.PermissionsPolicyMiddleware",
     'django.middleware.locale.LocaleMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'WirdBackend.urls'
@@ -215,3 +224,19 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 PERMISSIONS_POLICY = {"fullscreen": "*", }
+## For dj-rest-auth
+REST_AUTH = {
+    'USE_JWT': True,
+    'JWT_AUTH_COOKIE': 'wird-jwt-auth',
+    'JWT_AUTH_REFRESH_COOKIE': 'wird-jwt-refresh',
+}
+SITE_ID = 1
+
+# For Allauth
+ACCOUNT_AUTHENTICATION_METHOD = 'username'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
+ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 3600
+ACCOUNT_SESSION_REMEMBER = True
+ACCOUNT_UNIQUE_EMAIL = False
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "Wird Platform"
