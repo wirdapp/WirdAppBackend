@@ -7,35 +7,48 @@ from collections.abc import Iterable
 from rest_framework.permissions import BasePermission
 
 from core import util_methods, models_helper
+from allauth.account.admin import EmailAddress
+
+from core.util_methods import person_role_in_contest
 
 logger = logging.getLogger(__name__)
 
 
-def person_role_in_contest(request, expected_roles):
-    try:
-        if not isinstance(expected_roles, Iterable):
-            expected_roles = [expected_roles]
-        current_contest = util_methods.get_current_contest_dict(request)
-        return bool(current_contest["role"] in expected_roles)
-    except Exception as e:
-        logger.error("Error while getting person role in contest", e)
-        return False
-
-
 class IsContestMember(BasePermission):
     def has_permission(self, request, view):
-        return person_role_in_contest(request, [3, 2, 1])
+        return person_role_in_contest(request, [3, 2, 1, 0])
 
 
 class IsContestAdmin(BasePermission):
     def has_permission(self, request, view):
-        return person_role_in_contest(request, [3, 2])
+        return person_role_in_contest(request, [2, 1, 0])
+
+
+class IsContestSuperAdmin(BasePermission):
+    def has_permission(self, request, view):
+        return person_role_in_contest(request, [1, 0])
+
+
+class IsContestOwner(BasePermission):
+    def has_permission(self, request, view):
+        return person_role_in_contest(request, [0])
+
+
+class NoPermission(BasePermission):
+    def has_permission(self, request, view):
+        return False
+
+
+class EmailVerified(BasePermission):
+    def has_permission(self, request, view):
+        username = util_methods.get_username_from_session(request)
+        return EmailAddress.objects.filter(user__username=username, verified=True).exists()
 
 
 class IsGroupAdmin(BasePermission):
     # TODO: Support more variations
     def has_permission(self, request, view):
-        contest_id = util_methods.get_current_contest_dict(request)["id"]
+        contest_id = util_methods.get_current_contest(request)["id"]
         username = util_methods.get_username_from_session(request)
         group_id = view.kwargs["group_id"]
         return models_helper.get_person_managed_groups(username, contest_id).filter(id=group_id).exists()
@@ -45,13 +58,3 @@ class MemberBelongsToAdminGroups(BasePermission):
     def has_permission(self, request, view):
         # FIXME
         return True
-
-
-class IsContestSuperAdmin(BasePermission):
-    def has_permission(self, request, view):
-        return person_role_in_contest(request, [3])
-
-
-class NoPermission(BasePermission):
-    def has_permission(self, request, view):
-        return False
