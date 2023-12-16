@@ -5,16 +5,12 @@ from . import views
 
 router = routers.DefaultRouter()
 router.register(r'contests', views.ContestView, basename='contests')
-router.register(r'signup', views.SignUpView, basename='signup')
 
 urlpatterns = [
-    path('current-user/', views.CurrentContestPersonView.as_view({'get': 'retrieve', "post": "update"})),
+    path('current_user/', views.CurrentUserView.as_view()),
     path("top-members/", views.TopMembersOverall.as_view()),
     path("top-members/<date:date>", views.TopMembersByDate.as_view()),
     path("calendar/", views.CalendarView.as_view()),
     path("calendar/<str:date>/", views.CalendarView.as_view()),
-    path("create-contest/", views.CreateNewContest.as_view()),
-    path("join-contest/", views.JoinContest.as_view()),
-    path("reset-password/<str:validate_get_reset>", views.ResetPasswordView.as_view()),
     path('', include(router.urls)),
 ]
