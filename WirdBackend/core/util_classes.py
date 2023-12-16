@@ -2,12 +2,18 @@ from datetime import datetime
 
 from rest_condition import And
 from rest_framework import serializers
+from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAuthenticated
 
 from core import util_methods, models_helper
-from core.permissions import IsContestAdmin, IsContestSuperAdmin, NoPermission, IsContestMember
+from core.permissions import IsContestAdmin, IsContestSuperAdmin, NoPermission, IsContestMember, EmailVerified
+from enum import Enum
+from rest_framework.throttling import UserRateThrottle
+
+
+class BurstRateThrottle(UserRateThrottle):
+    scope = 'join_contest'
 
 
 class DateConverter:
@@ -27,20 +33,23 @@ class MyPageNumberPagination(PageNumberPagination):
     max_page_size = 10
 
 
-class MyModelViewSet(ModelViewSet):
-    super_admin_allowed_methods = ['retrieve', 'list', 'create', 'update', 'partial_update']
-    admin_allowed_methods = ['retrieve', 'list', 'create', 'update', 'partial_update']
+class MyModelViewSet(viewsets.ModelViewSet):
+    authenticated_allowed_methods = []
+    verified_allowed_methods = []
     member_allowed_methods = []
-    non_member_allowed_methods = []
-    contest_related = True
+    verified_members_allowed_methods = []
+    admin_allowed_methods = []
+    super_admin_allowed_methods = []
 
     def get_permissions(self):
-        if self.action in self.non_member_allowed_methods:
-            return AllowAny(),
-        if self.action in self.member_allowed_methods and not self.contest_related:
+        if self.action in self.authenticated_allowed_methods:
             return IsAuthenticated(),
+        if self.action in self.verified_allowed_methods:
+            return And(IsAuthenticated(), EmailVerified()),
         if self.action in self.member_allowed_methods:
             return And(IsAuthenticated(), IsContestMember()),
+        if self.action in self.verified_members_allowed_methods:
+            return And(IsAuthenticated(), EmailVerified(), IsContestMember()),
         if self.action in self.admin_allowed_methods:
             return And(IsAuthenticated(), IsContestAdmin()),
         if self.action in self.super_admin_allowed_methods:
@@ -52,6 +61,8 @@ class DynamicFieldsCategorySerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         # Don't pass the 'fields' arg up to the superclass
         fields = kwargs.pop('fields', None)
+        if fields is None and self.fields is None:
+            self.fields = "__all__"
 
         # Instantiate the superclass normally
         super().__init__(*args, **kwargs)
@@ -74,7 +85,7 @@ class ContestFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
 
     def get_queryset(self):
         request = self.context.get('request', None)
-        contest = util_methods.get_current_contest_dict(request)
+        contest = util_methods.get_current_contest(request)
         if self.helper_function_name:
             func = getattr(models_helper, self.helper_function_name)
             queryset = func(contest["id"])
