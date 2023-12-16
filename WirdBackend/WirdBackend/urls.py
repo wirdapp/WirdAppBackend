@@ -18,8 +18,7 @@ from django.urls import path, include, re_path, register_converter
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-
+from dj_rest_auth.registration.views import VerifyEmailView, ConfirmEmailView
 from core.util_classes import DateConverter
 
 register_converter(DateConverter, 'date')
@@ -43,8 +42,9 @@ urlpatterns = [
     path('', include('core.urls')),
     path('admin-panel/', include('admin_panel.urls')),
     path('member-panel/', include('member_panel.urls')),
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/', include('dj_rest_auth.urls')),
+    re_path("auth/registration/account-confirm-email/(?P<key>[\s\d\w().+-_',:&]+)/$", VerifyEmailView.as_view()),
+    path('auth/registration/', include('dj_rest_auth.registration.urls')),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
