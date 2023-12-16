@@ -20,15 +20,6 @@ from member_panel.serializers import PointRecordSerializer
 from .serializers import *
 
 
-class CurrentContestView(MyModelViewSet):
-    super_admin_allowed_methods = ['retrieve', 'list', 'update', 'partial_update']
-    admin_allowed_methods = ['retrieve', 'list']
-    serializer_class = ContestSerializer
-
-    def get_object(self):
-        return util_methods.get_current_contest_object(self.request)
-
-
 class SectionView(MyModelViewSet):
     serializer_class = SectionSerializer
     name = 'section-list'
@@ -36,7 +27,7 @@ class SectionView(MyModelViewSet):
     admin_allowed_methods = ['list', 'retrieve']
 
     def get_queryset(self):
-        contest_id = util_methods.get_current_contest_dict(self.request)["id"]
+        contest_id = util_methods.get_current_contest(self.request)["id"]
         return models_helper.get_contest_sections(contest_id)
 
 
@@ -47,7 +38,7 @@ class PointTemplatesView(MyModelViewSet):
     serializer_class = PointTemplateSerializer
 
     def get_queryset(self):
-        contest_id = util_methods.get_current_contest_dict(self.request)["id"]
+        contest_id = util_methods.get_current_contest(self.request)["id"]
         return models_helper.get_contest_point_templates(contest_id)
 
 
@@ -55,8 +46,9 @@ class GroupView(MyModelViewSet):
     name = 'contest-group-list'
     lookup_field = 'id'
     admin_allowed_methods = ['list', 'update', 'partial_update', 'retrieve', "add_or_remove_member"]
-    super_admin_allowed_methods = MyModelViewSet.super_admin_allowed_methods + ["add_or_remove_admin",
-                                                                                "add_or_remove_member"]
+
+    # super_admin_allowed_methods = MyModelViewSet.super_admin_allowed_methods + ["add_or_remove_admin",
+    #                                                                             "add_or_remove_member"]
 
     def get_serializer_class(self):
         if self.action in ["list", "create"]:
@@ -68,7 +60,7 @@ class GroupView(MyModelViewSet):
 
     def get_queryset(self):
         username = util_methods.get_username_from_session(self.request)
-        current_contest = util_methods.get_current_contest_dict(self.request)["id"]
+        current_contest = util_methods.get_current_contest(self.request)["id"]
         return models_helper.get_person_managed_groups(username, current_contest)
 
     @action(methods=["post"], detail=True)
@@ -104,7 +96,7 @@ class ContestPersonView(MyModelViewSet):
 
     def get_queryset(self):
         contest_role = self.request.query_params.getlist('contest_role', (1, 2, 3, 4, 5, 6))
-        current_contest = util_methods.get_current_contest_dict(self.request)["id"]
+        current_contest = util_methods.get_current_contest(self.request)["id"]
         return models_helper.get_contest_people(current_contest, contest_role=contest_role)
 
 
@@ -113,7 +105,7 @@ class ResultsView(views.APIView):
 
     def get(self, request, *args, **kwargs):
         date = kwargs.get("date", None)
-        contest_id = util_methods.get_current_contest_dict(request)["id"]
+        contest_id = util_methods.get_current_contest(request)["id"]
         username = util_methods.get_username_from_session(request)
         group_list = models_helper.get_person_managed_groups(username, contest_id).values_list("id", "name")
         result = []
@@ -160,7 +152,7 @@ class ReviewUserInputPoints(mixins.ListModelMixin, mixins.RetrieveModelMixin, mi
     lookup_field = "id"
 
     def get_queryset(self):
-        contest_id = util_methods.get_current_contest_dict(self.request)["id"]
+        contest_id = util_methods.get_current_contest(self.request)["id"]
         return UserInputPointRecord.objects.filter(point_template__contest__id=contest_id)
 
 
@@ -227,7 +219,7 @@ class ExportAllResultsView(views.APIView):
     permission_classes = [And(IsAuthenticated(), IsContestSuperAdmin)]
 
     def get(self, request, *args, **kwargs):
-        current_contest = util_methods.get_current_contest_dict(request)["id"]
+        current_contest = util_methods.get_current_contest(request)["id"]
         file_path = f"total_results_for_contest_{current_contest[-6:-1]}_generated_on_{datetime.date.today()}.xlsx"
         if os.path.exists(file_path):
             return Response(f"{gettext('data was generated today under url')} {file_path}")
