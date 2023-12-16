@@ -110,7 +110,7 @@ class UserInputPointRecordSerializer(serializers.ModelSerializer):
 
     def validate_reviewed_by_admin(self, value):
         request = self.context["request"]
-        role = util_methods.get_current_contest_dict(request)["role"]
+        role = util_methods.get_current_contest(request)["role"]
         if role in [ContestPerson.ContestRole.ADMIN.value, ContestPerson.ContestRole.SUPER_ADMIN.value]:
             return value
         else:

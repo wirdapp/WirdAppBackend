@@ -1,7 +1,8 @@
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 
-from core.models import Person, Contest
+from core import util_methods
+from core.models import Person, Contest, ContestPerson
 from core.util_classes import DynamicFieldsCategorySerializer
 
 
@@ -12,16 +13,7 @@ class PersonSerializer(DynamicFieldsCategorySerializer):
         read_only_fields = ['username']
 
 
-class BasicContestSerializer(serializers.ModelSerializer):
-    access_code = serializers.ReadOnlyField()
-
-    class Meta:
-        fields = ["id", "name", "access_code"]
-        model = Contest
-
-
-class ContestSerializer(serializers.ModelSerializer):
-    access_code = serializers.ReadOnlyField()
+class ContestSerializer(DynamicFieldsCategorySerializer):
     admin_count = serializers.ReadOnlyField()
     member_count = serializers.ReadOnlyField()
     group_count = serializers.ReadOnlyField()
@@ -29,15 +21,3 @@ class ContestSerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
         model = Contest
-
-
-class PersonSignupSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = ["username", "password", 'first_name', 'last_name', 'profile_photo', 'phone_number',
-                  'email']
-        model = Person
-
-    def create(self, validated_data):
-        validated_data['password'] = make_password(validated_data['password'])
-        person = super().create(validated_data)
-        return person

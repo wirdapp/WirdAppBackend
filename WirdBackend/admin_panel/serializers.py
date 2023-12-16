@@ -32,7 +32,7 @@ class ContestPersonSerializer(serializers.ModelSerializer):
 
     def get_person(self, value):
         if self.context["view"].action == "list":
-            return PersonSerializer(value.person, read_only=True, fields=["username", "first_name", "last_name"]).data
+            return PersonSerializer(value.person, read_only=True).data
         else:
             return PersonSerializer(value.person, read_only=True).data
 
@@ -133,7 +133,7 @@ class AddRemovePersonsToGroup(serializers.Serializer):
     action = serializers.ChoiceField(choices=["add", "remove"], default="add")
 
     def validate_persons(self, data):
-        contest_id = util_methods.get_current_contest_dict(self.context)["id"]
+        contest_id = util_methods.get_current_contest(self.context)["id"]
         ids = ContestPerson.objects.filter(contest_id=contest_id, person__username__in=data).values_list("id")
         if len(data) > len(ids):
             raise ValidationError(gettext("add user to group username not in contest"))
