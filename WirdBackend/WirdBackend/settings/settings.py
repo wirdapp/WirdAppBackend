@@ -229,7 +229,8 @@ REST_AUTH = {
     'USE_JWT': True,
     'JWT_AUTH_COOKIE': 'wird-jwt-auth',
     'JWT_AUTH_REFRESH_COOKIE': 'wird-jwt-refresh',
-    'JWT_AUTH_RETURN_EXPIRATION': True
+    'JWT_AUTH_RETURN_EXPIRATION': True,
+    'JWT_AUTH_HTTPONLY': False
 }
 SITE_ID = 1
 
