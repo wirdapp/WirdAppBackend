@@ -29,9 +29,13 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
 ]
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    'http://localhost',
+    'http://localhost',
+    'http://0.0.0.0',
+    "https://dev.wird.app"
+]
 CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_ALLOW_ALL = True
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:8080',
