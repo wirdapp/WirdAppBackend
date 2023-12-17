@@ -240,3 +240,8 @@ ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 3600
 ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_UNIQUE_EMAIL = False
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "Wird Platform"
+
+CORS_ORIGIN_ALLOW_ALL = True # TODO: remove this once the FE is using the same domain
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:3000',
+)
