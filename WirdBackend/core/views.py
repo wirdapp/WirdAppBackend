@@ -16,11 +16,12 @@ from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle
 
 from core import models_helper
-from core.permissions import IsContestMember
+from core.permissions import IsContestMember, IsContestSuperAdmin, IsAuthenticatedAndReadOnly
 from core.serializers import *
 from core.util_classes import MyModelViewSet
 from member_panel.models import PointRecord
 from datetime import datetime, timedelta
+from rest_condition import Or
 
 
 class ContestView(MyModelViewSet):
@@ -59,14 +60,11 @@ class ContestView(MyModelViewSet):
         except Contest.DoesNotExist:
             return Response(gettext("cannot join this contest or access code is wrong"), 400)
 
-    @action(detail=False, methods=["get"], throttle_classes=[UserRateThrottle])
+    @action(detail=False, methods=["get", "put"], throttle_classes=[UserRateThrottle],
+            permission_classes=[Or(IsContestSuperAdmin(), IsAuthenticatedAndReadOnly())])
     def current(self, request):
         instance = util_methods.get_current_contest_object(request)
         return Response(self.get_serializer(instance).data)
-
-    @action(detail=False, methods=["get", "put"])
-    def edit_contest(self, request):
-        return self.current(request)
 
     def get_queryset(self):
         username = util_methods.get_username_from_session(self.request)

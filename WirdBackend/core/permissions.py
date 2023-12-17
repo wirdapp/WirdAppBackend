@@ -2,14 +2,11 @@
 Provides a set of pluggable permission policies.
 """
 import logging
-from collections.abc import Iterable
 
-from rest_framework.permissions import BasePermission
-
-from core import util_methods, models_helper
 from allauth.account.admin import EmailAddress
-
+from core import util_methods, models_helper
 from core.util_methods import person_role_in_contest
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +24,11 @@ class IsContestAdmin(BasePermission):
 class IsContestSuperAdmin(BasePermission):
     def has_permission(self, request, view):
         return person_role_in_contest(request, [1, 0])
+
+
+class IsAuthenticatedAndReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_authenticated and request.method in SAFE_METHODS)
 
 
 class IsContestOwner(BasePermission):
