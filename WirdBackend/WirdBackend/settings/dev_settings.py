@@ -30,10 +30,9 @@ MIDDLEWARE = [
 ]
 
 ALLOWED_HOSTS = [
-    'http://localhost',
-    'http://localhost',
-    'http://0.0.0.0',
-    "https://dev.wird.app"
+    'localhost',
+    '0.0.0.0',
+    "dev.wird.app"
 ]
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
