@@ -5,6 +5,7 @@ ARG PYTHON_VERSION=3.9.6
 # BUILDER #
 ###########
 
+# Use a smaller base image for the builder stage
 FROM python:${PYTHON_VERSION}-slim as builder
 
 WORKDIR /usr/src/app
@@ -27,14 +28,15 @@ RUN apt-get update \
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir wheel
 
-COPY . .
-
+# Separate the copying of requirements and installing dependencies
+COPY requirements.txt .
 RUN pip wheel --wheel-dir /usr/src/app/wheels -r requirements.txt
 
 #########
 # FINAL #
 #########
 
+# Use a smaller base image for the final stage
 FROM python:${PYTHON_VERSION}-slim
 
 RUN mkdir -p /home/app
@@ -66,8 +68,8 @@ RUN apt-get update \
 RUN pip install "gunicorn==20.0.4" \
     && pip install psycopg2-binary
 
+# Copy the wheels and install dependencies separately
 COPY --from=builder /usr/src/app/wheels /wheels
-COPY --from=builder /usr/src/app/requirements.txt .
 RUN pip install /wheels/*
 
 RUN mkdir -p /var/log/gunicorn/ /var/run/gunicorn/ /var/log/wird_app/
@@ -81,4 +83,3 @@ COPY . $APP_HOME
 RUN chown -R app:app $APP_HOME
 
 USER app
-
