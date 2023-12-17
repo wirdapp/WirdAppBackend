@@ -20,6 +20,7 @@ from core.permissions import IsContestMember
 from core.serializers import *
 from core.util_classes import MyModelViewSet
 from member_panel.models import PointRecord
+from datetime import datetime, timedelta
 
 
 class ContestView(MyModelViewSet):
@@ -146,22 +147,20 @@ class CalendarView(views.APIView):
 
     def get(self, request, *args, **kwargs):
         results = []
-        today = datetime.datetime.today().date()
-        start_date = int(kwargs.get('start'))
-        end_date = int(kwargs.get('end'))
-        for delta in range(start_date, end_date):
-            date_dict = self.get_date_dict(delta, get_language(), today)
+        start = request.query_params.get("start", None)
+        current_date = datetime.today() if start is None else datetime.strptime(start, '%d-%m-%Y').date()
+        offset = int(request.query_params.get("offset", 5))
+        step = 1 if offset > 0 else -1
+        lang = get_language()
+        for i in range(0, offset, step):
+            hijri_date = Gregorian.fromdate(current_date).to_hijri()
+            hijri_date_words = f"{hijri_date.day} {hijri_date.month_name(language=lang)} {hijri_date.year}"
+            greg_date_words = current_date.strftime('%d %B %Y')
+            date_dict = dict(greg_date=current_date.strftime("%d-%m-%Y"),
+                             greg_date_words=greg_date_words,
+                             hijri_date=hijri_date.dmyformat(separator="-"),
+                             hijri_date_words=hijri_date_words)
+            current_date += timedelta(days=step)
             results.append(date_dict)
 
         return Response(results)
-
-    @staticmethod
-    def get_date_dict(delta, lang, day):
-        greg_date = day + datetime.timedelta(days=delta)
-        hijri_date = Gregorian.fromdate(greg_date).to_hijri()
-        hijri_date_words = f"{hijri_date.day} {hijri_date.month_name(language=lang)} {hijri_date.year}"
-        greg_date_words = greg_date.strftime('%d %B %Y')
-        date_dict = dict(greg_date=greg_date, greg_date_words=greg_date_words,
-                         hijri_date=hijri_date.dmyformat(separator="-"),
-                         hijri_date_words=hijri_date_words)
-        return date_dict
