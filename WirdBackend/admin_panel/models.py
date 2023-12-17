@@ -8,7 +8,7 @@ from polymorphic.models import PolymorphicModel
 
 class Section(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    label = models.CharField(default='', max_length=32)
+    label = models.CharField(default='', max_length=120)
     position = models.IntegerField(default=1)
     contest = models.ForeignKey("core.Contest", on_delete=models.PROTECT, related_name='contest_sections')
 
@@ -18,15 +18,14 @@ class Section(models.Model):
 
 class PointTemplate(PolymorphicModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    label = models.CharField(max_length=128, default='')
+    description = models.CharField(max_length=256, default='')
     order_in_section = models.IntegerField()
     is_active = models.BooleanField(default=True)
     is_shown = models.BooleanField(default=True)
     custom_days = fields.ArrayField(models.DateField(), blank=True, default=[])  # Only available for postgresSQL
     contest = models.ForeignKey("core.Contest", on_delete=models.PROTECT, related_name="contest_point_templates")
     section = models.ForeignKey(Section, on_delete=models.PROTECT)
-
-    label = models.CharField(max_length=128, default='')
-    description = models.CharField(max_length=256, default='')
 
     class Meta:
         ordering = ('section__position', 'order_in_section')

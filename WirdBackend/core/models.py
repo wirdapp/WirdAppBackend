@@ -7,7 +7,6 @@ from django.core.validators import integer_validator, MinLengthValidator
 from django.db import models
 from django.utils.functional import cached_property
 from django_resized import ResizedImageField
-from timezone_field import TimeZoneField
 
 
 def upload_location(instance, filename):
@@ -24,7 +23,6 @@ class Contest(models.Model):
     contest_id = models.CharField(unique=True, max_length=12, default="", validators=[MinLengthValidator(6)])
     name = models.CharField(max_length=128, validators=[MinLengthValidator(4)], default='')
     description = models.CharField(max_length=500, blank=True)
-    timezone = TimeZoneField(default='Asia/Amman')
     show_standings = models.BooleanField(default=True)
     announcements = fields.ArrayField(models.CharField(max_length=500), blank=True, default=[])
     readonly_mode = models.BooleanField(default=False, help_text=gettext('readonly_mode'))

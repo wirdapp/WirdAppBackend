@@ -11,6 +11,5 @@ urlpatterns = [
     path("top-members/", views.TopMembersOverall.as_view()),
     path("top-members/<date:date>", views.TopMembersByDate.as_view()),
     path("calendar/", views.CalendarView.as_view()),
-    path("calendar/<str:date>/", views.CalendarView.as_view()),
     path('', include(router.urls)),
 ]

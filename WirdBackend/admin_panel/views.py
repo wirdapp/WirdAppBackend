@@ -13,7 +13,6 @@ from rest_framework.viewsets import GenericViewSet
 
 from core.models import Person
 from core.permissions import *
-from core.serializers import ContestSerializer
 from core.util_classes import MyModelViewSet
 from member_panel.models import PointRecord
 from member_panel.serializers import PointRecordSerializer

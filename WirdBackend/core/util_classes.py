@@ -8,7 +8,6 @@ from rest_framework.permissions import IsAuthenticated
 
 from core import util_methods, models_helper
 from core.permissions import IsContestAdmin, IsContestSuperAdmin, NoPermission, IsContestMember, EmailVerified
-from enum import Enum
 from rest_framework.throttling import UserRateThrottle
 
 
