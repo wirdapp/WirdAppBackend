@@ -10,7 +10,7 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend'
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ],
@@ -29,12 +29,9 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
 ]
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '0.0.0.0',
-    "dev.wird.app"
-]
-CORS_ALLOW_CREDENTIALS = True
+ALLOWED_HOSTS = ["*"]
+CORS_ALLOW_CREDENTIALS = False
+CORS_ORIGIN_ALLOW_ALL = True
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:8080',
@@ -45,3 +42,29 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',
     'http://localhost:8000',
 ]
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp-relay.brevo.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "osamaabuhamdan@yahoo.com"
+EMAIL_HOST_PASSWORD = "prcOzq603GXEhR9g"
+DEFAULT_FROM_EMAIL = 'Wird App <no-reply@wird.app>'
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    }
+}
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "wird_db",
+        "USER": "osamaabuhamdan",
+        "PASSWORD": "osama1997",
+        "HOST": "localhost",
+        "PORT": "5432",
+        "CONN_MAX_AGE": 60,
+    }
+}
+LOGGING = {}
