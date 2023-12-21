@@ -42,7 +42,7 @@ class ContestView(MyModelViewSet):
 
     @action(detail=False, methods=['post'])
     def switch_contest(self, request):
-        if self.get_queryset().filter(id=request.data.get('contest_id', "")).exists():
+        if self.get_queryset().filter(id=request.data.get("id", "")).exists():
             request.session["current_contest"] = request.data['contest_id']
             request.session.modified = True
             return Response(gettext("contest switched successfully"), status=status.HTTP_200_OK)
@@ -72,9 +72,9 @@ class ContestView(MyModelViewSet):
 
     serializer_fields = dict(
         list=["id", "contest_id", "name", "access_code", "profile_photo"],
-        create=["contest_id", "name", "description", "profile_photo", "timezone", "start_date", "end_date"],
+        create=["contest_id", "name", "description", "contest_photo", "start_date", "end_date"],
         join_contest=["contest_id"],
-        switch_contest=["contest_id"],
+        switch_contest=["id"],
     )
 
     def get_serializer(self, *args, **kwargs):
