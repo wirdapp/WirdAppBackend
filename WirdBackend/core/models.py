@@ -5,7 +5,6 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres import fields
 from django.core.validators import integer_validator, MinLengthValidator
 from django.db import models
-from django.utils.functional import cached_property
 from django_resized import ResizedImageField
 
 
@@ -30,42 +29,11 @@ class Contest(models.Model):
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
 
-    @cached_property
-    def admin_count(self):
-        return ContestPerson.objects.filter(contest__id=self.id, contest_role__in=[1, 2]).count()
-
-    @cached_property
-    def member_count(self):
-        return ContestPerson.objects.filter(contest__id=self.id, contest_role=3).count()
-
-    @cached_property
-    def group_count(self):
-        return Group.objects.filter(contest__id=self.id).count()
-
 
 class Person(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     profile_photo = ResizedImageField(size=[500, 500], upload_to=upload_location, blank=True)
     phone_number = models.CharField(max_length=15, validators=[integer_validator], default="0000000000", blank=True)
-
-
-class Group(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=100, default='')
-    created_at = models.DateTimeField(auto_now_add=True)
-    announcements = models.TextField(default="", blank=True)
-    contest = models.ForeignKey("core.Contest", on_delete=models.PROTECT)
-
-    @cached_property
-    def members_count(self):
-        return ContestPersonGroups.objects.filter(group_role=1, group__id=self.id).count()
-
-    @cached_property
-    def admins_count(self):
-        return ContestPersonGroups.objects.filter(group_role=2, group__id=self.id).count()
-
-    def __str__(self):
-        return self.name
 
 
 class ContestPerson(models.Model):
@@ -78,7 +46,7 @@ class ContestPerson(models.Model):
         PENDING_MEMBER = (5, 'pending_member')
         DEACTIVATED = (6, 'deactivated')
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
     contest = models.ForeignKey(Contest, on_delete=models.PROTECT)
     person = models.ForeignKey(Person, on_delete=models.PROTECT)
     contest_role = models.PositiveSmallIntegerField(choices=ContestRole.choices, default=ContestRole.MEMBER)
@@ -92,20 +60,3 @@ class ContestPerson(models.Model):
 
     def __str__(self):
         return f"{self.person.username} @ {self.contest.name}"
-
-
-class ContestPersonGroups(models.Model):
-    class GroupRole(models.IntegerChoices):
-        MEMBER = (1, 'member')
-        ADMIN = (2, 'admin')
-
-    contest_person = models.ForeignKey(ContestPerson, on_delete=models.PROTECT)
-    group = models.ForeignKey(Group, on_delete=models.PROTECT)
-    group_role = models.PositiveSmallIntegerField(choices=GroupRole.choices, default=GroupRole.MEMBER)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['contest_person_id', 'group_id'],
-                                    name="unique_group_person",
-                                    violation_error_message=gettext("person is member of group")),
-        ]
