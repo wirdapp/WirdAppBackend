@@ -1,48 +1,93 @@
 import uuid
+from functools import cached_property
+from gettext import gettext
 
 from django.contrib.postgres import fields
-from django.core.validators import MinValueValidator
+from django.contrib.postgres.fields import IntegerRangeField, DateTimeRangeField
 from django.db import models
 from polymorphic.models import PolymorphicModel
+from psycopg2.extras import NumericRange
+
+from core.models import Person, Contest, ContestPerson
 
 
 class Section(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     label = models.CharField(default='', max_length=120)
-    position = models.IntegerField(default=1)
+    position = models.IntegerField()
     contest = models.ForeignKey("core.Contest", on_delete=models.PROTECT, related_name='contest_sections')
 
     def __str__(self):
         return self.label
 
 
-class PointTemplate(PolymorphicModel):
+class ContestCriterion(PolymorphicModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    label = models.CharField(max_length=128, default='')
-    description = models.CharField(max_length=256, default='')
+    label = models.CharField(max_length=128)
+    description = models.CharField(max_length=256)
     order_in_section = models.IntegerField()
-    is_active = models.BooleanField(default=True)
-    is_shown = models.BooleanField(default=True)
-    custom_days = fields.ArrayField(models.DateField(), blank=True, default=[])  # Only available for postgresSQL
-    contest = models.ForeignKey("core.Contest", on_delete=models.PROTECT, related_name="contest_point_templates")
+    visible = models.BooleanField(default=True)
+    activate_on_datetime = fields.ArrayField(DateTimeRangeField(), blank=True, default=[])
+    contest = models.ForeignKey("core.Contest", on_delete=models.PROTECT)
     section = models.ForeignKey(Section, on_delete=models.PROTECT)
-
-    class Meta:
-        ordering = ('section__position', 'order_in_section')
+    points = models.IntegerField(default=1)
 
     def __str__(self):
-        return self.label
-
-    @property
-    def template_type(self):
-        return self.__class__.__name__
+        return f"{self.label} @ {self.contest.name}"
 
 
-class NumberPointTemplate(PointTemplate):
-    upper_units_bound = models.IntegerField(default=5)
-    lower_units_bound = models.IntegerField(default=0, validators=[MinValueValidator(0)])
-    points_per_unit = models.IntegerField(default=1, validators=[MinValueValidator(1)])
+class NumberCriterion(ContestCriterion):
+    bounds = IntegerRangeField(default=NumericRange(1, 100, bounds="[]"))
 
 
-class CheckboxPointTemplate(PointTemplate):
-    points_if_done = models.PositiveIntegerField(default=1)
+class CheckboxCriterion(ContestCriterion):
+    pass
+
+
+class MultiCheckboxCriterion(ContestCriterion):
+    options = fields.HStoreField()
+    partial_points = models.BooleanField(default=False)
+
+
+class RadioCriterion(ContestCriterion):
+    options = fields.HStoreField()
+
+
+class UserInputCriterion(ContestCriterion):
+    pass
+
+
+class Group(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=128, default='')
+    announcements = fields.ArrayField(models.CharField(max_length=128, default="", blank=True), blank=True)
+    contest = models.ForeignKey("core.Contest", on_delete=models.PROTECT)
+
+    @cached_property
+    def members_count(self):
+        return ContestPersonGroup.objects.filter(group_role=1, group__id=self.id).count()
+
+    @cached_property
+    def admins_count(self):
+        return ContestPersonGroup.objects.filter(group_role=2, group__id=self.id).count()
+
+    def __str__(self):
+        return f"{self.name} @ {self.contest.name}"
+
+
+class ContestPersonGroup(models.Model):
+    class GroupRole(models.IntegerChoices):
+        ADMIN = (1, 'admin')
+        MEMBER = (2, 'member')
+
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+    contest_person = models.ForeignKey(ContestPerson, on_delete=models.PROTECT)
+    group = models.ForeignKey(Group, on_delete=models.PROTECT)
+    group_role = models.PositiveSmallIntegerField(choices=GroupRole.choices, default=GroupRole.MEMBER)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["contest_person_id", 'group_id'],
+                                    name="unique_group_person",
+                                    violation_error_message=gettext("person is member of group")),
+        ]
