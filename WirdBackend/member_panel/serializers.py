@@ -4,7 +4,6 @@ from django.utils.translation import gettext
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from admin_panel.models import PointTemplate
 from core import util_methods
 from core.models import ContestPerson
 from core.util_classes import ContestFilteredPrimaryKeyRelatedField
@@ -12,9 +11,7 @@ from member_panel.models import PointRecord, UserInputPointRecord
 
 
 class PointRecordSerializer(serializers.ModelSerializer):
-    point_template = ContestFilteredPrimaryKeyRelatedField(helper_function_name="get_contest_point_templates",
-                                                           to_repr_field="label",
-                                                           to_repr_class=PointTemplate)
+    point_template = ContestFilteredPrimaryKeyRelatedField()
     record_type = serializers.ChoiceField(choices=["UserInputPointRecord", "PointRecord"], required=False)
     record_date = serializers.HiddenField(default=datetime.date.today())
 
@@ -99,9 +96,7 @@ class PointRecordSerializer(serializers.ModelSerializer):
 
 class UserInputPointRecordSerializer(serializers.ModelSerializer):
     record_type = serializers.ReadOnlyField()
-    point_template = ContestFilteredPrimaryKeyRelatedField(helper_function_name="get_contest_point_templates",
-                                                           to_repr_field="label",
-                                                           to_repr_class=PointTemplate)
+    point_template = ContestFilteredPrimaryKeyRelatedField()
 
     class Meta:
         exclude = PointRecordSerializer.Meta.exclude
