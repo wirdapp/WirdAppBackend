@@ -5,10 +5,10 @@ from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
-
-from core import util_methods, models_helper
-from core.permissions import IsContestAdmin, IsContestSuperAdmin, NoPermission, IsContestMember, EmailVerified
 from rest_framework.throttling import UserRateThrottle
+
+from core import util_methods
+from core.permissions import IsContestAdmin, IsContestSuperAdmin, NoPermission, IsContestMember, EmailVerified
 
 
 class BurstRateThrottle(UserRateThrottle):
@@ -29,7 +29,7 @@ class DateConverter:
 class MyPageNumberPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
-    max_page_size = 10
+    max_page_size = 20
 
 
 class MyModelViewSet(viewsets.ModelViewSet):
@@ -60,8 +60,6 @@ class DynamicFieldsCategorySerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         # Don't pass the 'fields' arg up to the superclass
         fields = kwargs.pop('fields', None)
-        if fields is None and self.fields is None:
-            self.fields = "__all__"
 
         # Instantiate the superclass normally
         super().__init__(*args, **kwargs)
@@ -75,33 +73,13 @@ class DynamicFieldsCategorySerializer(serializers.ModelSerializer):
 
 
 class ContestFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
-
     def __init__(self, **kwargs):
-        self.helper_function_name = kwargs.pop("helper_function_name", None)
-        self.to_repr_field = kwargs.pop("to_repr_field", None)
-        self.to_repr_class = kwargs.pop("to_repr_class", None)
         super().__init__(**kwargs)
 
     def get_queryset(self):
         request = self.context.get('request', None)
-        contest = util_methods.get_current_contest(request)
-        if self.helper_function_name:
-            func = getattr(models_helper, self.helper_function_name)
-            queryset = func(contest["id"])
-        else:
-            queryset = super(ContestFilteredPrimaryKeyRelatedField, self).get_queryset()
-            queryset = queryset.filter(contest__id=contest["id"])
+        contest_id = util_methods.get_current_contest_id_from_session(request)
+        queryset = super(ContestFilteredPrimaryKeyRelatedField, self).get_queryset()
+        queryset = queryset.filter(contest__id=contest_id)
         return queryset
 
-    def to_representation(self, value):
-        if self.to_repr_class:
-            label = getattr(self.to_repr_class.objects.get(pk=value.pk), self.to_repr_field)
-            pk = value.pk
-            # TODO: Remove this ugly line, it's only used for HTML API
-            if 'view' in self.context and hasattr(self.context["view"], 'action') and self.context["view"].action in \
-                    ["create", "update", "partial_update"]:
-                return pk
-            else:
-                return dict(id=pk, label=label)
-        else:
-            return super(ContestFilteredPrimaryKeyRelatedField, self).to_representation(value)
