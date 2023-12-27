@@ -3,7 +3,6 @@ from functools import cached_property
 from gettext import gettext
 
 from django.contrib.postgres import fields
-from django.contrib.postgres.fields import IntegerRangeField, DateTimeRangeField
 from django.db import models
 from polymorphic.models import PolymorphicModel
 from psycopg2.extras import NumericRange
@@ -27,7 +26,7 @@ class ContestCriterion(PolymorphicModel):
     description = models.CharField(max_length=256)
     order_in_section = models.IntegerField()
     visible = models.BooleanField(default=True)
-    activate_on_datetime = fields.ArrayField(DateTimeRangeField(), blank=True, default=[])
+    activate_on_datetime = fields.ArrayField(fields.DateTimeRangeField(), blank=True, default=[])
     contest = models.ForeignKey("core.Contest", on_delete=models.PROTECT)
     section = models.ForeignKey(Section, on_delete=models.PROTECT)
     points = models.IntegerField(default=1)
@@ -37,7 +36,7 @@ class ContestCriterion(PolymorphicModel):
 
 
 class NumberCriterion(ContestCriterion):
-    bounds = IntegerRangeField(default=NumericRange(1, 100, bounds="[]"))
+    bounds = fields.IntegerRangeField(default=NumericRange(1, 100, bounds="[]"))
 
 
 class CheckboxCriterion(ContestCriterion):
