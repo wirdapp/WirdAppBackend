@@ -1,29 +1,20 @@
-from collections.abc import Iterable
-
 from admin_panel.models import ContestCriterion, Section, Group, ContestPersonGroup
-from core.models import ContestPerson, Contest, Person
+from core import util_methods
+from core.models import ContestPerson, Person
 
 
-def get_contest_people(contest_id, contest_role=(1, 2, 3)):
-    return
+def get_contest_person_objects(username, contest_role=(0, 1, 2, 3, 4)):
+    return ContestPerson.objects.filter(person__username=username, contest_role__in=contest_role)
 
 
-def get_person_contests_ids_and_roles(username, contest_role=(0, 1, 2, 3, 4, 5)):
-    queryset = ContestPerson.objects.filter(person__username=username, contest_role__in=contest_role) \
-        .values_list("contest__id", "contest_role")
-
-    return queryset
+def get_person_contests(username, contest_role=(0, 1, 2, 3, 4)):
+    return ContestPerson.objects.filter(person__username=username, contest_role__in=contest_role).values("contest")
 
 
-def get_person_contests_queryset(username, contest_role=(0, 1, 2, 3)):
-    contest_ids = get_person_contests_ids_and_roles(username, contest_role)
-    contest_ids = [c[0] for c in contest_ids]
-    return Contest.objects.filter(id__in=contest_ids)
-
-
-def get_person_managed_groups(username, current_contest):
-    contest_id = current_contest["id"]
-    role = current_contest["role"]
+def get_current_user_managed_groups(request):
+    contest_id = util_methods.get_current_contest_id_from_session(request)
+    role = util_methods.get_current_user_role_from_session(request)
+    username = util_methods.get_username_from_session(request)
     if role <= ContestPerson.ContestRole.SUPER_ADMIN.value:
         return Group.objects.filter(contest__id=contest_id)
     elif role == ContestPerson.ContestRole.ADMIN.value:
