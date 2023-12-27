@@ -45,18 +45,3 @@ class EmailVerified(BasePermission):
     def has_permission(self, request, view):
         username = util_methods.get_username_from_session(request)
         return EmailAddress.objects.filter(user__username=username, verified=True).exists()
-
-
-class IsGroupAdmin(BasePermission):
-    # TODO: Support more variations
-    def has_permission(self, request, view):
-        contest_id = util_methods.get_current_contest(request)["id"]
-        username = util_methods.get_username_from_session(request)
-        group_id = view.kwargs["group_id"]
-        return models_helper.get_person_managed_groups(username, contest_id).filter(id=group_id).exists()
-
-
-class MemberBelongsToAdminGroups(BasePermission):
-    def has_permission(self, request, view):
-        # FIXME
-        return True
