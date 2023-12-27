@@ -1,61 +1,47 @@
-import hashlib
-
 from hijri_converter import Hijri
-from rest_framework.response import Response
 
 from core import models_helper
-from core.models import Contest, ContestPerson
-from rest_framework.decorators import action
-
-
-def hash_multiple_values(*args):
-    return hashlib.md5(("".join(args)).encode('utf-8')).hexdigest()
+from core.models import ContestPerson
 
 
 def get_today_date_hijri():
     return Hijri.today()
 
 
-def destroy(instance):
-    instance.is_active = False
-    instance.save()
-    return Response(status=204)
-
-
 def get_username_from_session(request):
-    if "username" not in request.session:
+    if request.user.is_authenticated and "username" not in request.session:
         username = request.user.username
         request.session["username"] = username
         request.session.modified = True
     return request.session.get("username", "")
 
 
-def get_current_contest(request):
+def get_current_contest_id_from_session(request):
     if "contest_id" not in request.session:
         username = get_username_from_session(request)
-        contests = models_helper.get_person_contests_ids_and_roles(username)
+        contests = models_helper.get_person_contests(username)
         if contests.count() > 0:
-            request.session["contest_id"] = contests[0][0].hex
-            request.session["contest_role"] = contests[0][1]
+            request.session["contest_id"] = contests[0].id
             request.session.modified = True
-    return {"id": request.session.get("contest_id", ""), "role": request.session.get("contest_role", "")}
+    return request.session["contest_id"]
 
 
-def person_role_in_contest(request, expected_roles):
-    current_contest = get_current_contest(request)
-    return bool(current_contest["role"] in expected_roles)
+def get_current_user_role_from_session(request):
+    if "contest_role" not in request.session:
+        username = get_username_from_session(request)
+        contest_persons = models_helper.get_contest_person_objects(username)
+        if contest_persons.count() > 0:
+            request.session["contest_role"] = contest_persons[0].contest_role
+            request.session.modified = True
+    return request.session["contest_role"]
 
 
-def get_current_contest_object(request):
-    username = get_username_from_session(request)
-    current_contest = get_current_contest(request)
-    if current_contest:
-        return Contest.objects.get(id=current_contest["id"])
-    else:
-        return models_helper.get_person_contests_queryset(username).first()
+def is_person_role_in_contest(request, expected_roles):
+    current_contest_role = get_current_user_role_from_session(request)
+    return bool(current_contest_role in expected_roles)
 
 
 def get_current_personcontest_object(request):
-    contest = get_current_contest(request)["id"]
+    contest = get_current_contest_id_from_session(request)
     username = get_username_from_session(request)
     return ContestPerson.objects.get(person__username=username, contest__id=contest)
