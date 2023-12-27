@@ -4,26 +4,27 @@ Provides a set of pluggable permission policies.
 import logging
 
 from allauth.account.admin import EmailAddress
-from core import util_methods, models_helper
-from core.util_methods import person_role_in_contest
 from rest_framework.permissions import BasePermission, SAFE_METHODS
+
+from core import util_methods
+from core.util_methods import is_person_role_in_contest
 
 logger = logging.getLogger(__name__)
 
 
 class IsContestMember(BasePermission):
     def has_permission(self, request, view):
-        return person_role_in_contest(request, [3, 2, 1, 0])
+        return is_person_role_in_contest(request, [3, 2, 1, 0])
 
 
 class IsContestAdmin(BasePermission):
     def has_permission(self, request, view):
-        return person_role_in_contest(request, [2, 1, 0])
+        return is_person_role_in_contest(request, [2, 1, 0])
 
 
 class IsContestSuperAdmin(BasePermission):
     def has_permission(self, request, view):
-        return person_role_in_contest(request, [1, 0])
+        return is_person_role_in_contest(request, [1, 0])
 
 
 class IsAuthenticatedAndReadOnly(BasePermission):
@@ -33,7 +34,7 @@ class IsAuthenticatedAndReadOnly(BasePermission):
 
 class IsContestOwner(BasePermission):
     def has_permission(self, request, view):
-        return person_role_in_contest(request, [0])
+        return is_person_role_in_contest(request, [0])
 
 
 class NoPermission(BasePermission):
