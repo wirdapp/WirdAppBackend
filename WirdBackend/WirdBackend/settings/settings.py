@@ -110,6 +110,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    "django.contrib.postgres",
     'django.contrib.staticfiles',
     'member_panel.apps.StudentConfig',
     'admin_panel.apps.AdminPanelConfig',
