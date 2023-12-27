@@ -1,8 +1,4 @@
-from django.contrib.auth.hashers import make_password
-from rest_framework import serializers
-
-from core import util_methods
-from core.models import Person, Contest, ContestPerson
+from core.models import Person, Contest
 from core.util_classes import DynamicFieldsCategorySerializer
 
 
@@ -14,10 +10,6 @@ class PersonSerializer(DynamicFieldsCategorySerializer):
 
 
 class ContestSerializer(DynamicFieldsCategorySerializer):
-    admin_count = serializers.ReadOnlyField()
-    member_count = serializers.ReadOnlyField()
-    group_count = serializers.ReadOnlyField()
-
     class Meta:
         fields = "__all__"
         model = Contest
