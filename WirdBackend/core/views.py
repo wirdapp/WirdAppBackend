@@ -1,4 +1,5 @@
 import datetime
+from datetime import datetime, timedelta
 
 from django.core.cache import cache
 from django.db.models import Value, Sum, F
@@ -7,6 +8,7 @@ from django.utils.translation import get_language
 from django.utils.translation import gettext
 from hijri_converter import Gregorian
 from rest_condition import And
+from rest_condition import Or
 from rest_framework import generics
 from rest_framework import status
 from rest_framework import views
@@ -15,13 +17,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle
 
-from core import models_helper
+from core import models_helper, util_methods
+from core.models import ContestPerson
 from core.permissions import IsContestMember, IsContestSuperAdmin, IsAuthenticatedAndReadOnly
 from core.serializers import *
 from core.util_classes import MyModelViewSet
 from member_panel.models import PointRecord
-from datetime import datetime, timedelta
-from rest_condition import Or
 
 
 class ContestView(MyModelViewSet):
@@ -52,10 +53,10 @@ class ContestView(MyModelViewSet):
     @action(detail=False, methods=['post'])
     def join_contest(self, request):
         try:
-            access_code = request.data.get('access_code', "")
-            contest = Contest.objects.get(id__endswith=access_code, readonly_mode=False)
-            username = util_methods.get_username_from_session(request)
-            ContestPerson.objects.get_or_create(person_username=username, contest=contest, contest_role=3)
+            contest_id = request.data.get('contest_id', "")
+            contest = Contest.objects.get(contest_id=contest_id, readonly_mode=False)
+            person_id = Person.objects.get(username=util_methods.get_username_from_session(request)).id
+            ContestPerson.objects.get_or_create(person_id=person_id, contest=contest, contest_role=3)
             return Response(gettext("joined the new contest"), 200)
         except Contest.DoesNotExist:
             return Response(gettext("cannot join this contest or access code is wrong"), 400)
@@ -63,12 +64,13 @@ class ContestView(MyModelViewSet):
     @action(detail=False, methods=["get", "put"], throttle_classes=[UserRateThrottle],
             permission_classes=[Or(IsContestSuperAdmin(), IsAuthenticatedAndReadOnly())])
     def current(self, request):
-        instance = util_methods.get_current_contest_object(request)
+        contest_id = util_methods.get_current_contest_id_from_session(request)
+        instance = Contest.objects.get(id=contest_id)
         return Response(self.get_serializer(instance).data)
 
     def get_queryset(self):
         username = util_methods.get_username_from_session(self.request)
-        return models_helper.get_person_contests_queryset(username)
+        return models_helper.get_person_contests(username)
 
     serializer_fields = dict(
         list=["id", "contest_id", "name", "access_code", "profile_photo"],
@@ -87,9 +89,11 @@ class CurrentUserView(generics.RetrieveUpdateAPIView):
 
     def get(self, request, *args, **kwargs):
         user = self.request.user
-        current_contest = util_methods.get_current_contest(request)
+        current_user_role = util_methods.get_current_user_role_from_session(request)
+        current_contest_id = util_methods.get_current_contest_id_from_session(request)
         data = PersonSerializer(user).data
-        data["current_contest"] = current_contest
+        data["current_user_role"] = current_user_role
+        data["current_contest_id"] = current_contest_id
         return Response(data)
 
     def get_object(self):
@@ -101,7 +105,7 @@ class TopMembersOverall(views.APIView):
     permission_classes = [And(IsAuthenticated(), IsContestMember()), ]
 
     def get(self, request, *args, **kwargs):
-        contest_id = util_methods.get_current_contest(request)["id"]
+        contest_id = util_methods.get_current_contest_id_from_session(request)
         results = cache.get(contest_id)
         if not results:
             first_name = "person__person__first_name"
@@ -120,7 +124,7 @@ class TopMembersByDate(views.APIView):
     permission_classes = [And(IsAuthenticated(), IsContestMember()), ]
 
     def get(self, request, *args, **kwargs):
-        contest_id = util_methods.get_current_contest(request)["id"]
+        contest_id = util_methods.get_current_contest_id_from_session(request)
         date = kwargs["date"]
         key = f"{contest_id}_{date}"
         results = cache.get(key)
