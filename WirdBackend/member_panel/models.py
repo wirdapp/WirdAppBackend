@@ -4,15 +4,14 @@ from gettext import gettext
 
 from django.db import models
 from polymorphic.models import PolymorphicModel
-
-from admin_panel.models import PointTemplate
+from admin_panel.models import ContestCriterion
 from core.models import ContestPerson
 
 
 class PointRecord(PolymorphicModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     person = models.ForeignKey(ContestPerson, on_delete=models.PROTECT, related_name='contest_person_points')
-    point_template = models.ForeignKey(PointTemplate, on_delete=models.PROTECT)
+    contest_criterion = models.ForeignKey(ContestCriterion, on_delete=models.PROTECT)
     record_date = models.DateField(default=datetime.date.today)
     units_scored = models.PositiveIntegerField(help_text=gettext("point record help text"), default=0)
     point_total = models.PositiveIntegerField(default=0)

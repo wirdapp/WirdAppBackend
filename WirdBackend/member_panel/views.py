@@ -1,10 +1,10 @@
 from django.db.models import Q
 from rest_condition import And
-from rest_framework import mixins, generics
+from rest_framework import mixins
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 
-from admin_panel.serializers import PointTemplateSerializer
+from admin_panel.serializers import ContestPolymorphicCriterionSerializer
 from core import util_methods, models_helper
 from core.permissions import IsContestMember
 from member_panel.models import PointRecord
@@ -30,10 +30,10 @@ class ResultsByDateView(mixins.ListModelMixin, mixins.CreateModelMixin, GenericV
 class ReadOnlyPointTemplateView(mixins.ListModelMixin, GenericViewSet):
     name = 'points-templates-list'
     permission_classes = [And(IsAuthenticated(), IsContestMember())]
-    serializer_class = PointTemplateSerializer
+    serializer_class = ContestPolymorphicCriterionSerializer
 
     def get_queryset(self):
-        contest_id = util_methods.get_current_contest(self.request)["id"]
+        contest_id = util_methods.get_current_contest_id_from_session(self.request)
         date = self.kwargs["date"]
         return models_helper.get_contest_point_templates(contest_id) \
             .filter(Q(custom_days__contains=[date]) | Q(custom_days__len=0))
