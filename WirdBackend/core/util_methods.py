@@ -46,3 +46,7 @@ def get_current_user_contest_role(request):
 def is_person_role_in_contest(request, expected_roles):
     current_contest_role = get_current_user_contest_role(request)
     return bool(current_contest_role in expected_roles)
+
+
+def set_response_cookie(response, key, values):
+    response.set_cookie(key, value=values, secure=True, httponly=True, samesite="Lax")

@@ -36,7 +36,7 @@ class ContestView(MyModelViewSet):
     def switch_contest(self, request):
         if self.get_queryset().filter(id=request.data.get("id", "")).exists():
             response = Response(gettext("contest switched successfully"), status=status.HTTP_200_OK)
-            response.set_cookie("contest_id", request.data.get("id"), path='/', secure=True, samesite='Lax')
+            util_methods.set_response_cookie(response, "contest_id", request.data.get("id"))
             return response
         else:
             return Response(gettext("person is not enrolled in this contest"), status=status.HTTP_400_BAD_REQUEST)

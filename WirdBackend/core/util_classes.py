@@ -87,5 +87,5 @@ class ContestIDMiddleware:
         if not request.COOKIES.get('contest_id', None):
             contest_id = util_methods.get_first_contest_id(request.user.username, raise_exception=False)
             if contest_id:
-                response.set_cookie('contest_id', value=contest_id, secure=True, httponly=True, samesite="Lax")
+                util_methods.set_response_cookie(response, "contest_id", contest_id)
         return response
