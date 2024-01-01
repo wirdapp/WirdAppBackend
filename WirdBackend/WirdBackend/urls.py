@@ -13,12 +13,12 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
+from dj_rest_auth.registration.views import VerifyEmailView
 from django.urls import path, include, re_path, register_converter
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
-from dj_rest_auth.registration.views import VerifyEmailView, ConfirmEmailView
+
 from core.util_classes import DateConverter
 
 register_converter(DateConverter, 'date')
@@ -37,13 +37,11 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api-auth/', include('rest_framework.urls')),  # TODO REMOVE
     path('', include('core.urls')),
-    path('admin-panel/', include('admin_panel.urls')),
+    path('admin_panel/<str:contest_id>/', include('admin_panel.urls')),
     path('member-panel/', include('member_panel.urls')),
     path('auth/', include('dj_rest_auth.urls')),
-    re_path("auth/registration/account-confirm-email/(?P<key>[\s\d\w().+-_',:&]+)/$", VerifyEmailView.as_view()),
+    path("auth/registration/account-confirm-email/", VerifyEmailView.as_view()),
     path('auth/registration/', include('dj_rest_auth.registration.urls')),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
