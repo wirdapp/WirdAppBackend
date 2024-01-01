@@ -83,7 +83,7 @@ class PointRecordSerializer(serializers.ModelSerializer):
         else:
             validated_data["point_total"] = 0
 
-        person = util_methods.get_current_personcontest_object(self.context["request"])
+        person = None
         validated_data["person"] = person
         point_record = PointRecord.objects.filter(person_id=person.id,
                                                   record_date=validated_data["record_date"],
@@ -105,7 +105,7 @@ class UserInputPointRecordSerializer(serializers.ModelSerializer):
 
     def validate_reviewed_by_admin(self, value):
         request = self.context["request"]
-        role = util_methods.get_current_user_role_from_session(request)
+        role = util_methods.get_current_user_contest_role(request)
         if role in [ContestPerson.ContestRole.ADMIN.value, ContestPerson.ContestRole.SUPER_ADMIN.value]:
             return value
         else:
@@ -113,7 +113,7 @@ class UserInputPointRecordSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data["point_total"] = 0
-        person = util_methods.get_current_personcontest_object(self.context["request"])
+        person = None
         validated_data["person"] = person
         point_record = UserInputPointRecord.objects.filter(person_id=person.id,
                                                            record_date=validated_data["record_date"],

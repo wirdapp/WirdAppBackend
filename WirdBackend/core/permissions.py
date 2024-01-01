@@ -3,7 +3,7 @@ Provides a set of pluggable permission policies.
 """
 import logging
 
-from allauth.account.admin import EmailAddress
+from allauth.account.models import EmailAddress
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 from core import util_methods
@@ -44,5 +44,5 @@ class NoPermission(BasePermission):
 
 class EmailVerified(BasePermission):
     def has_permission(self, request, view):
-        username = util_methods.get_username_from_session(request)
+        username = util_methods.get_username(request)
         return EmailAddress.objects.filter(user__username=username, verified=True).exists()

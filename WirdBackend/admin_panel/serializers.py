@@ -11,7 +11,8 @@ from .models import *
 
 class AutoSetContestSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
-        contest = util_methods.get_current_contest_id_from_session(self.context['request'])
+        data = data.copy()
+        contest = util_methods.get_current_contest_id(self.context['request'])
         data["contest"] = contest
         return super().to_internal_value(data)
 
@@ -76,12 +77,13 @@ class ContestPersonSerializer(AutoSetContestSerializer):
         extra_kwargs = {'contest': {'write_only': True}}
 
     def validate_contest_role(self, role):
-        user_role = util_methods.get_current_user_role_from_session(self.context["request"])
+        user_role = util_methods.get_current_user_contest_role(self.context["request"])
         if user_role >= role:
             raise ValidationError(gettext("you can't use this role of this user"))
         return role
 
     def to_internal_value(self, data):
+        data = data.copy()
         username = data.pop("username", "")
         if username:
             person = get_object_or_404(Person, username=username).pk
@@ -97,17 +99,17 @@ class GroupSerializer(AutoSetContestSerializer):
 
 class ContestPersonGroupSerializer(serializers.ModelSerializer):
     contest_person = ContestFilteredPrimaryKeyRelatedField(queryset=ContestPerson.objects, write_only=True)
+    group = ContestFilteredPrimaryKeyRelatedField(queryset=Group.objects)
     person = PersonSerializer(read_only=True, source="contest_person.person",
                               fields=["username", "first_name", "last_name"])
     username = serializers.CharField(required=False, write_only=True)
-    group = ContestFilteredPrimaryKeyRelatedField(queryset=Group.objects)
 
     class Meta:
         model = ContestPersonGroup
         fields = '__all__'
 
     def validate_group_role(self, role):
-        user_role = util_methods.get_current_user_role_from_session(self.context["request"])
+        user_role = util_methods.get_current_user_contest_role(self.context["request"])
         if role == 1 and user_role > 1:
             raise ValidationError(gettext("only super admins can assign group admin"))
         return role
@@ -118,6 +120,7 @@ class ContestPersonGroupSerializer(serializers.ModelSerializer):
         return attr
 
     def to_internal_value(self, data):
+        data = data.copy()
         username = data.pop("username", None)
         if username:
             person = get_object_or_404(ContestPerson, person__username=username)
