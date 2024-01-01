@@ -17,7 +17,7 @@ class ResultsByDateView(mixins.ListModelMixin, mixins.CreateModelMixin, GenericV
 
     def get_queryset(self):
         date = self.kwargs["date"]
-        username = util_methods.get_username_from_session(self.request)
+        username = util_methods.get_username(self.request)
         return PointRecord.objects.filter(person__person__username=username, record_date=date) \
             .order_by('point_template__section__position', 'point_template__order_in_section')
 
@@ -33,7 +33,7 @@ class ReadOnlyPointTemplateView(mixins.ListModelMixin, GenericViewSet):
     serializer_class = ContestPolymorphicCriterionSerializer
 
     def get_queryset(self):
-        contest_id = util_methods.get_current_contest_id_from_session(self.request)
+        contest_id = util_methods.get_current_contest_id(self.request)
         date = self.kwargs["date"]
         return models_helper.get_contest_point_templates(contest_id) \
             .filter(Q(custom_days__contains=[date]) | Q(custom_days__len=0))

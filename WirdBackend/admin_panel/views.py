@@ -1,6 +1,6 @@
-from django.core.exceptions import PermissionDenied
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from rest_framework import exceptions
 
 from core import models_helper
 from core.util_classes import MyModelViewSet, MyPageNumberPagination
@@ -13,7 +13,7 @@ class SectionView(MyModelViewSet):
     super_admin_allowed_methods = ["create", "update", "partial_update", "delete"]
 
     def get_queryset(self):
-        contest_id = util_methods.get_current_contest_id_from_session(self.request)
+        contest_id = util_methods.get_current_contest_id(self.request)
         return models_helper.get_contest_sections(contest_id)
 
 
@@ -23,13 +23,13 @@ class ContestCriterionView(MyModelViewSet):
     serializer_class = ContestPolymorphicCriterionSerializer
 
     def get_queryset(self):
-        contest_id = util_methods.get_current_contest_id_from_session(self.request)
+        contest_id = util_methods.get_current_contest_id(self.request)
         return models_helper.get_contest_point_templates(contest_id)
 
 
 class GroupView(MyModelViewSet):
     admin_allowed_methods = ['list', 'update', 'partial_update', 'retrieve']
-    super_admin_allowed_methods = ["create", "add_or_remove_members"]
+    super_admin_allowed_methods = ["create"]
     serializer_class = GroupSerializer
 
     def get_queryset(self):
@@ -57,11 +57,11 @@ class ContestPersonView(MyModelViewSet):
     pagination_class = MyPageNumberPagination
 
     def get_queryset(self):
-        contest_id = util_methods.get_current_contest_id_from_session(self.request)
+        contest_id = util_methods.get_current_contest_id(self.request)
         return ContestPerson.objects.filter(contest__id=contest_id)
 
     def check_object_permissions(self, request, obj):
-        user_role = util_methods.get_current_user_role_from_session(request)
+        user_role = util_methods.get_current_user_contest_role(request)
         obj_role = obj.contest_role
         if user_role >= obj_role:
-            raise PermissionDenied
+            raise exceptions.PermissionDenied
