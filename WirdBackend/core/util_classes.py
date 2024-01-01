@@ -1,18 +1,14 @@
 from datetime import datetime
+from urllib import request
 
 from rest_condition import And
 from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.throttling import UserRateThrottle
 
 from core import util_methods
 from core.permissions import IsContestAdmin, IsContestSuperAdmin, NoPermission, IsContestMember, EmailVerified
-
-
-class BurstRateThrottle(UserRateThrottle):
-    scope = 'join_contest'
 
 
 class DateConverter:
@@ -44,15 +40,15 @@ class MyModelViewSet(viewsets.ModelViewSet):
         if self.action in self.authenticated_allowed_methods:
             return IsAuthenticated(),
         if self.action in self.verified_allowed_methods:
-            return And(IsAuthenticated(), EmailVerified()),
+            return EmailVerified(),
         if self.action in self.member_allowed_methods:
-            return And(IsAuthenticated(), IsContestMember()),
+            return IsContestMember(),
         if self.action in self.verified_members_allowed_methods:
-            return And(IsAuthenticated(), EmailVerified(), IsContestMember()),
+            return And(EmailVerified(), IsContestMember()),
         if self.action in self.admin_allowed_methods:
-            return And(IsAuthenticated(), IsContestAdmin()),
+            return IsContestAdmin(),
         if self.action in self.super_admin_allowed_methods:
-            return And(IsAuthenticated(), IsContestSuperAdmin()),
+            return IsContestSuperAdmin(),
         return NoPermission(),
 
 
@@ -77,9 +73,7 @@ class ContestFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
         super().__init__(**kwargs)
 
     def get_queryset(self):
-        request = self.context.get('request', None)
-        contest_id = util_methods.get_current_contest_id_from_session(request)
+        contest_id = util_methods.get_current_contest_id(request)
         queryset = super(ContestFilteredPrimaryKeyRelatedField, self).get_queryset()
         queryset = queryset.filter(contest__id=contest_id)
         return queryset
-
