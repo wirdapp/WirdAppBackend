@@ -52,16 +52,20 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle'
-        'rest_framework.throttling.ScopeRateThrottle'
     ],
     'DEFAULT_THROTTLE_RATES': {
         'anon': '300/day',
         'user': '30/minute',
-        'contest_view': '100/day'
     },
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
     ],
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        "rest_framework.parsers.FormParser",
+        "rest_framework.parsers.MultiPartParser",
+        "rest_framework.parsers.FileUploadParser"
+    ),
 }
 
 LOGGING = {
@@ -105,13 +109,9 @@ LOGGING = {
 }
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
     "django.contrib.postgres",
-    'django.contrib.staticfiles',
     'member_panel.apps.StudentConfig',
     'admin_panel.apps.AdminPanelConfig',
     'core.apps.CoreConfig',
@@ -130,18 +130,14 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "django_permissions_policy.PermissionsPolicyMiddleware",
-    'django.middleware.locale.LocaleMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Keep for handling Cross-Origin Resource Sharing (CORS)
+    'django.middleware.security.SecurityMiddleware',  # Keep for security enhancements
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Keep for static file serving optimization
+    'django.middleware.common.CommonMiddleware',  # Keep for various common functionalities
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',  # Keep for clickjacking protection
+    "django_permissions_policy.PermissionsPolicyMiddleware",  # Keep for setting various browser permissions policies
+    'django.middleware.locale.LocaleMiddleware',  # Optional, remove if not needed for internationalization
+    'allauth.account.middleware.AccountMiddleware',  # Remove if not using Django Allauth for authentication
 ]
 
 ROOT_URLCONF = 'WirdBackend.urls'
@@ -231,7 +227,8 @@ REST_AUTH = {
     'JWT_AUTH_COOKIE': 'wird-jwt-auth',
     'JWT_AUTH_REFRESH_COOKIE': 'wird-jwt-refresh',
     'JWT_AUTH_RETURN_EXPIRATION': True,
-    'JWT_AUTH_HTTPONLY': False
+    'JWT_AUTH_HTTPONLY': False,
+    "SESSION_LOGIN": False
 }
 SITE_ID = 1
 
