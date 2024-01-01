@@ -1,5 +1,4 @@
 from datetime import datetime
-from urllib import request
 
 from rest_condition import And
 from rest_framework import serializers
@@ -73,7 +72,20 @@ class ContestFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
         super().__init__(**kwargs)
 
     def get_queryset(self):
-        contest_id = util_methods.get_current_contest_id(request)
+        contest_id = util_methods.get_current_contest_id(self.context['request'])
         queryset = super(ContestFilteredPrimaryKeyRelatedField, self).get_queryset()
         queryset = queryset.filter(contest__id=contest_id)
         return queryset
+
+
+class ContestIDMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        if not request.COOKIES.get('contest_id', None):
+            contest_id = util_methods.get_first_contest_id(request.user.username, raise_exception=False)
+            if contest_id:
+                response.set_cookie('contest_id', value=contest_id, secure=True, httponly=True, samesite="Lax")
+        return response

@@ -138,6 +138,7 @@ MIDDLEWARE = [
     "django_permissions_policy.PermissionsPolicyMiddleware",  # Keep for setting various browser permissions policies
     'django.middleware.locale.LocaleMiddleware',  # Optional, remove if not needed for internationalization
     'allauth.account.middleware.AccountMiddleware',  # Remove if not using Django Allauth for authentication
+    'core.util_classes.ContestIDMiddleware',
 ]
 
 ROOT_URLCONF = 'WirdBackend.urls'
@@ -237,6 +238,5 @@ ACCOUNT_AUTHENTICATION_METHOD = 'username'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
 ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 3600
-ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_UNIQUE_EMAIL = False
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "Wird Platform"
