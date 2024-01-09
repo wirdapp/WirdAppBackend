@@ -1,39 +1,11 @@
-from django.db.models import Q
-from rest_condition import And
-from rest_framework import mixins
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.viewsets import GenericViewSet
-
-from admin_panel.serializers import ContestPolymorphicCriterionSerializer
-from core import util_methods, models_helper
-from core.permissions import IsContestMember
-from member_panel.models import PointRecord
-from member_panel.serializers import PointRecordSerializer
+from member_panel.serializers import PolymorphicPointRecordSerializer
+from member_panel.model_util import get_member_point_records
+from core.util_classes import MyModelViewSet
 
 
-class ResultsByDateView(mixins.ListModelMixin, mixins.CreateModelMixin, GenericViewSet):
-    permission_classes = [And(IsAuthenticated(), IsContestMember())]
-    serializer_class = PointRecordSerializer
+class MemberPointRecordViewSet(MyModelViewSet):
+    verified_members_allowed_methods = ['list', 'retrieve', 'create', 'update', 'partial_update', 'destroy']
+    serializer_class = PolymorphicPointRecordSerializer
 
     def get_queryset(self):
-        date = self.kwargs["date"]
-        username = util_methods.get_username(self.request)
-        return PointRecord.objects.filter(person__person__username=username, record_date=date) \
-            .order_by('point_template__section__position', 'point_template__order_in_section')
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["record_date"] = self.kwargs["date"]
-        return context
-
-
-class ReadOnlyPointTemplateView(mixins.ListModelMixin, GenericViewSet):
-    name = 'points-templates-list'
-    permission_classes = [And(IsAuthenticated(), IsContestMember())]
-    serializer_class = ContestPolymorphicCriterionSerializer
-
-    def get_queryset(self):
-        contest_id = util_methods.get_current_contest_id(self.request)
-        date = self.kwargs["date"]
-        return models_helper.get_contest_point_templates(contest_id) \
-            .filter(Q(custom_days__contains=[date]) | Q(custom_days__len=0))
+        return get_member_point_records(self.request)

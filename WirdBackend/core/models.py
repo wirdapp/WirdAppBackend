@@ -23,7 +23,7 @@ class Contest(models.Model):
     name = models.CharField(max_length=128, validators=[MinLengthValidator(4)], default='')
     description = models.CharField(max_length=500, blank=True)
     show_standings = models.BooleanField(default=True)
-    announcements = fields.ArrayField(models.CharField(max_length=500), blank=True, default=[])
+    announcements = fields.ArrayField(models.CharField(max_length=500), blank=True, default=list)
     readonly_mode = models.BooleanField(default=False, help_text=gettext('readonly_mode'))
     contest_photo = ResizedImageField(size=[500, 500], upload_to=upload_location, blank=True)
     start_date = models.DateField(null=True, blank=True)

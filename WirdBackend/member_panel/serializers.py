@@ -1,124 +1,171 @@
 import datetime
 
-from django.utils.translation import gettext
+from gettext import gettext
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_polymorphic.serializers import PolymorphicSerializer
 
+from admin_panel.models import ContestCriterion, NumberCriterion, MultiCheckboxCriterion, RadioCriterion, \
+    CheckboxCriterion
 from core import util_methods
 from core.models import ContestPerson
 from core.util_classes import ContestFilteredPrimaryKeyRelatedField
-from member_panel.models import PointRecord, UserInputPointRecord
+from member_panel.models import PointRecord, UserInputPointRecord, NumberPointRecord, MultiCheckboxPointRecord, \
+    RadioPointRecord, CheckboxPointRecord
 
 
 class PointRecordSerializer(serializers.ModelSerializer):
-    point_template = ContestFilteredPrimaryKeyRelatedField()
-    record_type = serializers.ChoiceField(choices=["UserInputPointRecord", "PointRecord"], required=False)
-    record_date = serializers.HiddenField(default=datetime.date.today())
+    contest_criterion = ContestFilteredPrimaryKeyRelatedField(queryset=ContestCriterion.objects)
+    timestamp = serializers.HiddenField(default=datetime.datetime.now())
 
     class Meta:
-        exclude = ["person", "polymorphic_ctype"]
-        read_only_fields = ["point_total"]
         model = PointRecord
-
-    def to_representation(self, obj):
-        if isinstance(obj, UserInputPointRecord):
-            return UserInputPointRecordSerializer(obj, context=self.context).to_representation(obj)
-        return super(PointRecordSerializer, self).to_representation(obj)
+        exclude = ["polymorphic_ctype"]
 
     def to_internal_value(self, data):
         data = data.copy()
-        record_type = data.pop("record_type")
-        if record_type == "UserInputPointRecord":
-            self.Meta.model = UserInputPointRecord
-            self.context["record_type"] = "UserInputPointRecord"
-            return UserInputPointRecordSerializer(context=self.context).to_internal_value(data)
-        self.context["record_type"] = "PointRecord"
-        return super(PointRecordSerializer, self).to_internal_value(data)
+        person = util_methods.get_current_contest_person(self.context['request'])
+        data["person"] = person
+        return super().to_internal_value(data)
 
     def validate(self, attrs):
-        point_template = attrs["point_template"]
-        attrs['record_date'] = self.context["record_date"]
         errors = dict()
-        if point_template.template_type == "NumberPointTemplate":
-            self.validate_number_point_template(attrs, point_template, errors)
-        elif point_template.template_type == "CheckboxPointTemplate":
-            self.validate_checkbox_point_template(attrs, errors)
-
-        if point_template.custom_days:
-            record_date = attrs['record_date']
-            self.check_condition(record_date in point_template.custom_days, errors, "point not active day")
-        self.check_condition(point_template.is_active, errors, "point not active")
-        self.check_condition(point_template.is_shown, errors, "point not shown")
-        self.check_condition(not point_template.contest.readonly_mode, errors, "score in read only mode")
-        if len(errors) > 0:
+        self.validate_date(errors, attrs)
+        self.validate_mode(errors, attrs)
+        self.validate_can_edit(errors, attrs)
+        if errors:
             raise ValidationError(errors)
+        return attrs
 
-        return super(PointRecordSerializer, self).validate(attrs)
+    def validate_date(self, errors, attrs):
+        contest_criterion: ContestCriterion = attrs['contest_criterion']
+        record_date = attrs['record_date']
+        if record_date < contest_criterion.contest.start_date:
+            errors["contest_date"] = gettext("Contest didn't start yet")
+        if record_date > contest_criterion.contest.end_date:
+            errors["contest_date"] = gettext("Contest already ended")
 
-    def validate_number_point_template(self, attrs, point_template, errors):
-        units_scored = attrs["units_scored"]
-        uup = point_template.upper_units_bound
-        lup = point_template.lower_units_bound
-        self.check_condition(units_scored <= uup, errors, "units_scored > upper_unit_bound")
-        self.check_condition(units_scored >= lup, errors, "units_scored < lower_unit_bound")
+    def validate_mode(self, errors, attrs):
+        contest_criterion: ContestCriterion = attrs['contest_criterion']
+        if contest_criterion.contest.readonly_mode:
+            errors['readonly_mode'] = gettext('Contest is readonly')
 
-    def validate_checkbox_point_template(self, attrs, errors):
-        units_scored = attrs["units_scored"]
-        self.check_condition(units_scored in [0, 1], errors, "boolean fields should be in [0,1]")
+    def validate_can_edit(self, errors, attrs):
+        person: ContestPerson = attrs['person']
+        if person.contest_role != ContestPerson.ContestRole.MEMBER:
+            errors['invalid_membership'] = gettext('User is not authorized to access contest')
 
-    @staticmethod
-    def check_condition(condition, errors, error_messages_id):
-        if not condition:
-            errors['Error'] = gettext(error_messages_id)
+
+class NumberPointRecordSerializer(PointRecordSerializer):
+    class Meta(PointRecordSerializer.Meta):
+        model = NumberPointRecord
+
+    def validate(self, attrs):
+        super().validate(attrs)
+        criterion: NumberCriterion = attrs['contest_criterion']
+        if attrs['number'] not in criterion.bounds:
+            raise ValidationError({"bounds_error": gettext("Number entered not in bounds")})
+        return attrs
 
     def create(self, validated_data):
-        if self.context["record_type"] == "UserInputPointRecord":
-            return UserInputPointRecordSerializer(context=self.context).create(validated_data)
+        self.calculate_points(validated_data)
+        return super(NumberPointRecordSerializer, self).create(validated_data)
 
-        point_template = validated_data["point_template"]
-        if point_template.template_type == "NumberPointTemplate":
-            validated_data["point_total"] = point_template.points_per_unit * validated_data["units_scored"]
-        elif point_template.template_type == "CheckboxPointTemplate":
-            validated_data["point_total"] = point_template.points_if_done * validated_data["units_scored"]
-        else:
-            validated_data["point_total"] = 0
+    def update(self, record, validated_data):
+        self.calculate_points(validated_data)
+        return super(NumberPointRecordSerializer, self).update(record, validated_data)
 
-        person = None
-        validated_data["person"] = person
-        point_record = PointRecord.objects.filter(person_id=person.id,
-                                                  record_date=validated_data["record_date"],
-                                                  point_template=point_template)
-        if point_record.exists():
-            return super(PointRecordSerializer, self).update(point_record[0], validated_data)
-        else:
-            return super(PointRecordSerializer, self).create(validated_data)
+    def calculate_points(self, validated_data):
+        criterion: NumberCriterion = validated_data['contest_criterion']
+        validated_data['point_total'] = criterion.points * validated_data['number']
 
 
-class UserInputPointRecordSerializer(serializers.ModelSerializer):
-    record_type = serializers.ReadOnlyField()
-    point_template = ContestFilteredPrimaryKeyRelatedField()
-
-    class Meta:
-        exclude = PointRecordSerializer.Meta.exclude
-        read_only_fields = ["point_total"]
+class UserInputPointRecordSerializer(PointRecordSerializer):
+    class Meta(PointRecordSerializer.Meta):
         model = UserInputPointRecord
 
-    def validate_reviewed_by_admin(self, value):
-        request = self.context["request"]
-        role = util_methods.get_current_user_contest_role(request)
-        if role in [ContestPerson.ContestRole.ADMIN.value, ContestPerson.ContestRole.SUPER_ADMIN.value]:
-            return value
-        else:
-            return False
+
+class MultiCheckboxPointRecordSerializer(PointRecordSerializer):
+    class Meta(PointRecordSerializer.Meta):
+        model = MultiCheckboxPointRecord
+
+    def validate(self, attrs):
+        super().validate(attrs)
+        criterion: MultiCheckboxCriterion = attrs['contest_criterion']
+        choices: list[str] = attrs['contest_criterion']
+
+        if not all(choice in criterion.options for choice in choices):
+            raise ValidationError({'options_error': gettext('Choices entered are not valid')})
+        return attrs
 
     def create(self, validated_data):
-        validated_data["point_total"] = 0
-        person = None
-        validated_data["person"] = person
-        point_record = UserInputPointRecord.objects.filter(person_id=person.id,
-                                                           record_date=validated_data["record_date"],
-                                                           point_template=validated_data["point_template"])
-        if point_record.exists():
-            return super(UserInputPointRecordSerializer, self).update(point_record[0], validated_data)
+        self.calculate_points(validated_data)
+        return super(MultiCheckboxPointRecordSerializer, self).create(validated_data)
+
+    def update(self, record, validated_data):
+        self.calculate_points(validated_data)
+        return super(MultiCheckboxPointRecordSerializer, self).update(record, validated_data)
+
+    def calculate_points(self, validated_data):
+        criterion: MultiCheckboxCriterion = validated_data['contest_criterion']
+        choices: list[str] = validated_data['choices']
+        if criterion.partial_points:
+            validated_data['point_total'] = sum(criterion.points for choice in choices
+                                                if criterion.options.get(choice, False))
         else:
-            return super(UserInputPointRecordSerializer, self).create(validated_data)
+            validated_data['point_total'] = criterion.points if all(
+                choice in criterion.options for choice in choices) else 0
+
+
+class RadioPointRecordSerializer(PointRecordSerializer):
+    class Meta(PointRecordSerializer.Meta):
+        model = RadioPointRecord
+
+    def validate(self, attrs):
+        super().validate(attrs)
+        criterion: RadioCriterion = attrs['contest_criterion']
+        choice: str = attrs['criterion']
+
+        if choice not in criterion.options:
+            raise ValidationError({'options_error': gettext('Choice entered is not valid')})
+        return attrs
+
+    def create(self, validated_data):
+        self.calculate_points(validated_data)
+        return super(RadioPointRecordSerializer, self).create(validated_data)
+
+    def update(self, record, validated_data):
+        self.calculate_points(validated_data)
+        return super(RadioPointRecordSerializer, self).update(record, validated_data)
+
+    def calculate_points(self, validated_data):
+        criterion: RadioCriterion = validated_data['contest_criterion']
+        validated_data['point_total'] = criterion.points if criterion.options.get(validated_data['choice'],
+                                                                                  False) else 0
+
+
+class CheckboxPointRecordSerializer(PointRecordSerializer):
+    class Meta(PointRecordSerializer.Meta):
+        model = CheckboxPointRecord
+
+    def create(self, validated_data):
+        self.calculate_points(validated_data)
+        return super(CheckboxPointRecordSerializer, self).create(validated_data)
+
+    def update(self, record, validated_data):
+        self.calculate_points(validated_data)
+        return super(CheckboxPointRecordSerializer, self).update(record, validated_data)
+
+    def calculate_points(self, validated_data):
+        criterion: CheckboxCriterion = validated_data['contest_criterion']
+        validated_data['point_total'] = validated_data['checked'] * criterion.points
+
+
+class PolymorphicPointRecordSerializer(PolymorphicSerializer):
+    model_serializer_mapping = {
+        NumberPointRecord: NumberPointRecordSerializer,
+        CheckboxPointRecord: CheckboxPointRecordSerializer,
+        MultiCheckboxPointRecord: MultiCheckboxPointRecordSerializer,
+        RadioPointRecord: RadioPointRecordSerializer,
+        UserInputPointRecord: UserInputPointRecordSerializer
+    }

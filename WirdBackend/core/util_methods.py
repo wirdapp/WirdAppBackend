@@ -43,6 +43,15 @@ def get_current_user_contest_role(request):
         raise exceptions.APIException(gettext("error while getting user role in this contest"))
 
 
+def get_current_contest_person(request):
+    contest_id = get_current_contest_id(request)
+    username = get_username(request)
+    try:
+        return ContestPerson.objects.get(person__username=username, contest_id=contest_id)
+    except ContestPerson.DoesNotExist:
+        raise exceptions.APIException(gettext("error while getting contest person"))
+
+
 def is_person_role_in_contest(request, expected_roles):
     current_contest_role = get_current_user_contest_role(request)
     return bool(current_contest_role in expected_roles)
