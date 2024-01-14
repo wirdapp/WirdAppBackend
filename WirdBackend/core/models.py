@@ -26,8 +26,8 @@ class Contest(models.Model):
     announcements = fields.ArrayField(models.CharField(max_length=500), blank=True, default=list)
     readonly_mode = models.BooleanField(default=False, help_text=gettext('readonly_mode'))
     contest_photo = ResizedImageField(size=[500, 500], upload_to=upload_location, blank=True)
-    start_date = models.DateField(null=True, blank=True)
-    end_date = models.DateField(null=True, blank=True)
+    start_date = models.DateField()
+    end_date = models.DateField()
 
 
 class Person(AbstractUser):
@@ -47,8 +47,8 @@ class ContestPerson(models.Model):
         DEACTIVATED = (6, 'deactivated')
 
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
-    contest = models.ForeignKey(Contest, on_delete=models.PROTECT)
-    person = models.ForeignKey(Person, on_delete=models.PROTECT)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
     contest_role = models.PositiveSmallIntegerField(choices=ContestRole.choices, default=ContestRole.MEMBER)
 
     class Meta:
