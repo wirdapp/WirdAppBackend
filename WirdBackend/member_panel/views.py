@@ -1,9 +1,10 @@
 from member_panel.serializers import PolymorphicPointRecordSerializer
 from member_panel.model_util import get_member_point_records
-from core.util_classes import MyModelViewSet
+from core.util_classes import CustomPermissionsMixin
+from rest_framework import viewsets
 
 
-class MemberPointRecordViewSet(MyModelViewSet):
+class MemberPointRecordViewSet(CustomPermissionsMixin, viewsets.ModelViewSet):
     verified_members_allowed_methods = ['list', 'retrieve', 'create', 'update', 'partial_update', 'destroy']
     serializer_class = PolymorphicPointRecordSerializer
 
