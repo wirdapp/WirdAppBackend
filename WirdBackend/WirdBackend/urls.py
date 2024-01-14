@@ -38,8 +38,8 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('', include('core.urls')),
-    path('admin_panel/', include('admin_panel.urls')),
-    path('member-panel/', include('member_panel.urls')),
+    path('admin_panel/<str:contest_id>/', include('admin_panel.urls')),
+    path('member_panel/<str:contest_id>/', include('member_panel.urls')),
     path('auth/', include('dj_rest_auth.urls')),
     path("auth/registration/account-confirm-email/", VerifyEmailView.as_view()),
     path('auth/registration/', include('dj_rest_auth.registration.urls')),
