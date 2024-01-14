@@ -17,7 +17,7 @@ class Section(models.Model):
     contest = models.ForeignKey("core.Contest", on_delete=models.PROTECT, related_name='contest_sections')
 
     def __str__(self):
-        return self.label
+        return f"{self.label} @ {self.contest.name}"
 
 
 class ContestCriterion(PolymorphicModel):
@@ -40,7 +40,8 @@ class NumberCriterion(ContestCriterion):
 
 
 class CheckboxCriterion(ContestCriterion):
-    pass
+    checked_label = models.CharField(max_length=15, default="")
+    unchecked_label = models.CharField(max_length=15, default="")
 
 
 class MultiCheckboxCriterion(ContestCriterion):
@@ -54,7 +55,7 @@ class RadioCriterion(ContestCriterion):
 
 # None
 class UserInputCriterion(ContestCriterion):
-    pass
+    allow_multiline = models.BooleanField(default=False)
 
 
 class Group(models.Model):
@@ -84,6 +85,9 @@ class ContestPersonGroup(models.Model):
     contest_person = models.ForeignKey(ContestPerson, on_delete=models.PROTECT)
     group = models.ForeignKey(Group, on_delete=models.PROTECT)
     group_role = models.PositiveSmallIntegerField(choices=GroupRole.choices, default=GroupRole.MEMBER)
+
+    def __str__(self):
+        return f"{self.contest_person.person.username} @ {self.group.name} @ {self.contest_person.contest.name}"
 
     class Meta:
         constraints = [
