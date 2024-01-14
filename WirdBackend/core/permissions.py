@@ -6,7 +6,7 @@ import logging
 from allauth.account.models import EmailAddress
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
-from core import util_methods
+from core import util_methods, models_helper
 from core.util_methods import is_person_role_in_contest
 
 logger = logging.getLogger(__name__)
@@ -35,6 +35,13 @@ class IsAuthenticatedAndReadOnly(BasePermission):
 class IsContestOwner(BasePermission):
     def has_permission(self, request, view):
         return is_person_role_in_contest(request, [0])
+
+
+class IsGroupAdmin(BasePermission):
+    def has_permission(self, request, view):
+        group_id = view.kwargs.get("group_pk")
+        managed_groups = models_helper.get_current_user_managed_groups(request)
+        return managed_groups.filter(id=group_id).exists()
 
 
 class NoPermission(BasePermission):
