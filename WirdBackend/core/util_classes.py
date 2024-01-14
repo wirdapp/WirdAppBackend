@@ -1,8 +1,9 @@
 from datetime import datetime
+from gettext import gettext
 
 from rest_condition import And
+from rest_framework import mixins, exceptions
 from rest_framework import serializers
-from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
@@ -27,7 +28,7 @@ class MyPageNumberPagination(PageNumberPagination):
     max_page_size = 20
 
 
-class MyModelViewSet(viewsets.ModelViewSet):
+class CustomPermissionsMixin:
     authenticated_allowed_methods = []
     verified_allowed_methods = []
     member_allowed_methods = []
@@ -51,6 +52,15 @@ class MyModelViewSet(viewsets.ModelViewSet):
         return NoPermission(),
 
 
+class DestroyBeforeContestStartMixin(mixins.DestroyModelMixin):
+    def destroy(self, request, *args, **kwargs):
+        contest = util_methods.get_current_contest(request)
+        if datetime.today().date() >= contest.start_date:
+            raise exceptions.MethodNotAllowed(gettext("cannot edit contest after its start date"))
+
+        return super().destroy(request, *args, **kwargs)
+
+
 class DynamicFieldsCategorySerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         # Don't pass the 'fields' arg up to the superclass
@@ -72,20 +82,7 @@ class ContestFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
         super().__init__(**kwargs)
 
     def get_queryset(self):
-        contest_id = util_methods.get_current_contest_id(self.context['request'])
+        contest = util_methods.get_current_contest(self.context['request'])
         queryset = super(ContestFilteredPrimaryKeyRelatedField, self).get_queryset()
-        queryset = queryset.filter(contest__id=contest_id)
+        queryset = queryset.filter(contest=contest)
         return queryset
-
-
-class ContestIDMiddleware:
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        response = self.get_response(request)
-        if not request.COOKIES.get('contest_id', None):
-            contest_id = util_methods.get_first_contest_id(request.user.username, raise_exception=False)
-            if contest_id:
-                util_methods.set_response_cookie(response, "contest_id", contest_id)
-        return response
