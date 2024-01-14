@@ -6,7 +6,7 @@ from rest_framework_nested import routers
 router = routers.DefaultRouter()
 
 router.register(r'criteria', views.ContestCriterionView, basename='ContestCriterionView')
-router.register(r'section', views.SectionView, basename='Section')
+router.register(r'sections', views.SectionView, basename='Section')
 router.register(r'contest_members', views.ContestMembersView, basename='Contest Members')
 
 router.register(r'groups', views.GroupView, basename='groups')
