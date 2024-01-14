@@ -1,6 +1,8 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from core import models_helper
 from core.permissions import IsGroupAdmin
@@ -11,21 +13,36 @@ from .serializers import *
 class SectionView(DestroyBeforeContestStartMixin, CustomPermissionsMixin, viewsets.ModelViewSet):
     serializer_class = SectionSerializer
     admin_allowed_methods = ['list', 'retrieve']
-    super_admin_allowed_methods = ["create", "update", "partial_update", "destroy"]
+    super_admin_allowed_methods = ["create", "update", "partial_update", "destroy", "update_order"]
 
     def get_queryset(self):
         contest = util_methods.get_current_contest(self.request)
         return Section.objects.filter(contest=contest)
 
+    @action(detail=False, methods=["post"])
+    def update_order(self, request, *args, **kwargs):
+        sections_data = request.data.get('sections', [])
+        section_updates = [Section(id=section["id"], position=section["position"]) for section in sections_data]
+        no_of_updates = Section.objects.bulk_update(section_updates, fields=['position'])
+        return Response(f"{gettext('updated the order of sections successfully')} {no_of_updates}")
+
 
 class ContestCriterionView(DestroyBeforeContestStartMixin, CustomPermissionsMixin, viewsets.ModelViewSet):
     admin_allowed_methods = ['list', 'retrieve']
-    super_admin_allowed_methods = ['create', "update", "partial_update", "destroy"]
+    super_admin_allowed_methods = ['create', "update", "partial_update", "destroy", "update_order"]
     serializer_class = ContestPolymorphicCriterionSerializer
 
     def get_queryset(self):
         contest = util_methods.get_current_contest(self.request)
         return ContestCriterion.objects.filter(contest=contest)
+
+    @action(detail=False, methods=["post"])
+    def update_order(self, request, *args, **kwargs):
+        criteria_data = request.data.get('criteria', [])
+        criteria_updates = [ContestCriterion(id=criterion["id"], order_in_section=criterion["order_in_section"])
+                            for criterion in criteria_data]
+        no_of_updates = ContestCriterion.objects.bulk_update(criteria_updates, fields=['order_in_section'])
+        return Response(f"{gettext('updated the order of criteria successfully')} {no_of_updates}")
 
 
 class GroupView(DestroyBeforeContestStartMixin, CustomPermissionsMixin, viewsets.ModelViewSet):
