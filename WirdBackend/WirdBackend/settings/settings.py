@@ -141,7 +141,6 @@ MIDDLEWARE = [
     "django_permissions_policy.PermissionsPolicyMiddleware",  # Keep for setting various browser permissions policies
     'django.middleware.locale.LocaleMiddleware',  # Optional, remove if not needed for internationalization
     'allauth.account.middleware.AccountMiddleware',  # Remove if not using Django Allauth for authentication
-    'core.util_classes.ContestIDMiddleware',
 ]
 
 ROOT_URLCONF = 'WirdBackend.urls'
