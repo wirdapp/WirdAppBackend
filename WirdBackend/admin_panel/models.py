@@ -82,7 +82,7 @@ class ContestPersonGroup(models.Model):
         ADMIN = (1, 'admin')
         MEMBER = (2, 'member')
 
-    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
     contest_person = models.ForeignKey(ContestPerson, on_delete=models.PROTECT)
     group = models.ForeignKey(Group, on_delete=models.PROTECT)
     group_role = models.PositiveSmallIntegerField(choices=GroupRole.choices, default=GroupRole.MEMBER)

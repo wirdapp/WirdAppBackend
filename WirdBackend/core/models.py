@@ -46,7 +46,7 @@ class ContestPerson(models.Model):
         PENDING_MEMBER = (5, 'pending_member')
         DEACTIVATED = (6, 'deactivated')
 
-    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     contest_role = models.PositiveSmallIntegerField(choices=ContestRole.choices, default=ContestRole.MEMBER)
