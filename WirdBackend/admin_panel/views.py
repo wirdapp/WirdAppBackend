@@ -59,7 +59,7 @@ class ContestPersonGroupView(viewsets.ModelViewSet):
     serializer_class = ContestPersonGroupSerializer
     pagination_class = MyPageNumberPagination
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
-    filterset_fields = ["group__id", "group_role"]
+    filterset_fields = {"group_role": ["in"]}
     ordering_fields = ['contest_person__person__first_name']
     search_fields = [f"contest_person__person__{field}" for field in ["first_name", "last_name", "username"]]
     lookup_field = "contest_person__person__username"
@@ -81,7 +81,7 @@ class ContestMembersView(CustomPermissionsMixin, viewsets.ModelViewSet):
     admin_allowed_methods = ["list"]
     super_admin_allowed_methods = ["create", "update", "retrieve", "partial_update", "destroy"]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
-    filterset_fields = ["contest_role", "person__username"]
+    filterset_fields = {"contest_role": ["in"], "person__username": ["exact"]}
     ordering_fields = ['person__username', "person__first_name"]
     search_fields = [f"person__{field}" for field in ["first_name", "last_name", "username"]]
     lookup_field = "person__username"
