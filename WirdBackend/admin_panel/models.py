@@ -36,7 +36,8 @@ class ContestCriterion(PolymorphicModel):
 
 
 class NumberCriterion(ContestCriterion):
-    bounds = fields.IntegerRangeField(default=NumericRange(1, 100, bounds="[]"))
+    lower_bound = models.IntegerField(default=0)
+    upper_bound = models.IntegerField(default=20)
 
 
 class CheckboxCriterion(ContestCriterion):
