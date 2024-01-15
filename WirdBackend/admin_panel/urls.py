@@ -1,6 +1,6 @@
 from django.urls import include
 from django.urls import path
-from . import views
+from . import views, member_views
 from rest_framework_nested import routers
 
 router = routers.DefaultRouter()
@@ -16,4 +16,5 @@ groups_router.register(r'members', views.ContestPersonGroupView, basename='group
 urlpatterns = [
     path('', include(router.urls)),
     path('', include(groups_router.urls)),
+    path('leaderboard/', member_views.Leaderboard.as_view(), name='leaderboard'),
 ]
