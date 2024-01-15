@@ -23,10 +23,10 @@ def get_current_contest(request):
 
 
 def get_current_user_contest_role(request):
-    contest_id = get_current_contest(request)
+    contest = get_current_contest(request)
     username = get_username(request)
     try:
-        return ContestPerson.objects.get(person__username=username, contest_id=contest_id).contest_role
+        return ContestPerson.objects.get(person__username=username, contest=contest).contest_role
     except Exception as e:
         if request.authenticators and not request.successful_authenticator:
             raise exceptions.NotAuthenticated()

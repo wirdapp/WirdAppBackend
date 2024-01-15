@@ -13,7 +13,7 @@ class AutoSetContestSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         data = data.copy()
         contest = util_methods.get_current_contest(self.context['request'])
-        data["contest"] = contest
+        data["contest"] = contest.id
         return super().to_internal_value(data)
 
 

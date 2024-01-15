@@ -14,7 +14,7 @@ from core.util_classes import CustomPermissionsMixin
 class ContestView(CustomPermissionsMixin, viewsets.ModelViewSet):
     authenticated_allowed_methods = ['join_contest', 'list']
     verified_allowed_methods = ['create']
-    member_allowed_methods = ['current']
+    member_allowed_methods = ['retrieve']
     serializer_class = ContestSerializer
 
     def perform_create(self, serializer):
@@ -34,11 +34,6 @@ class ContestView(CustomPermissionsMixin, viewsets.ModelViewSet):
             return Response(gettext("joined the new contest"), 200)
         except Contest.DoesNotExist:
             return Response(gettext("cannot join this contest or access code is wrong"), 400)
-
-    @action(detail=False, methods=["get"])
-    def current(self, request):
-        contest = util_methods.get_current_contest(request)
-        return Response(self.get_serializer(contest).data)
 
     def get_queryset(self):
         username = util_methods.get_username(self.request)
