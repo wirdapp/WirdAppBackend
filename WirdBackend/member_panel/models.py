@@ -12,8 +12,8 @@ class PointRecord(PolymorphicModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     person = models.ForeignKey(ContestPerson, on_delete=models.PROTECT, related_name='contest_person_points')
     contest_criterion = models.ForeignKey(ContestCriterion, on_delete=models.PROTECT)
-    record_date = models.DateField(default=datetime.date.today())
-    timestamp = models.DateTimeField(default=datetime.datetime.now())
+    record_date = models.DateField(auto_now_add=True)
+    timestamp = models.DateTimeField(auto_now=True)
     point_total = models.IntegerField(default=0)
 
     class Meta:
