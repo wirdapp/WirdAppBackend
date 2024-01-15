@@ -4,9 +4,9 @@ from core.models import ContestPerson, Person, Contest
 
 
 def get_person_contests(username, contest_role=(0, 1, 2, 3, 4)):
-    return (ContestPerson.objects.filter(person__username=username, contest_role__in=contest_role)
-            .select_related("contest")
-            .values("contest"))
+    contest_persons = (ContestPerson.objects.filter(person__username=username, contest_role__in=contest_role)
+                       .prefetch_related("contest"))
+    return [contest_person.contest for contest_person in contest_persons]
 
 
 def get_current_user_managed_groups(request):
@@ -16,9 +16,11 @@ def get_current_user_managed_groups(request):
     if role <= ContestPerson.ContestRole.SUPER_ADMIN.value:
         return Group.objects.filter(contest=contest)
     elif role == ContestPerson.ContestRole.ADMIN.value:
-        return (ContestPersonGroup.objects
-                .select_related('group')
-                .filter(person__username=username, group__contest=contest, group_role=1)
-                .values("group"))
+        contest_person_groups = (ContestPersonGroup.objects
+                                 .prefetch_related('group')
+                                 .filter(person__username=username,
+                                         group__contest=contest, group_role=1))
+        return [cpg.groups for cpg in contest_person_groups]
+
     else:
         return Group.objects.none()
