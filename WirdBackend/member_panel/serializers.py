@@ -16,7 +16,6 @@ from member_panel.models import PointRecord, UserInputPointRecord, NumberPointRe
 
 class PointRecordSerializer(serializers.ModelSerializer):
     contest_criterion = ContestFilteredPrimaryKeyRelatedField(queryset=ContestCriterion.objects)
-    timestamp = serializers.HiddenField(default=datetime.datetime.now())
 
     class Meta:
         model = PointRecord
@@ -25,7 +24,8 @@ class PointRecordSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         data = data.copy()
         person = util_methods.get_current_contest_person(self.context['request'])
-        data["person"] = person
+        data["person"] = person.id
+        data["record_date"] = self.context["view"].kwargs["date"]
         return super().to_internal_value(data)
 
     def validate(self, attrs):
@@ -52,8 +52,8 @@ class PointRecordSerializer(serializers.ModelSerializer):
 
     def validate_can_edit(self, errors, attrs):
         person: ContestPerson = attrs['person']
-        if person.contest_role != ContestPerson.ContestRole.MEMBER:
-            errors['invalid_membership'] = gettext('User is not authorized to access contest')
+        if person.contest_role != ContestPerson.ContestRole.MEMBER.value:
+            errors['invalid_membership'] = gettext('user is not authorized to access contest')
 
 
 class NumberPointRecordSerializer(PointRecordSerializer):
@@ -63,7 +63,7 @@ class NumberPointRecordSerializer(PointRecordSerializer):
     def validate(self, attrs):
         super().validate(attrs)
         criterion: NumberCriterion = attrs['contest_criterion']
-        if attrs['number'] not in criterion.bounds:
+        if not criterion.upper_bound >= attrs['number'] >= criterion.lower_bound:
             raise ValidationError({"bounds_error": gettext("Number entered not in bounds")})
         return attrs
 
