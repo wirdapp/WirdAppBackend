@@ -16,7 +16,8 @@ class MemberPointRecordViewSet(CustomPermissionsMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         person = get_current_contest_person(self.request)
-        return PointRecord.objects.filter(person__id=person.id)
+        date = self.kwargs.get("date")
+        return PointRecord.objects.filter(person__id=person.id, record_date=date)
 
 
 class ContestCriteriaViewSet(viewsets.ReadOnlyModelViewSet):
