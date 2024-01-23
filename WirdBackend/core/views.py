@@ -51,12 +51,3 @@ class ContestView(CustomPermissionsMixin, viewsets.ModelViewSet):
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(*args, fields=self.serializer_fields.get(self.action, None), **kwargs)
-
-
-class CurrentUserView(generics.RetrieveUpdateAPIView):
-    serializer_class = PersonSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        user = self.request.user
-        return user
