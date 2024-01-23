@@ -5,7 +5,6 @@ from gettext import gettext
 from django.contrib.postgres import fields
 from django.db import models
 from polymorphic.models import PolymorphicModel
-from psycopg2.extras import NumericRange
 
 from core.models import Person, Contest, ContestPerson
 
@@ -26,7 +25,9 @@ class ContestCriterion(PolymorphicModel):
     description = models.CharField(max_length=256)
     order_in_section = models.IntegerField()
     visible = models.BooleanField(default=True)
-    activate_on_datetime = fields.ArrayField(fields.DateTimeRangeField(), blank=True, default=list)
+    active = models.BooleanField(default=True)
+    activate_on_dates = fields.ArrayField(models.DateField(), blank=True, default=list)
+    deactivate_on_dates = fields.ArrayField(models.DateField(), blank=True, default=list)
     contest = models.ForeignKey("core.Contest", on_delete=models.PROTECT)
     section = models.ForeignKey(Section, on_delete=models.PROTECT)
     points = models.IntegerField(default=1)
@@ -46,12 +47,12 @@ class CheckboxCriterion(ContestCriterion):
 
 
 class MultiCheckboxCriterion(ContestCriterion):
-    options = fields.HStoreField()
+    options = models.JSONField()
     partial_points = models.BooleanField(default=False)
 
 
 class RadioCriterion(ContestCriterion):
-    options = fields.HStoreField()
+    options = models.JSONField()
 
 
 # None
@@ -62,7 +63,7 @@ class UserInputCriterion(ContestCriterion):
 class Group(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=128, default='')
-    announcements = fields.ArrayField(models.CharField(max_length=128, default="", blank=True), blank=True)
+    announcements = fields.ArrayField(models.CharField(max_length=128, default="", blank=True), blank=True, default=list)
     contest = models.ForeignKey("core.Contest", on_delete=models.PROTECT)
 
     @cached_property
