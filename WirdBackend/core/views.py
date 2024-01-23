@@ -16,6 +16,7 @@ class ContestView(CustomPermissionsMixin, viewsets.ModelViewSet):
     verified_allowed_methods = ['create']
     member_allowed_methods = ['retrieve']
     serializer_class = ContestSerializer
+    lookup_url_kwarg = "contest_id"
 
     def perform_create(self, serializer):
         contest = serializer.save()
@@ -44,6 +45,9 @@ class ContestView(CustomPermissionsMixin, viewsets.ModelViewSet):
         create=["contest_id", "name", "description", "contest_photo", "start_date", "end_date"],
         join_contest=["contest_id"],
     )
+
+    def get_object(self):
+        return util_methods.get_current_contest(self.request)
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(*args, fields=self.serializer_fields.get(self.action, None), **kwargs)
