@@ -1,12 +1,12 @@
-import datetime
-
 from gettext import gettext
+
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_polymorphic.serializers import PolymorphicSerializer
 
 from admin_panel.models import ContestCriterion, NumberCriterion, MultiCheckboxCriterion, RadioCriterion, \
     CheckboxCriterion
+from admin_panel.serializers import ContestCriterionSerializer
 from core import util_methods
 from core.models import ContestPerson
 from core.util_classes import ContestFilteredPrimaryKeyRelatedField
@@ -16,6 +16,8 @@ from member_panel.models import PointRecord, UserInputPointRecord, NumberPointRe
 
 class PointRecordSerializer(serializers.ModelSerializer):
     contest_criterion = ContestFilteredPrimaryKeyRelatedField(queryset=ContestCriterion.objects)
+    contest_criterion_data = ContestCriterionSerializer(source="contest_criterion", read_only=True,
+                                                        fields=["label", "description", "points"])
 
     class Meta:
         model = PointRecord
@@ -55,6 +57,18 @@ class PointRecordSerializer(serializers.ModelSerializer):
         if person.contest_role != ContestPerson.ContestRole.MEMBER.value:
             errors['invalid_membership'] = gettext('user is not authorized to access contest')
 
+    def create(self, validated_data):
+        self.calculate_points(validated_data)
+        return super(PointRecordSerializer, self).create(validated_data)
+
+    def update(self, record, validated_data):
+        self.calculate_points(validated_data)
+        return super(PointRecordSerializer, self).update(record, validated_data)
+
+    def calculate_points(self, validated_data):
+        # Default implementation, can be overridden in subclasses
+        raise NotImplementedError("This method should be implemented by the subclasses")
+
 
 class NumberPointRecordSerializer(PointRecordSerializer):
     class Meta(PointRecordSerializer.Meta):
@@ -67,14 +81,6 @@ class NumberPointRecordSerializer(PointRecordSerializer):
             raise ValidationError({"bounds_error": gettext("Number entered not in bounds")})
         return attrs
 
-    def create(self, validated_data):
-        self.calculate_points(validated_data)
-        return super(NumberPointRecordSerializer, self).create(validated_data)
-
-    def update(self, record, validated_data):
-        self.calculate_points(validated_data)
-        return super(NumberPointRecordSerializer, self).update(record, validated_data)
-
     def calculate_points(self, validated_data):
         criterion: NumberCriterion = validated_data['contest_criterion']
         validated_data['point_total'] = criterion.points * validated_data['number']
@@ -83,6 +89,15 @@ class NumberPointRecordSerializer(PointRecordSerializer):
 class UserInputPointRecordSerializer(PointRecordSerializer):
     class Meta(PointRecordSerializer.Meta):
         model = UserInputPointRecord
+
+    def validate_reviewed_by_admin(self, value):
+        current_user_role = util_methods.get_current_user_contest_role(self.context['request'])
+        if value and current_user_role > ContestPerson.ContestRole.ADMIN.value:
+            raise ValidationError(gettext("a member cannot set their point as reviewed"))
+        return
+
+    def calculate_points(self, validated_data):
+        validated_data['point_total'] = validated_data['points']
 
 
 class MultiCheckboxPointRecordSerializer(PointRecordSerializer):
@@ -97,14 +112,6 @@ class MultiCheckboxPointRecordSerializer(PointRecordSerializer):
         if not all(choice in criterion.options for choice in choices):
             raise ValidationError({'options_error': gettext('Choices entered are not valid')})
         return attrs
-
-    def create(self, validated_data):
-        self.calculate_points(validated_data)
-        return super(MultiCheckboxPointRecordSerializer, self).create(validated_data)
-
-    def update(self, record, validated_data):
-        self.calculate_points(validated_data)
-        return super(MultiCheckboxPointRecordSerializer, self).update(record, validated_data)
 
     def calculate_points(self, validated_data):
         criterion: MultiCheckboxCriterion = validated_data['contest_criterion']
@@ -130,14 +137,6 @@ class RadioPointRecordSerializer(PointRecordSerializer):
             raise ValidationError({'options_error': gettext('Choice entered is not valid')})
         return attrs
 
-    def create(self, validated_data):
-        self.calculate_points(validated_data)
-        return super(RadioPointRecordSerializer, self).create(validated_data)
-
-    def update(self, record, validated_data):
-        self.calculate_points(validated_data)
-        return super(RadioPointRecordSerializer, self).update(record, validated_data)
-
     def calculate_points(self, validated_data):
         criterion: RadioCriterion = validated_data['contest_criterion']
         validated_data['point_total'] = criterion.points if criterion.options.get(validated_data['choice'],
@@ -147,14 +146,6 @@ class RadioPointRecordSerializer(PointRecordSerializer):
 class CheckboxPointRecordSerializer(PointRecordSerializer):
     class Meta(PointRecordSerializer.Meta):
         model = CheckboxPointRecord
-
-    def create(self, validated_data):
-        self.calculate_points(validated_data)
-        return super(CheckboxPointRecordSerializer, self).create(validated_data)
-
-    def update(self, record, validated_data):
-        self.calculate_points(validated_data)
-        return super(CheckboxPointRecordSerializer, self).update(record, validated_data)
 
     def calculate_points(self, validated_data):
         criterion: CheckboxCriterion = validated_data['contest_criterion']
