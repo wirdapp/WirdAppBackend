@@ -176,6 +176,9 @@ msgstr "إذا لم تقم بالتسجيل في موقع وِرد ، يمكنك
 msgid "all_auth_email_html_visit_our_website"
 msgstr "Visit our website: "
 
+msgid "all_auth_email_html_visit_our_website"
+msgstr "تفضل بزيارة موقعنا على الرابط التالي: "
+
 #: venv/lib/python3.9/site-packages/cachalot/panels.py:67
 #, python-format
 msgid "Last invalidation: %s"

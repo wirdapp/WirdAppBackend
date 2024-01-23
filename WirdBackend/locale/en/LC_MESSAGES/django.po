@@ -175,6 +175,8 @@ msgstr "If you didn't sign up for Wird App, you can safely ignore this email."
 msgid "all_auth_email_html_visit_our_website"
 msgstr "Visit our website: "
 
+msgid "all_auth_email_html_visit_our_website"
+msgstr "Visit Our Website at:"
 #: venv/lib/python3.9/site-packages/cachalot/panels.py:67
 #, python-format
 msgid "Last invalidation: %s"
