@@ -232,7 +232,6 @@ REST_AUTH = {
     'JWT_AUTH_RETURN_EXPIRATION': True,
     'JWT_AUTH_HTTPONLY': False,
     "SESSION_LOGIN": False,
-    "REGISTER_SERIALIZER": "core.serializers.PersonSerializer",
     "USER_DETAILS_SERIALIZER": "core.serializers.PersonSerializer"
 }
 SITE_ID = 1
