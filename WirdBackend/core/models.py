@@ -19,7 +19,7 @@ def upload_location(instance, filename):
 
 class Contest(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    contest_id = models.CharField(unique=True, max_length=12, default="", validators=[MinLengthValidator(6)])
+    contest_id = models.CharField(unique=True, max_length=20, default="", validators=[MinLengthValidator(6)])
     name = models.CharField(max_length=128, validators=[MinLengthValidator(4)], default='')
     description = models.CharField(max_length=500, blank=True)
     show_standings = models.BooleanField(default=True)
