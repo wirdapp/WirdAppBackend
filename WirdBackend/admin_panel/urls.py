@@ -18,6 +18,6 @@ urlpatterns = [
     path('', include(router.urls)),
     path('', include(groups_router.urls)),
     path('leaderboard/', member_views.Leaderboard.as_view(), name='leaderboard'),
-    path(r'results/', member_views.ContestResultsView.as_view(), name='ContestResultsView'),
-    path(r'results/<str:user_id>', member_views.ContestResultsView.as_view(), name='ContestResultsView'),
+    path(r'results/', member_views.ContestOverallResultsView.as_view(), name='ContestResultsView'),
+    path(r'results/<str:user_id>', member_views.UserResultsView.as_view(), name='ContestResultsView'),
 ]
