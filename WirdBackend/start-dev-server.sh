@@ -7,4 +7,5 @@ python manage.py migrate --no-input
 # Start server
 echo "Starting server"
 python manage.py compilemessages -i "venv*"
+python manage.py makemessages -l en -l ar
 python manage.py runserver 0.0.0.0:8000

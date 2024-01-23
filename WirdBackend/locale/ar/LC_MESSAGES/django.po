@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-09 00:33+0000\n"
+"POT-Creation-Date: 2024-01-23 17:26-0600\n"
 "PO-Revision-Date: 2021-11-24 16:27+0000\n"
 "Last-Translator: Mariusz Felisiak <felisiak.mariusz@gmail.com>\n"
 "Language-Team: Arabic (http://www.transifex.com/django/django/language/ar/)\n"
@@ -21,158 +21,127 @@ msgstr ""
 msgid "English"
 msgstr ""
 
-# ######
-#: admin_panel/serializers.py:88
-msgid "upper_point>lower_point validation"
-msgstr "حد النقاط العلوي يجب أن يكون أعلى من حد النقاط السفلي"
+#: admin_panel/models.py:98
+msgid "person is member of group"
+msgstr "المستخدم عضو حالي في هذه المجموعة"
 
-#: admin_panel/serializers.py:139
-msgid "add user to group username not in contest"
-msgstr "مستخدم واحد أو أكثر غير موجود في هذه المسابقة"
-
-#: admin_panel/views.py:91
-msgid "user added to the group"
-msgstr "تم إضافة المستخدم إلى المجموعة"
-
-#: admin_panel/views.py:171 admin_panel/views.py:177
-#, fuzzy
-#| msgid "post username and received token"
-msgid "post person username and new password"
-msgstr "الرجاء إدخال اسم المستخدم والرمز المرسل"
-
-#: admin_panel/views.py:180
-msgid "password updated by admin"
+#: admin_panel/serializers.py:83
+msgid "you can't use this role of this user"
 msgstr ""
 
-#: admin_panel/views.py:199
-msgid "from_date and to_date param should be provided"
+#: admin_panel/serializers.py:115
+msgid "member already in group"
 msgstr ""
 
-#: admin_panel/views.py:203
-msgid "can't export more than 30 days"
+#: admin_panel/serializers.py:117
+msgid "super admins and owners can't be added to a group"
 msgstr ""
 
-#: admin_panel/views.py:209
-msgid "no data to extract"
+#: admin_panel/serializers.py:119
+msgid "only super admins can assign group admin"
 msgstr ""
 
-#: core/models.py:18
+#: admin_panel/views.py:75 admin_panel/views.py:97
+msgid "You do not have the permission to do this action"
+msgstr ""
+
+#: core/models.py:27
 msgid "readonly_mode"
 msgstr ""
 "إذا كانت المسابقة في حالة القراءة فقط فلا يستطيع الأعضاء تسجيل نقاط جديدة أو "
 "التغيير على النقاط السابقة"
 
-#: core/models.py:86
+#: core/models.py:58
 msgid "person exists in contest"
 msgstr "المستخدم عضو حالي في هذه المسابقة"
 
-#: core/models.py:106
-msgid "person is member of group"
-msgstr "المستخدم عضو حالي في هذه المجموعة"
+#: core/util_classes.py:63
+msgid "cannot edit contest after its start date"
+msgstr ""
 
-#: core/util_methods.py:43
-msgid "user has no contests"
-msgstr "لا يوجد مسابقات فعالة لدى هذا المستخدم"
-
-#: core/views.py:44
-msgid "contest switched successfully"
-msgstr "تم تبديل المسابقة بناجح"
-
-#: core/views.py:46
-msgid "person is not enrolled in this contest"
-msgstr "المستخدم غير مشترك في هذه المسابقة"
-
-#: core/views.py:167
-msgid "post contest-name only"
-msgstr "قم بإدخال اسم المسابقة فقط بإرسال المدخل contest-name"
-
-#: core/views.py:175
-msgid "contest created"
-msgstr "Contest has been Created"
-
-#: core/views.py:182 core/views.py:187
-msgid "post access-code only"
-msgstr "قم بإدخال رمز المسابقة فقط بإرسال المدخل access-code"
-
-#: core/views.py:194
+#: core/views.py:35
 msgid "joined the new contest"
 msgstr ""
 "لقد اشتركت في المسابقة بنجاح ، يمكنك الذهاب إلى الصفحة الرئيسية وبالبدء "
 "بإدخال النقاط"
 
-#: core/views.py:196
+#: core/views.py:37
+msgid "cannot join this contest or access code is wrong"
+msgstr ""
+
+#: member_panel/serializers.py:46
+msgid "Contest didn't start yet"
+msgstr ""
+
+#: member_panel/serializers.py:48
 #, fuzzy
-#| msgid "user has no contests"
-msgid "user already member in contest"
-msgstr "لا يوجد مسابقات فعالة لدى هذا المستخدم"
+#| msgid "contest created"
+msgid "Contest already ended"
+msgstr "Contest has been Created"
 
-#: core/views.py:198
-msgid "access code is not correct"
-msgstr "الرمز المدخل غير صحيح"
-
-#: core/views.py:211
-msgid "not found"
-msgstr "غير موجود"
-
-#: core/views.py:218
-msgid "post username and received token"
-msgstr "الرجاء إدخال اسم المستخدم والرمز المرسل"
-
-#: core/views.py:221
-msgid "valid token"
-msgstr "رمز صحيح"
-
-#: core/views.py:223 core/views.py:236
-msgid "invalid token"
-msgstr "رمز غير صحيح"
-
-#: core/views.py:234
-msgid "password reset"
-msgstr "لقد تمت إعادة ضبط كلمة السر بنجاح"
-
-#: core/views.py:244
-msgid "user with this username was not found"
-msgstr "لا يوجد مستخدم يحمل اسم المستخدم المدخل"
-
-#: core/views.py:246
+#: member_panel/serializers.py:53
 #, fuzzy
-#| msgid "post username"
-msgid "post username only"
-msgstr "قم بإدخال اسم المستخدم فقط بإرسال المدخل username"
+#| msgid "contest created"
+msgid "Contest is readonly"
+msgstr "Contest has been Created"
 
-#: core/views.py:248
-msgid "password reset subject"
-msgstr "رمز إستعادة كلمة السر الخاص بموقع ورد"
+#: member_panel/serializers.py:58
+#, fuzzy
+#| msgid "person is not enrolled in this contest"
+msgid "user is not authorized to access contest"
+msgstr "المستخدم غير مشترك في هذه المسابقة"
 
-#: core/views.py:258
-msgid "password reset success"
-msgstr "لقد تم إرسال رمزاستعادة كلمة السر عبر البريد الإلكتروني"
+#: member_panel/serializers.py:81
+msgid "Number entered not in bounds"
+msgstr ""
 
-#: member_panel/models.py:17
-msgid "point record help text"
-msgstr "إدخل رقماً في حالة النقاط الرقمية ، ٠ أو ١ في حالة النقاط الثنائية"
+#: member_panel/serializers.py:96
+#, fuzzy
+#| msgid "member can't review points"
+msgid "a member cannot set their point as reviewed"
+msgstr "لا يمكن للمستخدمين مراجعة النقاط الخاصة بهم"
+
+#: member_panel/serializers.py:113
+msgid "Choices entered are not valid"
+msgstr ""
+
+#: member_panel/serializers.py:137
+msgid "Choice entered is not valid"
+msgstr ""
 
 #: templates/account/email/email_confirmation_message.html:8
+#: templates/account/email/email_confirmation_signup_message.html:8
 msgid "all_auth_email_html_title"
 msgstr "تطبيق وِرد - تأكيد التسجيل"
 
-#: templates/account/email/email_confirmation_message.html:63
+#: templates/account/email/email_confirmation_message.html:62
+#: templates/account/email/email_confirmation_signup_message.html:62
 msgid "all_auth_email_html_thank_you_text"
 msgstr "شكرا لتسجيلك في موقع وٍرد"
 
-#: templates/account/email/email_confirmation_message.html:64
+#: templates/account/email/email_confirmation_message.html:63
+#: templates/account/email/email_confirmation_signup_message.html:63
 msgid "all_auth_email_html_complete_reg_text"
 msgstr "لإكمال إجراءات تسجيلك في موقع وِرد ، قم بالضعط على المفتاح أدناه"
 
 # HTML all_auth emails
 #: templates/account/email/email_confirmation_message.html:65
+#: templates/account/email/email_confirmation_signup_message.html:65
 msgid "all_auth_email_html_confirm_email_btn"
 msgstr "تأكيد الحساب"
 
-#: templates/account/email/email_confirmation_message.html:66
+#: templates/account/email/email_confirmation_message.html:67
+#: templates/account/email/email_confirmation_signup_message.html:67
 msgid "all_auth_email_html_ignore_email_text"
 msgstr "إذا لم تقم بالتسجيل في موقع وِرد ، يمكنك تجاهل هذا البريد الإكتروني"
 
+#: templates/account/email/email_confirmation_message.html:73
+#: templates/account/email/email_confirmation_signup_message.html:73
+msgid "Follow us on social media:"
+msgstr ""
+
+#: templates/account/email/email_confirmation_message.html:88
+#: templates/account/email/email_confirmation_signup_message.html:88
 msgid "all_auth_email_html_visit_our_website"
 msgstr "تفضل بزيارة موقعنا على الرابط التالي: "
 
@@ -1467,8 +1436,204 @@ msgstr ""
 msgid "Connect, get help, or contribute"
 msgstr ""
 
-#~ msgid "member can't review points"
-#~ msgstr "لا يمكن للمستخدمين مراجعة النقاط الخاصة بهم"
+#: venv/lib/python3.9/site-packages/django_hstore/fields.py:89
+#: venv/lib/python3.9/site-packages/django_hstore/fields.py:254
+msgid "A python dictionary in a postgresql hstore field."
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/django_hstore/fields.py:228
+msgid ""
+"A python dictionary of references to model instances in an hstore field."
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/django_hstore/forms.py:33
+#, python-brace-format
+msgid "Invalid JSON: {0}"
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/django_hstore/forms.py:37
+msgid "No lists or values allowed, only dictionaries"
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/django_hstore/templates/hstore_default_widget.html:5
+#: venv/lib/python3.9/site-packages/django_hstore/templates/hstore_grappelli_widget.html:5
+msgid "key"
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/django_hstore/templates/hstore_default_widget.html:10
+#: venv/lib/python3.9/site-packages/django_hstore/templates/hstore_grappelli_widget.html:11
+msgid "value"
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/django_hstore/templates/hstore_default_widget.html:12
+#: venv/lib/python3.9/site-packages/django_hstore/templates/hstore_grappelli_widget.html:14
+msgid "remove row"
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/django_hstore/templates/hstore_default_widget.html:46
+#: venv/lib/python3.9/site-packages/django_hstore/templates/hstore_grappelli_widget.html:35
+msgid "Raw textarea"
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/django_hstore/templates/hstore_default_widget.html:52
+msgid "Add another row"
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/django_hstore/templates/hstore_default_widget.html:53
+msgid "Add Another"
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/django_hstore/templates/hstore_default_widget.html:54
+#: venv/lib/python3.9/site-packages/django_hstore/templates/hstore_grappelli_widget.html:26
+#: venv/lib/python3.9/site-packages/django_hstore/templates/hstore_grappelli_widget.html:58
+msgid "Add row"
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/django_hstore/templates/hstore_default_widget.html:57
+#: venv/lib/python3.9/site-packages/django_hstore/templates/hstore_default_widget.html:58
+#: venv/lib/python3.9/site-packages/django_hstore/templates/hstore_default_widget.html:59
+#: venv/lib/python3.9/site-packages/django_hstore/templates/hstore_grappelli_widget.html:25
+msgid "toggle textarea"
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/drf_extra_fields/fields.py:88
+msgid "Invalid type. This is not an base64 string: {type(base64_data)}"
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/drf_extra_fields/fields.py:126
+msgid "Please upload a valid image."
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/drf_extra_fields/fields.py:127
+msgid "The type of the image couldn't be determined."
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/drf_extra_fields/fields.py:173
+msgid "Please upload a valid file."
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/drf_extra_fields/fields.py:174
+msgid "The type of the file couldn't be determined."
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/drf_extra_fields/fields.py:185
+#, python-brace-format
+msgid "Extra content not allowed \"{extra}\"."
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/drf_extra_fields/fields.py:186
+msgid "The start of the range must not exceed the end of the range."
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/drf_extra_fields/geo_fields.py:26
+#, fuzzy
+#| msgid "invalid token"
+msgid "Enter a valid location."
+msgstr "رمز غير صحيح"
+
+#: venv/lib/python3.9/site-packages/drf_spectacular/openapi.py:1364
+#: venv/lib/python3.9/site-packages/drf_spectacular/openapi.py:1417
+#: venv/lib/python3.9/site-packages/drf_spectacular/openapi.py:1421
+#: venv/lib/python3.9/site-packages/drf_spectacular/openapi.py:1425
+msgid "No response body"
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/drf_spectacular/openapi.py:1389
+#: venv/lib/python3.9/site-packages/drf_spectacular/openapi.py:1441
+msgid "Unspecified response body"
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/drf_spectacular/plumbing.py:475
+#, python-format
+msgid "Token-based authentication with required prefix \"%s\""
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/drf_spectacular/views.py:45
+msgid ""
+"\n"
+"    OpenApi3 schema for this API. Format can be selected via content "
+"negotiation.\n"
+"\n"
+"    - YAML: application/vnd.oai.openapi\n"
+"    - JSON: application/vnd.oai.openapi+json\n"
+"    "
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/rest_framework_hstore/fields.py:30
+#, python-format
+msgid "Invalid JSON: %s"
+msgstr ""
+
+#: venv/lib/python3.9/site-packages/timezone_field/rest_framework.py:10
+msgid "A valid timezone is required."
+msgstr ""
+
+# ######
+#~ msgid "upper_point>lower_point validation"
+#~ msgstr "حد النقاط العلوي يجب أن يكون أعلى من حد النقاط السفلي"
+
+#~ msgid "add user to group username not in contest"
+#~ msgstr "مستخدم واحد أو أكثر غير موجود في هذه المسابقة"
+
+#~ msgid "user added to the group"
+#~ msgstr "تم إضافة المستخدم إلى المجموعة"
+
+#, fuzzy
+#~| msgid "post username and received token"
+#~ msgid "post person username and new password"
+#~ msgstr "الرجاء إدخال اسم المستخدم والرمز المرسل"
+
+#~ msgid "user has no contests"
+#~ msgstr "لا يوجد مسابقات فعالة لدى هذا المستخدم"
+
+#~ msgid "contest switched successfully"
+#~ msgstr "تم تبديل المسابقة بناجح"
+
+#~ msgid "post contest-name only"
+#~ msgstr "قم بإدخال اسم المسابقة فقط بإرسال المدخل contest-name"
+
+#~ msgid "post access-code only"
+#~ msgstr "قم بإدخال رمز المسابقة فقط بإرسال المدخل access-code"
+
+#, fuzzy
+#~| msgid "user has no contests"
+#~ msgid "user already member in contest"
+#~ msgstr "لا يوجد مسابقات فعالة لدى هذا المستخدم"
+
+#~ msgid "access code is not correct"
+#~ msgstr "الرمز المدخل غير صحيح"
+
+#~ msgid "not found"
+#~ msgstr "غير موجود"
+
+#~ msgid "post username and received token"
+#~ msgstr "الرجاء إدخال اسم المستخدم والرمز المرسل"
+
+#~ msgid "valid token"
+#~ msgstr "رمز صحيح"
+
+#~ msgid "invalid token"
+#~ msgstr "رمز غير صحيح"
+
+#~ msgid "password reset"
+#~ msgstr "لقد تمت إعادة ضبط كلمة السر بنجاح"
+
+#~ msgid "user with this username was not found"
+#~ msgstr "لا يوجد مستخدم يحمل اسم المستخدم المدخل"
+
+#, fuzzy
+#~| msgid "post username"
+#~ msgid "post username only"
+#~ msgstr "قم بإدخال اسم المستخدم فقط بإرسال المدخل username"
+
+#~ msgid "password reset subject"
+#~ msgstr "رمز إستعادة كلمة السر الخاص بموقع ورد"
+
+#~ msgid "password reset success"
+#~ msgstr "لقد تم إرسال رمزاستعادة كلمة السر عبر البريد الإلكتروني"
+
+#~ msgid "point record help text"
+#~ msgstr "إدخل رقماً في حالة النقاط الرقمية ، ٠ أو ١ في حالة النقاط الثنائية"
 
 #~ msgid "point not active day"
 #~ msgstr "هذه النقطة غير فاعلة لهذا اليوم ، الرجاء اختار يوم آخر"
