@@ -57,15 +57,6 @@ class CurrentUserView(generics.RetrieveUpdateAPIView):
     serializer_class = PersonSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
-        user = self.request.user
-        current_user_role = util_methods.get_current_user_contest_role(request)
-        current_contest = util_methods.get_current_contest(request)
-        data = PersonSerializer(user).data
-        data["contest_role"] = current_user_role
-        data["current_contest_id"] = current_contest.id
-        return Response(data)
-
     def get_object(self):
         user = self.request.user
         return user
