@@ -1,11 +1,15 @@
 from datetime import datetime
 from gettext import gettext
 
+from allauth.account.models import EmailAddress
 from rest_condition import And
 from rest_framework import mixins, exceptions
 from rest_framework import serializers
+from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from core import util_methods
 from core.permissions import IsContestAdmin, IsContestSuperAdmin, NoPermission, IsContestMember, EmailVerified
@@ -86,3 +90,11 @@ class ContestFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
         queryset = super(ContestFilteredPrimaryKeyRelatedField, self).get_queryset()
         queryset = queryset.filter(contest=contest)
         return queryset
+
+
+class ResendEmailConfirmation(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        EmailAddress.objects.get(user=request.user).send_confirmation(request)
+        return Response({'message': 'Email confirmation sent'}, status=status.HTTP_201_CREATED)
