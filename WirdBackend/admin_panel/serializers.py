@@ -5,7 +5,7 @@ from rest_polymorphic.serializers import PolymorphicSerializer
 
 from core import util_methods
 from core.serializers import PersonSerializer
-from core.util_classes import ContestFilteredPrimaryKeyRelatedField
+from core.util_classes import ContestFilteredPrimaryKeyRelatedField, DynamicFieldsCategorySerializer
 from .models import *
 
 
@@ -23,7 +23,7 @@ class SectionSerializer(AutoSetContestSerializer):
         fields = "__all__"
 
 
-class ContestCriterionSerializer(AutoSetContestSerializer):
+class ContestCriterionSerializer(DynamicFieldsCategorySerializer, AutoSetContestSerializer):
     section = ContestFilteredPrimaryKeyRelatedField(queryset=Section.objects)
 
     class Meta:
