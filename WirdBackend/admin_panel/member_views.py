@@ -1,8 +1,8 @@
 # views.py
 import datetime
 
-from django.db.models import Count
-from django.db.models import Sum
+from django.db.models import Sum, Value, Count
+from django.db.models.functions import Concat
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -43,53 +43,57 @@ class Leaderboard(APIView):
                            .prefetch_related("person", 'contest_person_points'))
 
         members = []
-        dates = get_dates_between_two_dates(contest.start_date, min(datetime.date.today(), contest.end_date))
 
         for i, contest_person in enumerate(contest_persons, start=1):
             person_data = PersonSerializer(contest_person.person,
                                            fields=["username", "first_name", "last_name", "profile_photo"]).data
             person_data.update({"id": contest_person.id})
 
-            scores = get_points_by_date(contest_person, dates)
-
-            member_data = dict(rank=i, person_data=person_data, total_points=contest_person.total_points, scores=scores)
+            member_data = dict(rank=i, person_data=person_data, total_points=contest_person.total_points)
             members.append(member_data)
 
         return Response({"members": members})
 
 
-class ContestResultsView(APIView):
-    permission_classes = [IsContestAdmin]
-
+class ContestOverallResultsView(APIView):
     def get(self, request, *args, **kwargs):
-        user_id = kwargs.get("user_id", None)
-        if user_id:
-            return self.get_user_results(user_id, request)
-        else:
-            return self.get_overall_results(request)
-
-    def get_overall_results(self, request):
-        #
         contest = util_methods.get_current_contest(request)
-        dates = get_dates_between_two_dates(contest.start_date, min(datetime.date.today(), contest.end_date))
+        dates = get_dates_between_two_dates(contest.start_date, min(contest.end_date, datetime.date.today()))
         members = (ContestPerson.objects.filter(contest=contest, contest_role=ContestPerson.ContestRole.MEMBER)
-                   .prefetch_related("contest_person_points"))
+                   .prefetch_related("contest_person_points", "person"))
+
         submission_counts = dict(PointRecord.objects.filter(person__in=members)
                                  .values('record_date').annotate(count=Count('id')).order_by('record_date')
                                  .values_list("record_date", "count"))
 
-        aggregated_points = list(PointRecord.objects.filter(person__in=members).values('record_date', 'person')
-                                 .annotate(total_points=Sum('point_total')).order_by('record_date', '-total_points'))
-        # TODO: Top Three Per Day
+        aggregated_points = list(
+            PointRecord.objects.filter(person__in=members).values('record_date', "person")
+            .annotate(person_full_name=Concat('person__person__first_name', Value(' '), 'person__person__last_name'))
+            .annotate(total_points=Sum('point_total')).order_by('record_date', '-total_points')
+        )
+
         results = []
         for i, date in enumerate(dates, start=1):
-            results.append({""})
-            submission_count = submission_counts[date]
-            results.append(dict(date=date, submission_count=submission_count))
+            count = 0
+            top_three_by_day = []
+            while aggregated_points and date == aggregated_points[0]["record_date"] and count < 3:
+                entry = aggregated_points.pop(0)
+                top_three_by_day.append(
+                    dict(id=entry["person_full_name"], name=entry["person_full_name"], points=entry["total_points"])
+                )
+                count += 1
+
+            submission_count = submission_counts.get(date, 0)
+            results.append(dict(date=date, submission_count=submission_count, top_three_by_day=top_three_by_day))
 
         return Response(results)
 
-    def get_user_results(self, user_id, request):
+
+class UserResultsView(APIView):
+    permission_classes = [IsContestAdmin]
+
+    def get(self, request, *args, **kwargs):
+        user_id = kwargs["user_id"]
         contest = util_methods.get_current_contest(request)
         contest_person = (ContestPerson.objects.filter(contest=contest, id=user_id)
                           .prefetch_related("contest_person_points").first())
