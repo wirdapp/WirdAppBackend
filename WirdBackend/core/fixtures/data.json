@@ -1,0 +1,264 @@
+[
+  {
+
+    "model": "core.Contest",
+    "pk": 1,
+    "fields": {
+      "contest_id": "Contest1",
+      "name": "Test Contest1",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
+      "start_date": "2023-05-10",
+      "end_date": "2050-10-10"
+    }
+  },
+  {
+    "model": "core.Contest",
+    "pk": 2,
+     "fields": {
+       "contest_id": "Contest2",
+       "name": "Test Contest2",
+       "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
+       "start_date": "2022-05-10",
+       "end_date": "2050-10-10"
+     }
+  },
+  {
+    "pk": 3,
+    "model": "core.Contest",
+     "fields": {
+       "contest_id": "Contest3",
+       "name": "Test Contest3",
+       "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
+       "start_date": "2021-05-10",
+       "end_date": "2050-10-10"
+     }
+  },
+
+
+
+  {
+    "model": "admin_panel.Group",
+    "pk": 1,
+    "fields": {
+      "name": "Group1",
+      "announcements": [],
+      "contest": 1
+    }
+  },
+  {
+    "model": "admin_panel.Group",
+    "pk": 2,
+    "fields": {
+      "name": "Group2",
+      "announcements": [],
+      "contest": 2
+    }
+  },
+  {
+    "model": "admin_panel.Group",
+    "pk": 2,
+    "fields": {
+      "name": "Group3",
+      "announcements": [],
+      "contest": 3
+    }
+  },
+
+
+  {
+    "model": "core.Person",
+    "pk": 1,
+    "fields": {
+      "username": "user1",
+      "first_name": "Ahmad",
+      "phone_number": "000001",
+      "is_active": true
+    }
+  },
+  {
+    "model": "core.Person",
+    "pk": 2,
+    "fields": {
+      "username": "user2",
+      "first_name": "Khalid",
+      "phone_number": "000002",
+      "is_active": true
+    }
+  },
+  {
+    "model": "core.Person",
+    "pk": 3,
+    "fields": {
+      "username": "user3",
+      "first_name": "Jamal",
+      "phone_number": "000003",
+      "is_active": true
+    }
+  },
+
+
+  {
+    "model": "core.ContestPerson",
+    "pk": 1,
+    "fields": {
+      "contest": 1,
+      "person": 1,
+      "contest_role": 2
+    }
+  },
+  {
+    "model": "core.ContestPerson",
+    "pk": 2,
+    "fields": {
+      "contest": 2,
+      "person": 2,
+      "contest_role": 2
+    }
+  },
+  {
+    "model": "core.ContestPerson",
+    "pk": 3,
+    "fields": {
+      "contest": 3,
+      "person": 3,
+      "contest_role": 2
+    }
+  },
+    {
+    "model": "core.ContestPerson",
+    "pk": 1,
+    "fields": {
+      "contest": 3,
+      "person": 1,
+      "contest_role": 3
+    }
+  },
+  {
+    "model": "core.ContestPerson",
+    "pk": 2,
+    "fields": {
+      "contest": 1,
+      "person": 2,
+      "contest_role": 3
+    }
+  },
+  {
+    "model": "core.ContestPerson",
+    "pk": 3,
+    "fields": {
+      "contest": 2,
+      "person": 3,
+      "contest_role": 3
+    }
+  },
+
+
+  {
+    "model": "admin_panel.Section",
+    "pk": 1,
+    "fields": {
+      "label": "Section 1",
+      "position": 1,
+      "contest": 1
+    }
+  },
+  {
+    "model": "admin_panel.Section",
+    "pk": 2,
+    "fields": {
+      "label": "Section 2",
+      "position": 2,
+      "contest": 2
+    }
+  },
+  {
+    "model": "admin_panel.Section",
+    "pk": 3,
+    "fields": {
+      "label": "Section 3",
+      "position": 3,
+      "contest": 3
+    }
+  },
+
+
+
+  {
+    "model": "admin_panel.contestcriterion",
+    "pk": 1,
+    "fields": {
+      "polymorphic_ctype": [
+        "admin_panel",
+        "numbercriterion"
+      ],
+      "label": "Range1",
+      "description": "Range1",
+      "order_in_section": 1,
+      "visible": true,
+      "activate_on_datetime": "[\"{\\\"bounds\\\": \\\"[)\\\", \\\"lower\\\": \\\"2021-10-10T00:00:00+00:00\\\", \\\"upper\\\": \\\"2024-10-10T00:00:00+00:00\\\"}\"]",
+      "contest": 1,
+      "section": 1,
+      "points": 3
+    }
+  },
+  {
+    "model": "admin_panel.numbercriterion",
+    "pk": 1,
+    "fields": {
+      "lower_bound": 2,
+      "upper_bound": 5
+    }
+  },
+    {
+    "model": "admin_panel.contestcriterion",
+    "pk": 2,
+    "fields": {
+      "polymorphic_ctype": [
+        "admin_panel",
+        "numbercriterion"
+      ],
+      "label": "Range2",
+      "description": "Range2",
+      "order_in_section": 1,
+      "visible": true,
+      "activate_on_datetime": "[\"{\\\"bounds\\\": \\\"[)\\\", \\\"lower\\\": \\\"2021-10-10T00:00:00+00:00\\\", \\\"upper\\\": \\\"2024-10-10T00:00:00+00:00\\\"}\"]",
+      "contest": 2,
+      "section": 2,
+      "points": 3
+    }
+  },
+  {
+    "model": "admin_panel.numbercriterion",
+    "pk": 2,
+    "fields": {
+      "lower_bound": 2,
+      "upper_bound": 5
+    }
+  },
+    {
+    "model": "admin_panel.contestcriterion",
+    "pk": 3,
+    "fields": {
+      "polymorphic_ctype": [
+        "admin_panel",
+        "numbercriterion"
+      ],
+      "label": "Range3",
+      "description": "Range3",
+      "order_in_section": 1,
+      "visible": true,
+      "activate_on_datetime": "[\"{\\\"bounds\\\": \\\"[)\\\", \\\"lower\\\": \\\"2021-10-10T00:00:00+00:00\\\", \\\"upper\\\": \\\"2024-10-10T00:00:00+00:00\\\"}\"]",
+      "contest": 3,
+      "section": 3,
+      "points": 3
+    }
+  },
+  {
+    "model": "admin_panel.numbercriterion",
+    "pk": 3,
+    "fields": {
+      "lower_bound": 2,
+      "upper_bound": 5
+    }
+  }
+]
