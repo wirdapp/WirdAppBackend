@@ -17,19 +17,6 @@ from core.util_methods import get_dates_between_two_dates
 from member_panel.models import PointRecord
 
 
-def get_points_by_date(contest_person, dates):
-    points_by_date = dict(contest_person.contest_person_points
-                          .values('record_date')
-                          .annotate(points=Sum('point_total'))
-                          .order_by('-record_date')
-                          .values_list('record_date', "points"))
-
-    scores = [{"index": j, "date": date.strftime("%Y-%m-%d"),
-               "points": points_by_date.get(date, 0)}
-              for j, date in enumerate(dates, start=1)]
-    return scores
-
-
 class Leaderboard(APIView):
     permission_classes = [IsContestAdmin]
 
@@ -92,8 +79,24 @@ class ContestOverallResultsView(APIView):
 class UserResultsView(APIView):
     permission_classes = [IsContestAdmin]
 
+    def get_user_id(self, request, **kwargs):
+        return kwargs["user_id"]
+
+    @staticmethod
+    def get_points_by_date(contest_person, dates):
+        points_by_date = dict(contest_person.contest_person_points
+                              .values('record_date')
+                              .annotate(points=Sum('point_total'))
+                              .order_by('-record_date')
+                              .values_list('record_date', "points"))
+
+        scores = [{"index": j, "date": date.strftime("%Y-%m-%d"),
+                   "points": points_by_date.get(date, 0)}
+                  for j, date in enumerate(dates, start=1)]
+        return scores
+
     def get(self, request, *args, **kwargs):
-        user_id = kwargs["user_id"]
+        user_id = self.get_user_id(request, **kwargs)
         contest = util_methods.get_current_contest(request)
         contest_person = (ContestPerson.objects.filter(contest=contest, id=user_id)
                           .prefetch_related("contest_person_points").first())
@@ -104,7 +107,7 @@ class UserResultsView(APIView):
                   .annotate(point_total=Sum("point_total"))
                   .values('contest_criterion__id', 'contest_criterion__label', 'point_total'))
         dates = get_dates_between_two_dates(contest.start_date, min(datetime.date.today(), contest.end_date))
-        days = get_points_by_date(contest_person, dates)
+        days = self.get_points_by_date(contest_person, dates)
         result = dict(person_data=person_data, total_points=total_points, days=days, scores=scores)
         return Response(result)
 

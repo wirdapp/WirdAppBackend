@@ -1,5 +1,9 @@
-from rest_framework import viewsets
+from gettext import gettext
 
+from rest_framework import viewsets
+from rest_framework.response import Response
+
+from admin_panel import member_views as admin_member_views
 from admin_panel.models import ContestCriterion, Section
 from admin_panel.serializers import ContestPolymorphicCriterionSerializer, SectionSerializer
 from core import util_methods
@@ -36,3 +40,21 @@ class ContestSectionsViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         contest = util_methods.get_current_contest(self.request)
         return Section.objects.filter(contest=contest)
+
+
+class UserResultsView(admin_member_views.UserResultsView):
+    permission_classes = [IsContestMember]
+
+    def get_user_id(self, request, **kwargs):
+        return util_methods.get_current_contest_person(request).id
+
+
+class Leaderboard(admin_member_views.Leaderboard):
+    permission_classes = [IsContestMember]
+
+    def get(self, request, *args, **kwargs):
+        contest = util_methods.get_current_contest(request)
+        if contest.show_standings:
+            return super(Leaderboard, self).get(request, *args, **kwargs)
+        else:
+            return Response(gettext("leaderboard is not available now"), 403)
