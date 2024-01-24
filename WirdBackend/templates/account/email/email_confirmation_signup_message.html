@@ -1,105 +1,292 @@
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}">
+
+<html lang="{{ LANGUAGE_CODE }}" xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:v="urn:schemas-microsoft-com:vml">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans "all_auth_email_html_title" %}</title>
+    <title></title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <!--[if mso]>
+    <xml>
+        <o:OfficeDocumentSettings>
+            <o:PixelsPerInch>96</o:PixelsPerInch>
+            <o:AllowPNG/>
+        </o:OfficeDocumentSettings>
+    </xml><![endif]--><!--[if !mso]><!-->
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@100;200;300;400;500;600;700;800;900"
+          rel="stylesheet" type="text/css"/><!--<![endif]-->
     <style>
+        * {
+            box-sizing: border-box;
+        {% if LANGUAGE_CODE == "ar" %}
+            direction: rtl;
+        {% endif %}
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #ffe7ea;
             margin: 0;
             padding: 0;
         }
 
-        .container {
-            max-width: 100%; /* Adjusted for better responsiveness */
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #ffffff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-            {% if LANGUAGE_CODE == "ar" %}
-                text-align: right;
-                direction: rtl;
-            {% else %}
-                text-align: left;
-            {% endif %}
+        a[x-apple-data-detectors] {
+            color: inherit !important;
+            text-decoration: inherit !important;
         }
 
-        .logo {
-            text-align: center;
-            margin-bottom: 20px;
+        #MessageViewBody a {
+            color: inherit;
+            text-decoration: none;
         }
 
-        .confirmation-text {
-            font-size: 18px;
-            margin-bottom: 20px;
-            color: #000; /* Adjusted for better readability */
+        p {
+            line-height: inherit
         }
 
-        .button {
-            display: inline-block; /* Adjusted for better inline display */
-            width: auto; /* Adjusted to let content dictate width */
-            background-color: #fdd561;
-            color: #ffffff;
-            padding: 10px 20px; /* Adjusted for better button appearance */
-            text-align: center;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 15px;
-            text-decoration: none; /* Adjusted to remove underlines */
+        .desktop_hide,
+        .desktop_hide table {
+            mso-hide: all;
+            display: none;
+            max-height: 0px;
+            overflow: hidden;
         }
 
-        .footer {
-            text-align: center;
-            margin-top: 20px; /* Adjusted for better spacing */
+        .image_block img + div {
+            display: none;
+        }
+
+        @media (max-width: 520px) {
+
+            .desktop_hide table.icons-inner,
+            .social_block.desktop_hide .social-table {
+                display: inline-block !important;
+            }
+
+            .icons-inner {
+                text-align: center;
+            }
+
+            .icons-inner td {
+                margin: 0 auto;
+            }
+
+            .mobile_hide {
+                display: none;
+            }
+
+            .row-content {
+                width: 100% !important;
+            }
+
+            .stack .column {
+                width: 100%;
+                display: block;
+            }
+
+            .mobile_hide {
+                min-height: 0;
+                max-height: 0;
+                max-width: 0;
+                overflow: hidden;
+                font-size: 0px;
+            }
+
+            .desktop_hide,
+            .desktop_hide table {
+                display: table !important;
+                max-height: none !important;
+            }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="logo">
-            <img height="75" src="https://www.wird.app/wirdLogo.svg" alt="Wird App Logo">
-        </div>
-        <div class="content">
-            <p class="confirmation-text"> {% trans "all_auth_email_html_salam_alaikum" %} {{ user }}</p>
-            <p class="confirmation-text">{% trans "all_auth_email_html_thank_you_text" %}</p>
-            <p class="confirmation-text" style="color: #ff5367;">{% trans "all_auth_email_html_complete_reg_text" %}</p>
-            <a class="button" href="https://wird.app/user/email-confirm?key={{ key }}">
-                {% trans "all_auth_email_html_confirm_email_btn" %}
-            </a>
-            <p>{% trans "all_auth_email_html_ignore_email_text" %}</p>
-        </div>
-
-        <br>
-        <br>
-        <div class="footer">
-            <p class="confirmation-text">{% trans "all_auth_email_html_follow_us" %}</p>
-            <p>
-                <a href="https://www.facebook.com/Wird.Competition">
-                    <img height="35" style="padding: 0 3px;" src="https://www.wird.app/FBLogo.svg"
-                        alt="Facebook Logo">
-                </a>
-                <a href="https://wa.me/YOUR_WHATSAPP_CONTACT_NUMBER">
-                    <img height="35" style="padding: 0 3px;" src="https://www.wird.app/WhatsappLogo.svg"
-                        alt="Whats App">
-                </a>
-                <a href="https://wa.me/YOUR_WHATSAPP_CONTACT_NUMBER">
-                    <img height="35" style="padding: 0 3px;" src="https://www.wird.app/YoutubeLogo.svg"
-                        alt="Youtube">
-                </a>
-            </p>
-            <p class="confirmation-text">
-                {% trans "all_auth_email_html_visit_wird_app" %}
-                <a href="https://wird.app">
-                    {% trans "all_auth_email_html_wird_app_link" %}
-                </a>
-            </p>
-            <p></p>
-        </div>
-    </div>
+<body style="background-color: #FFFFFF; margin: 0; padding: 0; -webkit-text-size-adjust: none; text-size-adjust: none;">
+<table border="0" cellpadding="0" cellspacing="0" class="nl-container" role="presentation"
+       style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #FFFFFF;" width="100%">
+    <tbody>
+    <tr>
+        <td>
+            <table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-1" role="presentation"
+                   style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
+                <tbody>
+                <tr>
+                    <td>
+                        <table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content stack"
+                               role="presentation"
+                               style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-bottom: 15px solid #F87122; border-top: 15px solid #FF5367; color: #000000; width: 500.00px; margin: 0 auto;"
+                               width="500.00">
+                            <tbody>
+                            <tr>
+                                <td class="column column-1"
+                                    style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;"
+                                    width="100%">
+                                    <table border="0" cellpadding="0" cellspacing="0" class="image_block block-1"
+                                           role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;"
+                                           width="100%">
+                                        <tr>
+                                            <td class="pad" style="width:100%;padding-right:0px;padding-left:0px;">
+                                                <div align="center" class="alignment" style="line-height:10px">
+                                                    <div style="max-width: 100px;"><a
+                                                            href="https://www.wird.app"
+                                                            style="outline:none" tabindex="-1" target="_blank"><img
+                                                            alt="wird logo" src="https://wird.app/wirdLogo.svg"
+                                                            style="display: block; height: auto; border: 0; width: 100%;"
+                                                            title="wird logo" width="100"/></a></div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <div class="spacer_block block-2"
+                                         style="height:25px;line-height:25px;font-size:1px;"> 
+                                    </div>
+                                    <table border="0" cellpadding="10" cellspacing="0" class="paragraph_block block-3"
+                                           role="presentation"
+                                           style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;"
+                                           width="100%">
+                                        <tr>
+                                            <td class="pad">
+                                                <div style="color:#101112;direction:ltr;font-family:'Merriweather', 'Georgia', serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:center;mso-line-height-alt:19.2px;">
+                                                    <p style="margin: 0;">{% trans "all_auth_email_html_salam_alaikum" %} {{ user }}</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table border="0" cellpadding="10" cellspacing="0" class="paragraph_block block-3"
+                                           role="presentation"
+                                           style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;"
+                                           width="100%">
+                                        <tr>
+                                            <td class="pad">
+                                                <div style="color:#101112;direction:ltr;font-family:'Merriweather', 'Georgia', serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:center;mso-line-height-alt:19.2px;">
+                                                    <p style="margin: 0;">{% trans "all_auth_email_html_thank_you_text" %}</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table border="0" cellpadding="10" cellspacing="0" class="paragraph_block block-4"
+                                           role="presentation"
+                                           style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;"
+                                           width="100%">
+                                        <tr>
+                                            <td class="pad">
+                                                <div style="color:#101112;direction:ltr;font-family:'Merriweather', 'Georgia', serif;font-size:18px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:center;mso-line-height-alt:21.599999999999998px;">
+                                                    <p style="margin: 0;">{% trans "all_auth_email_html_complete_reg_text" %}</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table class="button_block block-5" width="100%" border="0" cellpadding="10"
+                                           cellspacing="0" role="presentation"
+                                           style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                                        <tr>
+                                            <td class="pad">
+                                                <div class="alignment" align="center"><!--[if mso]>
+                                                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml"
+                                                                 xmlns:w="urn:schemas-microsoft-com:office:word"
+                                                                 href="wird.app"
+                                                                 style="height:42px;width:86px;v-text-anchor:middle;"
+                                                                 arcsize="10%" stroke="false" fillcolor="#ff627b">
+                                                        <w:anchorlock/>
+                                                        <v:textbox inset="0px,0px,0px,0px">
+                                                            <center style="color:#ffffff; font-family:Arial, sans-serif; font-size:16px">
+                                                    <![endif]--><a
+                                                            href="https://wird.app/user/email-confirm?key={{ key }}"
+                                                            target="_blank"
+                                                            style="text-decoration:none;display:inline-block;color:#ffffff;background-color:#ff627b;border-radius:4px;width:auto;border-top:0px solid transparent;font-weight:400;border-right:0px solid transparent;border-bottom:0px solid transparent;border-left:0px solid transparent;padding-top:5px;padding-bottom:5px;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;font-size:16px;text-align:center;mso-border-alt:none;word-break:keep-all;"><span
+                                                            style="padding-left:20px;padding-right:20px;font-size:16px;display:inline-block;letter-spacing:normal;"><span
+                                                            style="word-break: break-word; line-height: 32px;">{% trans "all_auth_email_html_confirm_email_btn" %}</span></span></a>
+                                                    <!--[if mso]></center></v:textbox></v:roundrect><![endif]--></div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table border="0" cellpadding="10" cellspacing="0" class="paragraph_block block-6"
+                                           role="presentation"
+                                           style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;"
+                                           width="100%">
+                                        <tr>
+                                            <td class="pad">
+                                                <div style="color:#101112;direction:ltr;font-family:'Merriweather', 'Georgia', serif;font-size:12px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:center;mso-line-height-alt:19.2px;">
+                                                    <p style="margin: 0;">{% trans "all_auth_email_html_ignore_email_text" %}</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table border="0" cellpadding="10" cellspacing="0" class="paragraph_block block-7"
+                                           role="presentation"
+                                           style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;"
+                                           width="100%">
+                                        <tr>
+                                            <td class="pad">
+                                                <div style="color:#101112;direction:ltr;font-family:'Merriweather', 'Georgia', serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:center;mso-line-height-alt:19.2px;">
+                                                    <p style="margin: 0;">{% trans "all_auth_email_html_follow_us" %}</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table border="0" cellpadding="10" cellspacing="0" class="social_block block-8"
+                                           role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;"
+                                           width="100%">
+                                        <tr>
+                                            <td class="pad">
+                                                <div align="center" class="alignment">
+                                                    <table border="0" cellpadding="0" cellspacing="0"
+                                                           class="social-table" role="presentation"
+                                                           style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block;"
+                                                           width="126px">
+                                                        <tr>
+                                                            <td style="padding:0 5px 0 5px;"><a
+                                                                    href="https://www.facebook.com/Wird.Competition"
+                                                                    target="_blank"><img alt="Facebook" height="32"
+                                                                                         src="https://wird.app/facebook2x.png"
+                                                                                         style="display: block; height: auto; border: 0;"
+                                                                                         title="facebook"
+                                                                                         width="32"/></a></td>
+                                                            <td style="padding:0 5px 0 5px;"><a
+                                                                    href="https://www.whatsapp.com" target="_blank"><img
+                                                                    alt="WhatsApp" height="32"
+                                                                    src="https://wird.app/whatsapp2x.png"
+                                                                    style="display: block; height: auto; border: 0;"
+                                                                    title="WhatsApp" width="32"/></a></td>
+                                                            <td style="padding:0 5px 0 5px;"><a
+                                                                    href="https://www.youtube.com/" target="_blank"><img
+                                                                    alt="YouTube" height="32"
+                                                                    src="https://wird.app/youtube2x.png"
+                                                                    style="display: block; height: auto; border: 0;"
+                                                                    title="YouTube" width="32"/></a></td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table border="0" cellpadding="10" cellspacing="0" class="paragraph_block block-9"
+                                           role="presentation"
+                                           style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;"
+                                           width="100%">
+                                        <tr>
+                                            <td class="pad">
+                                                <div style="color:#101112;direction:ltr;font-family:'Merriweather', 'Georgia', serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:center;mso-line-height-alt:19.2px;">
+                                                    <p style="margin: 0;">
+                                                        {% trans "all_auth_email_html_visit_wird_app" %}
+                                                        <a href="https://wird.app">
+                                                            {% trans "all_auth_email_html_wird_app_link" %}
+                                                        </a>
+                                                    </p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </td>
+    </tr>
+    </tbody>
+</table><!-- End -->
 </body>
 </html>
