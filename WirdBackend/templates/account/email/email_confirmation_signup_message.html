@@ -9,24 +9,24 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #ffe7ea; /* rgb(255, 231, 234) */
+            background-color: #ffe7ea;
             margin: 0;
             padding: 0;
         }
 
         .container {
-            max-width: 600px;
+            max-width: 100%; /* Adjusted for better responsiveness */
             margin: 0 auto;
             padding: 20px;
             background-color: #ffffff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin-top: 20px;
-        {% if LANGUAGE_CODE == "ar" %}
-            text-align: right;
-            direction: rtl;
-        {% else %}
-            text-align: left;
-        {% endif %}
+            {% if LANGUAGE_CODE == "ar" %}
+                text-align: right;
+                direction: rtl;
+            {% else %}
+                text-align: left;
+            {% endif %}
         }
 
         .logo {
@@ -37,68 +37,69 @@
         .confirmation-text {
             font-size: 18px;
             margin-bottom: 20px;
+            color: #000; /* Adjusted for better readability */
         }
 
         .button {
-            display: block;
-            width: 180px;
-            height: 25px;
-            background-color: #fdd561; /* rgb(253, 213, 97) */
+            display: inline-block; /* Adjusted for better inline display */
+            width: auto; /* Adjusted to let content dictate width */
+            background-color: #fdd561;
             color: #ffffff;
-            padding: 10px;
+            padding: 10px 20px; /* Adjusted for better button appearance */
             text-align: center;
             border-radius: 5px;
             font-weight: bold;
-            line-height: 25px;
             font-size: 15px;
+            text-decoration: none; /* Adjusted to remove underlines */
         }
 
         .footer {
             text-align: center;
+            margin-top: 20px; /* Adjusted for better spacing */
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="logo">
-        <img height="75" src="https://www.wird.app/wirdLogo.svg" alt="Wird App Logo">
-    </div>
-    <div class="content">
-        <p class="confirmation-text"> {% trans "all_auth_email_html_salam_alaikum" %} {{ user }}</p>
-        <p class="confirmation-text">{% trans "all_auth_email_html_thank_you_text" %}</p>
-        <p class="confirmation-text" style="color: #ff5367;">{% trans "all_auth_email_html_complete_reg_text" %}</p>
-        <a class="button" href="https://wird.app/user/email-confirm?key={{ key }}">
-            {% trans "all_auth_email_html_confirm_email_btn" %}
-        </a>
-        <p>{% trans "all_auth_email_html_ignore_email_text" %}</p>
-    </div>
+    <div class="container">
+        <div class="logo">
+            <img height="75" src="https://www.wird.app/wirdLogo.svg" alt="Wird App Logo">
+        </div>
+        <div class="content">
+            <p class="confirmation-text"> {% trans "all_auth_email_html_salam_alaikum" %} {{ user }}</p>
+            <p class="confirmation-text">{% trans "all_auth_email_html_thank_you_text" %}</p>
+            <p class="confirmation-text" style="color: #ff5367;">{% trans "all_auth_email_html_complete_reg_text" %}</p>
+            <a class="button" href="https://wird.app/user/email-confirm?key={{ key }}">
+                {% trans "all_auth_email_html_confirm_email_btn" %}
+            </a>
+            <p>{% trans "all_auth_email_html_ignore_email_text" %}</p>
+        </div>
 
-    <br>
-    <br>
-    <div class="footer">
-        <p class="confirmation-text">{% trans "all_auth_email_html_follow_us" %}</p>
-        <p>
-            <a href="https://www.facebook.com/Wird.Competition">
-                <img height="35" style="padding-right: 3px; padding-left: 3px;" src="https://www.wird.app/FBLogo.svg"
-                     alt="Facebook Logo">
-            </a>
-            <a href="https://wa.me/YOUR_WHATSAPP_CONTACT_NUMBER">
-                <img height="35" style="padding-right: 3px; padding-left: 3px;" src="https://www.wird.app/WhatsappLogo.svg"
-                     alt="Whats App">
-            </a>
-            <a href="https://wa.me/YOUR_WHATSAPP_CONTACT_NUMBER">
-                <img height="35" style="padding-right: 3px; padding-left: 3px;" src="https://www.wird.app/YoutubeLogo.svg"
-                     alt="Youtube">
-            </a>
-        </p>
-        <p class="confirmation-text">
-            {% trans "all_auth_email_html_visit_wird_app" %}
-            <a href="https://wird.app">
-                {% trans "all_auth_email_html_wird_app_link" %}
-            </a>
-        </p>
-        <p></p>
+        <br>
+        <br>
+        <div class="footer">
+            <p class="confirmation-text">{% trans "all_auth_email_html_follow_us" %}</p>
+            <p>
+                <a href="https://www.facebook.com/Wird.Competition">
+                    <img height="35" style="padding: 0 3px;" src="https://www.wird.app/FBLogo.svg"
+                        alt="Facebook Logo">
+                </a>
+                <a href="https://wa.me/YOUR_WHATSAPP_CONTACT_NUMBER">
+                    <img height="35" style="padding: 0 3px;" src="https://www.wird.app/WhatsappLogo.svg"
+                        alt="Whats App">
+                </a>
+                <a href="https://wa.me/YOUR_WHATSAPP_CONTACT_NUMBER">
+                    <img height="35" style="padding: 0 3px;" src="https://www.wird.app/YoutubeLogo.svg"
+                        alt="Youtube">
+                </a>
+            </p>
+            <p class="confirmation-text">
+                {% trans "all_auth_email_html_visit_wird_app" %}
+                <a href="https://wird.app">
+                    {% trans "all_auth_email_html_wird_app_link" %}
+                </a>
+            </p>
+            <p></p>
+        </div>
     </div>
-</div>
 </body>
 </html>
