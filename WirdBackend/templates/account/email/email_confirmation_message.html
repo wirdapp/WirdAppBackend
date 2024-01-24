@@ -21,27 +21,27 @@
             background-color: #ffffff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin-top: 20px;
+        {% if LANGUAGE_CODE == "ar" %}
+            text-align: right;
+            direction: rtl;
+        {% else %}
+            text-align: left;
+        {% endif %}
         }
 
         .logo {
             text-align: center;
             margin-bottom: 20px;
-            background-color: #fdd561;
-        }
-
-        .content {
-            text-align: left;
         }
 
         .confirmation-text {
             font-size: 18px;
             margin-bottom: 20px;
-            color: #ff5367; /* rgb(255, 83, 103) */
         }
 
         .button {
             display: block;
-            width: 150px;
+            width: 180px;
             height: 25px;
             background-color: #fdd561; /* rgb(253, 213, 97) */
             color: #ffffff;
@@ -50,17 +50,23 @@
             border-radius: 5px;
             font-weight: bold;
             line-height: 25px;
+            font-size: 15px;
+        }
+
+        .footer {
+            text-align: center;
         }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="logo">
-        <img src="https://www.wird.app/wirdLogo.svg" alt="Wird App Logo">
+        <img height="75" src="https://www.wird.app/wirdLogo.svg" alt="Wird App Logo">
     </div>
     <div class="content">
+        <p class="confirmation-text"> {% trans "all_auth_email_html_salam_alaikum" %} {{ user }}</p>
         <p class="confirmation-text">{% trans "all_auth_email_html_thank_you_text" %}</p>
-        <p class="confirmation-text">{% trans "all_auth_email_html_complete_reg_text" %}</p>
+        <p class="confirmation-text" style="color: #ff5367;">{% trans "all_auth_email_html_complete_reg_text" %}</p>
         <a class="button" href="https://wird.app/user/email-confirm?key={{ key }}">
             {% trans "all_auth_email_html_confirm_email_btn" %}
         </a>
@@ -70,23 +76,26 @@
     <br>
     <br>
     <div class="footer">
-        <p>{% trans "Follow us on social media:" %}</p>
+        <p class="confirmation-text">{% trans "all_auth_email_html_follow_us" %}</p>
         <p>
-            <img height="35" style="vertical-align:middle" src="https://www.wird.app/FBLogo.svg" alt="Facebook Logo">
             <a href="https://www.facebook.com/Wird.Competition">
-                Our Page on Facebook
+                <img height="35" style="padding-right: 3px; padding-left: 3px;" src="https://www.wird.app/FBLogo.svg"
+                     alt="Facebook Logo">
             </a>
-        </p>
-        <p>
-            <img height="35" style="vertical-align:middle" src="https://www.wird.app/WhatsappLogo.svg"
-                 alt="WhatsApp Logo">
             <a href="https://wa.me/YOUR_WHATSAPP_CONTACT_NUMBER">
-                Contact Us via WhatsApp
+                <img height="35" style="padding-right: 3px; padding-left: 3px;" src="https://www.wird.app/WhatsappLogo.svg"
+                     alt="Whats App">
+            </a>
+            <a href="https://wa.me/YOUR_WHATSAPP_CONTACT_NUMBER">
+                <img height="35" style="padding-right: 3px; padding-left: 3px;" src="https://www.wird.app/YoutubeLogo.svg"
+                     alt="Youtube">
             </a>
         </p>
-        <p>
-            {% trans "all_auth_email_html_visit_our_website" %}
-            <a href="https://wird.app"> Wird App</a>
+        <p class="confirmation-text">
+            {% trans "all_auth_email_html_visit_wird_app" %}
+            <a href="https://wird.app">
+                {% trans "all_auth_email_html_wird_app_link" %}
+            </a>
         </p>
         <p></p>
     </div>

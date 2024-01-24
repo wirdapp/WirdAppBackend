@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-23 17:26-0600\n"
+"POT-Creation-Date: 2024-01-23 21:34-0600\n"
 "PO-Revision-Date: 2021-11-24 16:27+0000\n"
 "Last-Translator: Mariusz Felisiak <felisiak.mariusz@gmail.com>\n"
 "Language-Team: Arabic (http://www.transifex.com/django/django/language/ar/)\n"
@@ -112,38 +112,49 @@ msgstr ""
 #: templates/account/email/email_confirmation_message.html:8
 #: templates/account/email/email_confirmation_signup_message.html:8
 msgid "all_auth_email_html_title"
-msgstr "تطبيق وِرد - تأكيد التسجيل"
+msgstr "منصة وِرد - تأكيد التسجيل"
 
-#: templates/account/email/email_confirmation_message.html:62
-#: templates/account/email/email_confirmation_signup_message.html:62
+#: templates/account/email/email_confirmation_message.html:67
+#: templates/account/email/email_confirmation_signup_message.html:67
+msgid "all_auth_email_html_salam_alaikum"
+msgstr "السلام عليكم"
+
+#: templates/account/email/email_confirmation_message.html:68
+#: templates/account/email/email_confirmation_signup_message.html:68
 msgid "all_auth_email_html_thank_you_text"
-msgstr "شكرا لتسجيلك في موقع وٍرد"
+msgstr "شكرا لتسجيلك في منصة وِرد غير الربحية"
 
-#: templates/account/email/email_confirmation_message.html:63
-#: templates/account/email/email_confirmation_signup_message.html:63
+#: templates/account/email/email_confirmation_message.html:69
+#: templates/account/email/email_confirmation_signup_message.html:69
 msgid "all_auth_email_html_complete_reg_text"
 msgstr "لإكمال إجراءات تسجيلك في موقع وِرد ، قم بالضعط على المفتاح أدناه"
 
 # HTML all_auth emails
-#: templates/account/email/email_confirmation_message.html:65
-#: templates/account/email/email_confirmation_signup_message.html:65
+#: templates/account/email/email_confirmation_message.html:71
+#: templates/account/email/email_confirmation_signup_message.html:71
 msgid "all_auth_email_html_confirm_email_btn"
 msgstr "تأكيد الحساب"
 
-#: templates/account/email/email_confirmation_message.html:67
-#: templates/account/email/email_confirmation_signup_message.html:67
+#: templates/account/email/email_confirmation_message.html:73
+#: templates/account/email/email_confirmation_signup_message.html:73
 msgid "all_auth_email_html_ignore_email_text"
 msgstr "إذا لم تقم بالتسجيل في موقع وِرد ، يمكنك تجاهل هذا البريد الإكتروني"
 
-#: templates/account/email/email_confirmation_message.html:73
-#: templates/account/email/email_confirmation_signup_message.html:73
-msgid "Follow us on social media:"
+#: templates/account/email/email_confirmation_message.html:79
+#: templates/account/email/email_confirmation_signup_message.html:79
+msgid "all_auth_email_html_follow_us"
 msgstr ""
+"للمساعدة الفنية أو لأي سؤال تستطيع التواصل معنا على وسائل التواصل الاجتماعي"
 
-#: templates/account/email/email_confirmation_message.html:88
-#: templates/account/email/email_confirmation_signup_message.html:88
-msgid "all_auth_email_html_visit_our_website"
-msgstr "تفضل بزيارة موقعنا على الرابط التالي: "
+#: templates/account/email/email_confirmation_message.html:95
+#: templates/account/email/email_confirmation_signup_message.html:95
+msgid "all_auth_email_html_visit_wird_app"
+msgstr "أو تفضل بزيارة موقعنا على الرابط التالي: "
+
+#: templates/account/email/email_confirmation_message.html:97
+#: templates/account/email/email_confirmation_signup_message.html:97
+msgid "all_auth_email_html_wird_app_link"
+msgstr "موقع منصة وِرد"
 
 #: venv/lib/python3.9/site-packages/cachalot/panels.py:67
 #, python-format
@@ -1567,6 +1578,26 @@ msgstr ""
 #: venv/lib/python3.9/site-packages/timezone_field/rest_framework.py:10
 msgid "A valid timezone is required."
 msgstr ""
+
+#, fuzzy
+#~| msgid "all_auth_email_html_title"
+#~ msgid "all_auth_email_html_text_align"
+#~ msgstr "منصة وِرد - تأكيد التسجيل"
+
+#, fuzzy
+#~| msgid "all_auth_email_html_title"
+#~ msgid "all_auth_email_html_direction"
+#~ msgstr "منصة وِرد - تأكيد التسجيل"
+
+#, fuzzy
+#~| msgid "all_auth_email_html_title"
+#~ msgid "all_auth_email_html_contact_us_facebook"
+#~ msgstr "منصة وِرد - تأكيد التسجيل"
+
+#, fuzzy
+#~| msgid "all_auth_email_html_thank_you_text"
+#~ msgid "all_auth_email_html_contact_us_whatsapp"
+#~ msgstr "شكرا لتسجيلك في منصة وٍِرد غير الربحية"
 
 # ######
 #~ msgid "upper_point>lower_point validation"

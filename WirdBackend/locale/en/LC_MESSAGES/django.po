@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Django\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-23 17:26-0600\n"
+"POT-Creation-Date: 2024-01-23 21:34-0600\n"
 "PO-Revision-Date: 2010-05-13 15:35+0200\n"
 "Last-Translator: Django team\n"
 "Language-Team: English <en@li.org>\n"
@@ -111,36 +111,46 @@ msgstr ""
 msgid "all_auth_email_html_title"
 msgstr "Wird App - Signup Confirmation"
 
-#: templates/account/email/email_confirmation_message.html:62
-#: templates/account/email/email_confirmation_signup_message.html:62
-msgid "all_auth_email_html_thank_you_text"
-msgstr "Thank you for signing up with Wird Platform!"
+#: templates/account/email/email_confirmation_message.html:67
+#: templates/account/email/email_confirmation_signup_message.html:67
+msgid "all_auth_email_html_salam_alaikum"
+msgstr "As Salam Alaikum"
 
-#: templates/account/email/email_confirmation_message.html:63
-#: templates/account/email/email_confirmation_signup_message.html:63
+#: templates/account/email/email_confirmation_message.html:68
+#: templates/account/email/email_confirmation_signup_message.html:68
+msgid "all_auth_email_html_thank_you_text"
+msgstr "Thank you for signing up with our non-profit platform, Wird!"
+
+#: templates/account/email/email_confirmation_message.html:69
+#: templates/account/email/email_confirmation_signup_message.html:69
 msgid "all_auth_email_html_complete_reg_text"
 msgstr "To complete your registration, please click the button below:"
 
 # HTML all_auth emails
-#: templates/account/email/email_confirmation_message.html:65
-#: templates/account/email/email_confirmation_signup_message.html:65
+#: templates/account/email/email_confirmation_message.html:71
+#: templates/account/email/email_confirmation_signup_message.html:71
 msgid "all_auth_email_html_confirm_email_btn"
 msgstr "Confirm Your Email"
 
-#: templates/account/email/email_confirmation_message.html:67
-#: templates/account/email/email_confirmation_signup_message.html:67
+#: templates/account/email/email_confirmation_message.html:73
+#: templates/account/email/email_confirmation_signup_message.html:73
 msgid "all_auth_email_html_ignore_email_text"
 msgstr "If you didn't sign up for Wird App, you can safely ignore this email."
 
-#: templates/account/email/email_confirmation_message.html:73
-#: templates/account/email/email_confirmation_signup_message.html:73
-msgid "Follow us on social media:"
-msgstr ""
+#: templates/account/email/email_confirmation_message.html:79
+#: templates/account/email/email_confirmation_signup_message.html:79
+msgid "all_auth_email_html_follow_us"
+msgstr "For help or questions, please follow us on our social media platforms"
 
-#: templates/account/email/email_confirmation_message.html:88
-#: templates/account/email/email_confirmation_signup_message.html:88
-msgid "all_auth_email_html_visit_our_website"
-msgstr "Visit our website: "
+#: templates/account/email/email_confirmation_message.html:95
+#: templates/account/email/email_confirmation_signup_message.html:95
+msgid "all_auth_email_html_visit_wird_app"
+msgstr "Or Visit our website: "
+
+#: templates/account/email/email_confirmation_message.html:97
+#: templates/account/email/email_confirmation_signup_message.html:97
+msgid "all_auth_email_html_wird_app_link"
+msgstr "Wird Platform Website"
 
 #: venv/lib/python3.9/site-packages/cachalot/panels.py:67
 #, python-format
@@ -1504,6 +1514,26 @@ msgstr ""
 #: venv/lib/python3.9/site-packages/timezone_field/rest_framework.py:10
 msgid "A valid timezone is required."
 msgstr ""
+
+#, fuzzy
+#~| msgid "all_auth_email_html_title"
+#~ msgid "all_auth_email_html_text_align"
+#~ msgstr "Wird App - Signup Confirmation"
+
+#, fuzzy
+#~| msgid "all_auth_email_html_title"
+#~ msgid "all_auth_email_html_direction"
+#~ msgstr "Wird App - Signup Confirmation"
+
+#, fuzzy
+#~| msgid "all_auth_email_html_title"
+#~ msgid "all_auth_email_html_contact_us_facebook"
+#~ msgstr "Wird App - Signup Confirmation"
+
+#, fuzzy
+#~| msgid "all_auth_email_html_thank_you_text"
+#~ msgid "all_auth_email_html_contact_us_whatsapp"
+#~ msgstr "Thank you for signing up with our non-profit platform, Wird!"
 
 # ######
 #~ msgid "upper_point>lower_point validation"
