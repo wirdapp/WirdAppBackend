@@ -58,8 +58,8 @@ class ContestOverallResultsView(APIView):
                                  .values_list("record_date", "count"))
 
         aggregated_points = list(
-            PointRecord.objects.filter(person__in=members).values('record_date', "person")
-            .annotate(person_full_name=Concat('person__person__first_name', Value(' '), 'person__person__last_name'))
+            PointRecord.objects.filter(person__in=members)
+            .values('record_date', "person__id", "person__person__first_name", "person__person__last_name")
             .annotate(total_points=Sum('point_total')).order_by('record_date', '-total_points')
         )
 
@@ -67,10 +67,12 @@ class ContestOverallResultsView(APIView):
         for i, date in enumerate(dates, start=1):
             count = 0
             top_three_by_day = []
+            # TODO: Fix Logic
             while aggregated_points and date == aggregated_points[0]["record_date"] and count < 3:
                 entry = aggregated_points.pop(0)
                 top_three_by_day.append(
-                    dict(id=str(entry["person"]), name=entry["person_full_name"], points=entry["total_points"])
+                    dict(id=entry["person__id"], first_name=entry["person__person__first_name"],
+                         last_name=entry["person__person__last_name"], points=entry["total_points"])
                 )
                 count += 1
 
