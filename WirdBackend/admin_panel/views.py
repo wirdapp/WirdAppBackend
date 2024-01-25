@@ -77,7 +77,6 @@ class ContestPersonGroupView(viewsets.ModelViewSet):
 
 class ContestMembersView(CustomPermissionsMixin, viewsets.ModelViewSet):
     serializer_class = ContestPersonSerializer
-    pagination_class = MyPageNumberPagination
     admin_allowed_methods = ["list"]
     super_admin_allowed_methods = ["create", "update", "retrieve", "partial_update", "destroy"]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
