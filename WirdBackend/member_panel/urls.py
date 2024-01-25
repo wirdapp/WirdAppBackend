@@ -11,5 +11,5 @@ router.register(r'sections', views.ContestSectionsViewSet, basename='Sections')
 urlpatterns = [
     path('', include(router.urls)),
     path('results/', views.UserResultsView.as_view(), name=''),
-    path('leaderboard/', views.Leaderboard.as_view(), name='')
+    path('leaderboard/', views.Leaderboard.as_view(), name=''),
 ]
