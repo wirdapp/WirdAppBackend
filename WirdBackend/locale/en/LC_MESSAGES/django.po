@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Django\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-23 21:34-0600\n"
+"POT-Creation-Date: 2024-01-25 07:13-0600\n"
 "PO-Revision-Date: 2010-05-13 15:35+0200\n"
 "Last-Translator: Django team\n"
 "Language-Team: English <en@li.org>\n"
@@ -24,19 +24,19 @@ msgstr ""
 msgid "person is member of group"
 msgstr "User is already in this group!"
 
-#: admin_panel/serializers.py:83
+#: admin_panel/serializers.py:84
 msgid "you can't use this role of this user"
 msgstr ""
 
-#: admin_panel/serializers.py:115
+#: admin_panel/serializers.py:116
 msgid "member already in group"
 msgstr ""
 
-#: admin_panel/serializers.py:117
+#: admin_panel/serializers.py:118
 msgid "super admins and owners can't be added to a group"
 msgstr ""
 
-#: admin_panel/serializers.py:119
+#: admin_panel/serializers.py:120
 msgid "only super admins can assign group admin"
 msgstr ""
 
@@ -106,49 +106,48 @@ msgstr ""
 msgid "Choice entered is not valid"
 msgstr ""
 
-#: templates/account/email/email_confirmation_message.html:8
-#: templates/account/email/email_confirmation_signup_message.html:8
-msgid "all_auth_email_html_title"
-msgstr "Wird App - Signup Confirmation"
+#: member_panel/views.py:61
+msgid "leaderboard is not available now"
+msgstr ""
 
-#: templates/account/email/email_confirmation_message.html:67
-#: templates/account/email/email_confirmation_signup_message.html:67
+#: templates/account/email/email_confirmation_message.html:149
+#: templates/account/email/email_confirmation_signup_message.html:149
 msgid "all_auth_email_html_salam_alaikum"
 msgstr "As Salam Alaikum"
 
-#: templates/account/email/email_confirmation_message.html:68
-#: templates/account/email/email_confirmation_signup_message.html:68
+#: templates/account/email/email_confirmation_message.html:161
+#: templates/account/email/email_confirmation_signup_message.html:161
 msgid "all_auth_email_html_thank_you_text"
 msgstr "Thank you for signing up with our non-profit platform, Wird!"
 
-#: templates/account/email/email_confirmation_message.html:69
-#: templates/account/email/email_confirmation_signup_message.html:69
+#: templates/account/email/email_confirmation_message.html:173
+#: templates/account/email/email_confirmation_signup_message.html:173
 msgid "all_auth_email_html_complete_reg_text"
 msgstr "To complete your registration, please click the button below:"
 
 # HTML all_auth emails
-#: templates/account/email/email_confirmation_message.html:71
-#: templates/account/email/email_confirmation_signup_message.html:71
+#: templates/account/email/email_confirmation_message.html:197
+#: templates/account/email/email_confirmation_signup_message.html:197
 msgid "all_auth_email_html_confirm_email_btn"
 msgstr "Confirm Your Email"
 
-#: templates/account/email/email_confirmation_message.html:73
-#: templates/account/email/email_confirmation_signup_message.html:73
+#: templates/account/email/email_confirmation_message.html:209
+#: templates/account/email/email_confirmation_signup_message.html:209
 msgid "all_auth_email_html_ignore_email_text"
 msgstr "If you didn't sign up for Wird App, you can safely ignore this email."
 
-#: templates/account/email/email_confirmation_message.html:79
-#: templates/account/email/email_confirmation_signup_message.html:79
+#: templates/account/email/email_confirmation_message.html:221
+#: templates/account/email/email_confirmation_signup_message.html:221
 msgid "all_auth_email_html_follow_us"
 msgstr "For help or questions, please follow us on our social media platforms"
 
-#: templates/account/email/email_confirmation_message.html:95
-#: templates/account/email/email_confirmation_signup_message.html:95
+#: templates/account/email/email_confirmation_message.html:270
+#: templates/account/email/email_confirmation_signup_message.html:270
 msgid "all_auth_email_html_visit_wird_app"
 msgstr "Or Visit our website: "
 
-#: templates/account/email/email_confirmation_message.html:97
-#: templates/account/email/email_confirmation_signup_message.html:97
+#: templates/account/email/email_confirmation_message.html:272
+#: templates/account/email/email_confirmation_signup_message.html:272
 msgid "all_auth_email_html_wird_app_link"
 msgstr "Wird Platform Website"
 
@@ -1514,6 +1513,9 @@ msgstr ""
 #: venv/lib/python3.9/site-packages/timezone_field/rest_framework.py:10
 msgid "A valid timezone is required."
 msgstr ""
+
+#~ msgid "all_auth_email_html_title"
+#~ msgstr "Wird App - Signup Confirmation"
 
 #, fuzzy
 #~| msgid "all_auth_email_html_title"

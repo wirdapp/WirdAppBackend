@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-23 21:34-0600\n"
+"POT-Creation-Date: 2024-01-25 07:13-0600\n"
 "PO-Revision-Date: 2021-11-24 16:27+0000\n"
 "Last-Translator: Mariusz Felisiak <felisiak.mariusz@gmail.com>\n"
 "Language-Team: Arabic (http://www.transifex.com/django/django/language/ar/)\n"
@@ -25,19 +25,19 @@ msgstr ""
 msgid "person is member of group"
 msgstr "المستخدم عضو حالي في هذه المجموعة"
 
-#: admin_panel/serializers.py:83
+#: admin_panel/serializers.py:84
 msgid "you can't use this role of this user"
 msgstr ""
 
-#: admin_panel/serializers.py:115
+#: admin_panel/serializers.py:116
 msgid "member already in group"
 msgstr ""
 
-#: admin_panel/serializers.py:117
+#: admin_panel/serializers.py:118
 msgid "super admins and owners can't be added to a group"
 msgstr ""
 
-#: admin_panel/serializers.py:119
+#: admin_panel/serializers.py:120
 msgid "only super admins can assign group admin"
 msgstr ""
 
@@ -109,50 +109,49 @@ msgstr ""
 msgid "Choice entered is not valid"
 msgstr ""
 
-#: templates/account/email/email_confirmation_message.html:8
-#: templates/account/email/email_confirmation_signup_message.html:8
-msgid "all_auth_email_html_title"
-msgstr "منصة وِرد - تأكيد التسجيل"
+#: member_panel/views.py:61
+msgid "leaderboard is not available now"
+msgstr ""
 
-#: templates/account/email/email_confirmation_message.html:67
-#: templates/account/email/email_confirmation_signup_message.html:67
+#: templates/account/email/email_confirmation_message.html:149
+#: templates/account/email/email_confirmation_signup_message.html:149
 msgid "all_auth_email_html_salam_alaikum"
 msgstr "السلام عليكم"
 
-#: templates/account/email/email_confirmation_message.html:68
-#: templates/account/email/email_confirmation_signup_message.html:68
+#: templates/account/email/email_confirmation_message.html:161
+#: templates/account/email/email_confirmation_signup_message.html:161
 msgid "all_auth_email_html_thank_you_text"
 msgstr "شكرا لتسجيلك في منصة وِرد غير الربحية"
 
-#: templates/account/email/email_confirmation_message.html:69
-#: templates/account/email/email_confirmation_signup_message.html:69
+#: templates/account/email/email_confirmation_message.html:173
+#: templates/account/email/email_confirmation_signup_message.html:173
 msgid "all_auth_email_html_complete_reg_text"
-msgstr "لإكمال إجراءات تسجيلك في موقع وِرد ، قم بالضعط على المفتاح أدناه"
+msgstr "لإكمال إجراءات تسجيلك في موقع وِرد ، قم بالضغط على المفتاح أدناه"
 
 # HTML all_auth emails
-#: templates/account/email/email_confirmation_message.html:71
-#: templates/account/email/email_confirmation_signup_message.html:71
+#: templates/account/email/email_confirmation_message.html:197
+#: templates/account/email/email_confirmation_signup_message.html:197
 msgid "all_auth_email_html_confirm_email_btn"
 msgstr "تأكيد الحساب"
 
-#: templates/account/email/email_confirmation_message.html:73
-#: templates/account/email/email_confirmation_signup_message.html:73
+#: templates/account/email/email_confirmation_message.html:209
+#: templates/account/email/email_confirmation_signup_message.html:209
 msgid "all_auth_email_html_ignore_email_text"
 msgstr "إذا لم تقم بالتسجيل في موقع وِرد ، يمكنك تجاهل هذا البريد الإكتروني"
 
-#: templates/account/email/email_confirmation_message.html:79
-#: templates/account/email/email_confirmation_signup_message.html:79
+#: templates/account/email/email_confirmation_message.html:221
+#: templates/account/email/email_confirmation_signup_message.html:221
 msgid "all_auth_email_html_follow_us"
 msgstr ""
 "للمساعدة الفنية أو لأي سؤال تستطيع التواصل معنا على وسائل التواصل الاجتماعي"
 
-#: templates/account/email/email_confirmation_message.html:95
-#: templates/account/email/email_confirmation_signup_message.html:95
+#: templates/account/email/email_confirmation_message.html:270
+#: templates/account/email/email_confirmation_signup_message.html:270
 msgid "all_auth_email_html_visit_wird_app"
 msgstr "أو تفضل بزيارة موقعنا على الرابط التالي: "
 
-#: templates/account/email/email_confirmation_message.html:97
-#: templates/account/email/email_confirmation_signup_message.html:97
+#: templates/account/email/email_confirmation_message.html:272
+#: templates/account/email/email_confirmation_signup_message.html:272
 msgid "all_auth_email_html_wird_app_link"
 msgstr "موقع منصة وِرد"
 
@@ -1578,6 +1577,9 @@ msgstr ""
 #: venv/lib/python3.9/site-packages/timezone_field/rest_framework.py:10
 msgid "A valid timezone is required."
 msgstr ""
+
+#~ msgid "all_auth_email_html_title"
+#~ msgstr "منصة وِرد - تأكيد التسجيل"
 
 #, fuzzy
 #~| msgid "all_auth_email_html_title"
