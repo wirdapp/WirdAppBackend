@@ -70,7 +70,7 @@ class ContestOverallResultsView(APIView):
             while aggregated_points and date == aggregated_points[0]["record_date"] and count < 3:
                 entry = aggregated_points.pop(0)
                 top_three_by_day.append(
-                    dict(id=entry["person_full_name"], name=entry["person_full_name"], points=entry["total_points"])
+                    dict(id=str(entry["person"]), name=entry["person_full_name"], points=entry["total_points"])
                 )
                 count += 1
 
