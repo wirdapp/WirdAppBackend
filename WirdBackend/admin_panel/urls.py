@@ -7,8 +7,8 @@ router = routers.DefaultRouter()
 
 router.register(r'criteria', views.ContestCriterionView, basename='ContestCriterionView')
 router.register(r'sections', views.SectionView, basename='Section')
-router.register(r'contest_members', views.ContestMembersView, basename='Contest Members')
-router.register(r'point_records/(?P<user_id>[0-9a-zA-Z-]+)/(?P<date>\d{4}-\d{2}-\d{2})',
+router.register(r'members', views.ContestMembersView, basename='Contest Members')
+router.register(r'point_records/(?P<user_id>[0-9a-f-]+)/(?P<date>\d{4}-\d{2}-\d{2})',
                 member_views.MemberPointRecordViewSet, basename='Members Point Records')
 router.register(r'groups', views.GroupView, basename='groups')
 groups_router = routers.NestedSimpleRouter(router, r'groups', lookup='group')
