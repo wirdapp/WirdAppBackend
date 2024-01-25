@@ -20,14 +20,18 @@ from member_panel.models import PointRecord
 class Leaderboard(APIView):
     permission_classes = [IsContestAdmin]
 
+    @staticmethod
+    def get_queryset(contest):
+        return (ContestPerson.objects
+                .filter(contest=contest, contest_role=ContestPerson.ContestRole.MEMBER)
+                .annotate(total_points=Sum('contest_person_points__point_total'))
+                .filter(total_points__gt=0)
+                .order_by("-total_points")
+                .prefetch_related("person", 'contest_person_points'))
+
     def get(self, request, *args, **kwargs):
         contest = util_methods.get_current_contest(request)
-        contest_persons = (ContestPerson.objects
-                           .filter(contest=contest, contest_role=ContestPerson.ContestRole.MEMBER)
-                           .annotate(total_points=Sum('contest_person_points__point_total'))
-                           .filter(total_points__gt=0)
-                           .order_by("-total_points")
-                           .prefetch_related("person", 'contest_person_points'))
+        contest_persons = self.get_queryset(contest)
 
         members = []
 
@@ -85,6 +89,7 @@ class UserResultsView(APIView):
     @staticmethod
     def get_points_by_date(contest_person, dates):
         points_by_date = dict(contest_person.contest_person_points
+                              .filter(record_date__in=dates)
                               .values('record_date')
                               .annotate(points=Sum('point_total'))
                               .order_by('-record_date')
