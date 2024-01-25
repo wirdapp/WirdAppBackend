@@ -1,55 +1,41 @@
 # views.py
-import datetime
 
-from django.db.models import Sum, Value, Count
-from django.db.models.functions import Concat
+from django.db.models import Sum, Count
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from admin_panel.member_serializers import AdminPolymorphicPointRecordSerializer
-from core import util_methods
+from core import util_methods, models_helper
 from core.models import ContestPerson
 from core.permissions import IsContestAdmin
 from core.serializers import PersonSerializer
 from core.util_classes import CustomPermissionsMixin
-from core.util_methods import get_dates_between_two_dates
 from member_panel.models import PointRecord
 
 
 class Leaderboard(APIView):
     permission_classes = [IsContestAdmin]
 
-    @staticmethod
-    def get_queryset(contest):
-        return (ContestPerson.objects
-                .filter(contest=contest, contest_role=ContestPerson.ContestRole.MEMBER)
-                .annotate(total_points=Sum('contest_person_points__point_total'))
-                .filter(total_points__gt=0)
-                .order_by("-total_points")
-                .prefetch_related("person", 'contest_person_points'))
-
     def get(self, request, *args, **kwargs):
         contest = util_methods.get_current_contest(request)
-        contest_persons = self.get_queryset(contest)
-
+        limit = request.query_params.get("limit", None)
+        contest_persons = models_helper.get_leaderboard(contest)
+        if limit:
+            contest_persons = models_helper.get_leaderboard(contest)[:int(limit)]
         members = []
-
         for i, contest_person in enumerate(contest_persons, start=1):
-            person_data = PersonSerializer(contest_person.person,
-                                           fields=["username", "first_name", "last_name", "profile_photo"]).data
-            person_data.update({"id": contest_person.id})
-
-            member_data = dict(rank=i, person_data=person_data, total_points=contest_person.total_points)
+            member_data = dict(rank=i)
+            member_data.update(**contest_person)
             members.append(member_data)
-
-        return Response({"members": members})
+        return Response(members)
 
 
 class ContestOverallResultsView(APIView):
     def get(self, request, *args, **kwargs):
         contest = util_methods.get_current_contest(request)
-        dates = get_dates_between_two_dates(contest.start_date, min(contest.end_date, datetime.date.today()))
+        start_date, end_date = self.get_start_and_end_date(request, contest)
+        dates = util_methods.get_dates_between_two_dates(start_date, end_date)
         members = (ContestPerson.objects.filter(contest=contest, contest_role=ContestPerson.ContestRole.MEMBER)
                    .prefetch_related("contest_person_points", "person"))
 
@@ -65,42 +51,29 @@ class ContestOverallResultsView(APIView):
 
         results = []
         for i, date in enumerate(dates, start=1):
-            count = 0
-            top_three_by_day = []
-            # TODO: Fix Logic
-            while aggregated_points and date == aggregated_points[0]["record_date"] and count < 3:
+            top_by_day = []
+            while aggregated_points and date == aggregated_points[0]["record_date"]:
                 entry = aggregated_points.pop(0)
-                top_three_by_day.append(
-                    dict(id=entry["person__id"], first_name=entry["person__person__first_name"],
-                         last_name=entry["person__person__last_name"], points=entry["total_points"])
-                )
-                count += 1
-
+                top_by_day.append({
+                    "id": entry["person__id"],
+                    "first_name": entry["person__person__first_name"],
+                    "last_name": entry["person__person__last_name"],
+                    "points": entry["total_points"]
+                })
             submission_count = submission_counts.get(date, 0)
-            results.append(dict(date=date, submission_count=submission_count, top_three_by_day=top_three_by_day))
+            results.append(dict(date=date, submission_count=submission_count, top_three_by_day=top_by_day[:3]))
 
         return Response(results)
+
+    @staticmethod
+    def get_start_and_end_date(request, contest):
+        start_date = request.query_params.get("start_date", contest.start_date)
+        end_date = request.query_params.get("end_date", contest.end_date)
+        return start_date, end_date
 
 
 class UserResultsView(APIView):
     permission_classes = [IsContestAdmin]
-
-    def get_user_id(self, request, **kwargs):
-        return kwargs["user_id"]
-
-    @staticmethod
-    def get_points_by_date(contest_person, dates):
-        points_by_date = dict(contest_person.contest_person_points
-                              .filter(record_date__in=dates)
-                              .values('record_date')
-                              .annotate(points=Sum('point_total'))
-                              .order_by('-record_date')
-                              .values_list('record_date', "points"))
-
-        scores = [{"index": j, "date": date.strftime("%Y-%m-%d"),
-                   "points": points_by_date.get(date, 0)}
-                  for j, date in enumerate(dates, start=1)]
-        return scores
 
     def get(self, request, *args, **kwargs):
         user_id = self.get_user_id(request, **kwargs)
@@ -110,13 +83,24 @@ class UserResultsView(APIView):
         person_data = PersonSerializer(contest_person.person, fields=["username", "first_name", "last_name"]).data
         person_data.update({"id": contest_person.id})
         total_points = contest_person.contest_person_points.aggregate(total_points=Sum('point_total'))['total_points']
-        scores = (contest_person.contest_person_points.values("contest_criterion__id")
-                  .annotate(point_total=Sum("point_total"))
-                  .values('contest_criterion__id', 'contest_criterion__label', 'point_total'))
-        dates = get_dates_between_two_dates(contest.start_date, min(datetime.date.today(), contest.end_date))
-        days = self.get_points_by_date(contest_person, dates)
+        scores = models_helper.get_person_points_by_criterion(contest_person).order_by("-point_total")
+        start_date, end_date = self.get_start_and_end_date(request, contest)
+        dates = util_methods.get_dates_between_two_dates(start_date, end_date)
+        points_by_date = dict(models_helper.get_person_points_by_date(contest_person, dates, "-record_date"))
+        days = [{"index": i, "date": date.strftime("%Y-%m-%d"),
+                 "points": points_by_date.get(date, 0)}
+                for i, date in enumerate(dates, start=1)]
         result = dict(person_data=person_data, total_points=total_points, days=days, scores=scores)
         return Response(result)
+
+    @staticmethod
+    def get_start_and_end_date(request, contest):
+        start_date = request.query_params.get("start_date", contest.start_date)
+        end_date = request.query_params.get("end_date", contest.end_date)
+        return start_date, end_date
+
+    def get_user_id(self, request, **kwargs):
+        return kwargs["user_id"]
 
 
 class MemberPointRecordViewSet(CustomPermissionsMixin, viewsets.ModelViewSet):
