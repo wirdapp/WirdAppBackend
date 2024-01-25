@@ -25,7 +25,6 @@ class SectionSerializer(DynamicFieldsCategorySerializer, AutoSetContestSerialize
 
 class ContestCriterionSerializer(DynamicFieldsCategorySerializer, AutoSetContestSerializer):
     section = ContestFilteredPrimaryKeyRelatedField(queryset=Section.objects)
-    section_info = SectionSerializer(source="section", read_only=True, fields=["id", "label"])
 
     class Meta:
         model = ContestCriterion
