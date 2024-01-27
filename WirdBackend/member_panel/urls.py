@@ -12,4 +12,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('results/', views.UserResultsView.as_view(), name=''),
     path('leaderboard/', views.Leaderboard.as_view(), name=''),
+    path('home/', views.HomePageView.as_view(), name=''),
 ]

@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from gettext import gettext
 
 from rest_framework import viewsets
@@ -6,12 +7,15 @@ from rest_framework.response import Response
 from admin_panel import member_views as admin_member_views
 from admin_panel.models import ContestCriterion, Section
 from admin_panel.serializers import ContestPolymorphicCriterionSerializer, SectionSerializer
-from core import util_methods
+from core import util_methods, models_helper
+from core.models import ContestPerson
 from core.permissions import IsContestMember
+from core.serializers import ContestSerializer
 from core.util_classes import CustomPermissionsMixin
 from core.util_methods import get_current_contest_person
 from member_panel.models import PointRecord
 from member_panel.serializers import PolymorphicPointRecordSerializer
+from rest_framework import views
 
 
 class MemberPointRecordViewSet(CustomPermissionsMixin, viewsets.ModelViewSet):
@@ -64,3 +68,20 @@ class Leaderboard(admin_member_views.Leaderboard):
             return super(Leaderboard, self).get(request, *args, **kwargs)
         else:
             return Response(gettext("leaderboard is not available now"), 403)
+
+
+class HomePageView(views.APIView):
+    permission_classes = [IsContestMember]
+
+    # TODO: Delete this after this year
+    def get(self, request, *args, **kwargs):
+        result = {}
+        contest = util_methods.get_current_contest(request)
+        contest_person = util_methods.get_current_contest_person(request)
+        result["contest"] = ContestSerializer(contest, fields=["name", "contest_photo", "start_date", "end_date"]).data
+        result["participant"] = ContestPerson.objects.filter(ccontest=contest).count()
+        result["leaderboard"] = models_helper.get_leaderboard(contest)[:3]
+        today = datetime.today()
+        yesterday = today - timedelta(days=1)
+        result["points"] = models_helper.get_person_points_by_date(contest_person, [yesterday, today], "-record_date")
+        return Response(result)
