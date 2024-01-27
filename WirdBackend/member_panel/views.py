@@ -79,7 +79,7 @@ class HomePageView(views.APIView):
         contest = util_methods.get_current_contest(request)
         contest_person = util_methods.get_current_contest_person(request)
         result["contest"] = ContestSerializer(contest, fields=["name", "contest_photo", "start_date", "end_date"]).data
-        result["participant"] = ContestPerson.objects.filter(ccontest=contest).count()
+        result["participant"] = ContestPerson.objects.filter(contest=contest).count()
         result["leaderboard"] = models_helper.get_leaderboard(contest)[:3]
         today = datetime.today()
         yesterday = today - timedelta(days=1)
