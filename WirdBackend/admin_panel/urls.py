@@ -17,6 +17,7 @@ groups_router.register(r'members', views.ContestPersonGroupView, basename='group
 urlpatterns = [
     path('', include(router.urls)),
     path('', include(groups_router.urls)),
+    path('edit_contest/', views.ContestView.as_view()),
     path('leaderboard/', member_views.Leaderboard.as_view(), name='leaderboard'),
     path(r'results/', member_views.ContestOverallResultsView.as_view(), name='ContestResultsView'),
     path(r'results/<str:user_id>', member_views.UserResultsView.as_view(), name='ContestResultsView'),

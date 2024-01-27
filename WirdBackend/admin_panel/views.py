@@ -5,9 +5,19 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from core import models_helper
-from core.permissions import IsGroupAdmin
+from core.permissions import IsGroupAdmin, IsContestSuperAdmin
+from core.serializers import ContestSerializer
 from core.util_classes import CustomPermissionsMixin, MyPageNumberPagination, DestroyBeforeContestStartMixin
 from .serializers import *
+from rest_framework import generics
+
+
+class ContestView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsContestSuperAdmin]
+    serializer_class = ContestSerializer
+
+    def get_object(self):
+        return util_methods.get_current_contest(self.request)
 
 
 class SectionView(DestroyBeforeContestStartMixin, CustomPermissionsMixin, viewsets.ModelViewSet):
