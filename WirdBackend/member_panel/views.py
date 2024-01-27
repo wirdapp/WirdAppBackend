@@ -23,6 +23,12 @@ class MemberPointRecordViewSet(CustomPermissionsMixin, viewsets.ModelViewSet):
         date = self.kwargs.get("date")
         return PointRecord.objects.filter(person__id=person.id, record_date=date)
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['record_date'] = self.kwargs["date"]
+        context['person'] = util_methods.get_current_contest_person(self.request)
+        return context
+
 
 class ContestCriteriaViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ContestPolymorphicCriterionSerializer

@@ -17,45 +17,44 @@ from member_panel.models import PointRecord, UserInputPointRecord, NumberPointRe
 class PointRecordSerializer(serializers.ModelSerializer):
     contest_criterion = ContestFilteredPrimaryKeyRelatedField(queryset=ContestCriterion.objects)
     contest_criterion_data = ContestCriterionSerializer(source="contest_criterion", read_only=True,
-                                                        fields=["label", "description", "points"])
+                                                        fields=["id", "label", "points"])
 
     class Meta:
         model = PointRecord
         exclude = ["polymorphic_ctype"]
 
+    def get_contest_criterion(self, validated_data=None):
+        if validated_data and "contest_criterion" in validated_data:
+            return validated_data["contest_criterion"]
+        elif self.partial and self.instance:
+            return self.instance.contest_criterion
+        else:
+            return self.fields["contest_criterion"].to_internal_value(self.initial_data["contest_criterion"])
+
     def to_internal_value(self, data):
         data = data.copy()
-        person = util_methods.get_current_contest_person(self.context['request'])
-        data["person"] = person.id
-        data["record_date"] = self.context["view"].kwargs["date"]
+        data["person"] = self.context["person"]
+        data["record_date"] = self.context["record_date"]
         return super().to_internal_value(data)
 
     def validate(self, attrs):
-        errors = dict()
-        self.validate_date(errors, attrs)
-        self.validate_mode(errors, attrs)
-        self.validate_can_edit(errors, attrs)
-        if errors:
-            raise ValidationError(errors)
+        contest = util_methods.get_current_contest(self.context['request'])
+        if contest.readonly_mode:
+            raise ValidationError({"contest": gettext("contest is in readonly mode")})
         return attrs
 
-    def validate_date(self, errors, attrs):
-        contest_criterion: ContestCriterion = attrs['contest_criterion']
-        record_date = attrs['record_date']
-        if record_date < contest_criterion.contest.start_date:
-            errors["contest_date"] = gettext("Contest didn't start yet")
-        if record_date > contest_criterion.contest.end_date:
-            errors["contest_date"] = gettext("Contest already ended")
+    def validate_record_date(self, value):
+        contest = util_methods.get_current_contest(self.context['request'])
+        if value < contest.start_date:
+            raise ValidationError(gettext("Contest didn't start yet"))
+        if value > contest.end_date:
+            raise ValidationError(gettext("Contest already ended"))
+        return value
 
-    def validate_mode(self, errors, attrs):
-        contest_criterion: ContestCriterion = attrs['contest_criterion']
-        if contest_criterion.contest.readonly_mode:
-            errors['readonly_mode'] = gettext('Contest is readonly')
-
-    def validate_can_edit(self, errors, attrs):
-        person: ContestPerson = attrs['person']
+    def validate_person(self, person):
         if person.contest_role != ContestPerson.ContestRole.MEMBER.value:
-            errors['invalid_membership'] = gettext('user is not authorized to access contest')
+            raise ValidationError(gettext('user is not authorized to post data'))
+        return person
 
     def create(self, validated_data):
         self.calculate_points(validated_data)
@@ -74,15 +73,14 @@ class NumberPointRecordSerializer(PointRecordSerializer):
     class Meta(PointRecordSerializer.Meta):
         model = NumberPointRecord
 
-    def validate(self, attrs):
-        super().validate(attrs)
-        criterion: NumberCriterion = attrs['contest_criterion']
-        if not criterion.upper_bound >= attrs['number'] >= criterion.lower_bound:
-            raise ValidationError({"bounds_error": gettext("Number entered not in bounds")})
-        return attrs
+    def validate_number(self, value):
+        criterion: NumberCriterion = self.get_contest_criterion()
+        if not criterion.upper_bound >= value >= criterion.lower_bound:
+            raise ValidationError(gettext("Number entered not in bounds"))
+        return value
 
     def calculate_points(self, validated_data):
-        criterion: NumberCriterion = validated_data['contest_criterion']
+        criterion: NumberCriterion = self.get_contest_criterion(validated_data)
         validated_data['point_total'] = criterion.points * validated_data['number']
 
 
@@ -91,56 +89,52 @@ class UserInputPointRecordSerializer(PointRecordSerializer):
         model = UserInputPointRecord
 
     def validate_reviewed_by_admin(self, value):
-        current_user_role = util_methods.get_current_user_contest_role(self.context['request'])
-        if value and current_user_role > ContestPerson.ContestRole.ADMIN.value:
-            raise ValidationError(gettext("a member cannot set their point as reviewed"))
-        return
+        # this should be changed by the admin
+        return False
 
     def calculate_points(self, validated_data):
-        validated_data['point_total'] = validated_data['points']
+        # this should be filled by the admin
+        validated_data['point_total'] = 0
 
 
 class MultiCheckboxPointRecordSerializer(PointRecordSerializer):
     class Meta(PointRecordSerializer.Meta):
         model = MultiCheckboxPointRecord
 
-    def validate(self, attrs):
-        super().validate(attrs)
-        criterion: MultiCheckboxCriterion = attrs['contest_criterion']
-        choices: list[str] = attrs['contest_criterion']
-
-        if not all(choice in criterion.options for choice in choices):
+    def validate_choices(self, value):
+        criterion_options = [c["id"] for c in self.get_contest_criterion().options]
+        if not all(choice["id"] in criterion_options for choice in value):
             raise ValidationError({'options_error': gettext('Choices entered are not valid')})
-        return attrs
+        return value
 
     def calculate_points(self, validated_data):
-        criterion: MultiCheckboxCriterion = validated_data['contest_criterion']
-        choices: list[str] = validated_data['choices']
+        criterion = self.get_contest_criterion(validated_data)
+        correct_criterion_choices = [c["id"] for c in criterion.choices if c["is_correct"]]
+        user_choices = validated_data['choices']
+        no_correct_answer = len(filter(lambda uc: uc in correct_criterion_choices, user_choices))
         if criterion.partial_points:
-            validated_data['point_total'] = sum(criterion.points for choice in choices
-                                                if criterion.options.get(choice, False))
+            validated_data['point_total'] = no_correct_answer * criterion.points
         else:
-            validated_data['point_total'] = criterion.points if all(
-                choice in criterion.options for choice in choices) else 0
+            validated_data['point_total'] = criterion.points \
+                if no_correct_answer == len(correct_criterion_choices) else 0
 
 
 class RadioPointRecordSerializer(PointRecordSerializer):
     class Meta(PointRecordSerializer.Meta):
         model = RadioPointRecord
 
-    def validate(self, attrs):
-        super().validate(attrs)
-        criterion: RadioCriterion = attrs['contest_criterion']
-        choice: str = attrs['criterion']
-
-        if choice not in criterion.options:
-            raise ValidationError({'options_error': gettext('Choice entered is not valid')})
-        return attrs
+    def validate_choice(self, value):
+        criterion = self.get_contest_criterion()
+        criterion_choices = [c["id"] for c in criterion.choices]
+        if value not in criterion_choices:
+            raise ValidationError(gettext('Choice entered is not valid'))
+        return value
 
     def calculate_points(self, validated_data):
-        criterion: RadioCriterion = validated_data['contest_criterion']
-        validated_data['point_total'] = criterion.points if criterion.options.get(validated_data['choice'],
-                                                                                  False) else 0
+        criterion = self.get_contest_criterion(validated_data)
+        user_choice = validated_data['choice']
+        correct_criterion_choice = next(filter(lambda c: c["is_correct"], criterion.choices))
+        validated_data['point_total'] = criterion.points * correct_criterion_choice["id"] == user_choice
 
 
 class CheckboxPointRecordSerializer(PointRecordSerializer):
@@ -148,7 +142,7 @@ class CheckboxPointRecordSerializer(PointRecordSerializer):
         model = CheckboxPointRecord
 
     def calculate_points(self, validated_data):
-        criterion: CheckboxCriterion = validated_data['contest_criterion']
+        criterion: CheckboxCriterion = self.get_contest_criterion(validated_data)
         validated_data['point_total'] = validated_data['checked'] * criterion.points
 
 

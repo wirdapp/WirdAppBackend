@@ -87,8 +87,7 @@ class UserResultsView(APIView):
         start_date, end_date = self.get_start_and_end_date(request, contest)
         dates = util_methods.get_dates_between_two_dates(start_date, end_date)
         points_by_date = dict(models_helper.get_person_points_by_date(contest_person, dates, "-record_date"))
-        days = [{"index": i, "date": date.strftime("%Y-%m-%d"),
-                 "points": points_by_date.get(date, 0)}
+        days = [{"index": i, "date": date.strftime("%Y-%m-%d"), "points": points_by_date.get(date, 0)}
                 for i, date in enumerate(dates, start=1)]
         result = dict(person_data=person_data, total_points=total_points, days=days, scores=scores)
         return Response(result)
@@ -121,9 +120,6 @@ class MemberPointRecordViewSet(CustomPermissionsMixin, viewsets.ModelViewSet):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        contest = util_methods.get_current_contest(request=self.request)
-        user_id = self.kwargs.get("user_id")
-        date = self.kwargs.get("date")
-        context['date'] = date
-        context['user_id'] = ContestPerson.objects.get(contest=contest, id=user_id)
+        context['record_date'] = self.kwargs.get("date")
+        context['person'] = self.kwargs.get("user_id")
         return context

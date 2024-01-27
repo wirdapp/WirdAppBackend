@@ -1,17 +1,20 @@
+from admin_panel.models import ContestPersonGroup
+from core.models_helper import get_current_user_managed_groups
 from member_panel.serializers import *
 from rest_framework.exceptions import ValidationError
 
 
 class AdminPointRecordSerializer(PointRecordSerializer):
-    def to_internal_value(self, data):
-        data = data.copy()
-        data["person"] = self.context['person']
-        data["record_date"] = self.context["date"]
-        return super().to_internal_value(data)
 
-    def validate_can_edit(self, errors, attrs):
-        # TODO: Check if current_user is super admin or a group admin of that student
-        pass
+    def validate(self, attrs):
+        user_role = util_methods.get_current_user_contest_role(self.context["request"])
+        managed_groups = get_current_user_managed_groups(self.context["request"])
+        person_to_edit = self.context["person"]
+        in_admin_group = ContestPersonGroup.objects.filter(group__in=managed_groups,
+                                                           contest_person__id=person_to_edit).exists()
+        if not (user_role <= ContestPerson.ContestRole.SUPER_ADMIN.value or in_admin_group):
+            raise ValidationError(gettext("you do not have permission to edit the points of this person"))
+        return attrs
 
 
 class AdminNumberPointRecordSerializer(AdminPointRecordSerializer, NumberPointRecordSerializer):
@@ -19,7 +22,11 @@ class AdminNumberPointRecordSerializer(AdminPointRecordSerializer, NumberPointRe
 
 
 class AdminUserInputPointRecordSerializer(AdminPointRecordSerializer, UserInputPointRecordSerializer):
-    pass
+    def validate_reviewed_by_admin(self, value):
+        return value
+
+    def calculate_points(self, validated_data):
+        validated_data['point_total'] = validated_data["point_total"]
 
 
 class AdminMultiCheckboxPointRecordSerializer(AdminPointRecordSerializer, MultiCheckboxPointRecordSerializer):
