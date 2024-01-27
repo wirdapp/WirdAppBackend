@@ -20,15 +20,10 @@ class Leaderboard(APIView):
     def get(self, request, *args, **kwargs):
         contest = util_methods.get_current_contest(request)
         limit = request.query_params.get("limit", None)
-        contest_persons = models_helper.get_leaderboard(contest)
+        leaderboard = models_helper.get_leaderboard(contest)
         if limit:
-            contest_persons = models_helper.get_leaderboard(contest)[:int(limit)]
-        members = []
-        for i, contest_person in enumerate(contest_persons, start=1):
-            member_data = dict(rank=i)
-            member_data.update(**contest_person)
-            members.append(member_data)
-        return Response(members)
+            leaderboard = leaderboard[:int(limit)]
+        return Response(leaderboard)
 
 
 class ContestOverallResultsView(APIView):
