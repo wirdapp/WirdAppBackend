@@ -40,7 +40,7 @@ class ContestCriteriaViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         contest = util_methods.get_current_contest(self.request)
-        return ContestCriterion.objects.filter(contest=contest)
+        return ContestCriterion.objects.filter(contest=contest).order_by('section__position', "order_in_section")
 
 
 class ContestSectionsViewSet(viewsets.ReadOnlyModelViewSet):
