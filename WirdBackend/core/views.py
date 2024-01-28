@@ -41,7 +41,7 @@ class ContestView(CustomPermissionsMixin, viewsets.ModelViewSet):
         return models_helper.get_person_contests(username)
 
     serializer_fields = dict(
-        list=["id", "contest_id", "name", "contest_photo"],
+        list=["id", "contest_id", "name", "contest_photo", "person_contest_role"],
         create=["contest_id", "name", "description", "contest_photo", "start_date", "end_date"],
         join_contest=["contest_id"],
     )
