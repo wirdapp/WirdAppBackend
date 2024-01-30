@@ -35,10 +35,18 @@ class ContestCriterion(PolymorphicModel):
     def __str__(self):
         return f"{self.label} @ {self.contest.name}"
 
+    @cached_property
+    def maximum_possible_points(self):
+        return self.points
+
 
 class NumberCriterion(ContestCriterion):
     lower_bound = models.IntegerField(default=0)
     upper_bound = models.IntegerField(default=20)
+
+    @cached_property
+    def maximum_possible_points(self):
+        return self.points * self.upper_bound
 
 
 class CheckboxCriterion(ContestCriterion):
@@ -49,6 +57,13 @@ class CheckboxCriterion(ContestCriterion):
 class MultiCheckboxCriterion(ContestCriterion):
     options = models.JSONField()
     partial_points = models.BooleanField(default=False)
+
+    @cached_property
+    def maximum_possible_points(self):
+        if self.partial_points:
+            return sum(op["is_correct"] for op in self.options) * self.points
+        else:
+            return self.points
 
 
 class RadioCriterion(ContestCriterion):
@@ -63,7 +78,8 @@ class UserInputCriterion(ContestCriterion):
 class Group(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=128, default='')
-    announcements = fields.ArrayField(models.CharField(max_length=128, default="", blank=True), blank=True, default=list)
+    announcements = fields.ArrayField(models.CharField(max_length=128, default="", blank=True), blank=True,
+                                      default=list)
     contest = models.ForeignKey("core.Contest", on_delete=models.PROTECT)
 
     @cached_property

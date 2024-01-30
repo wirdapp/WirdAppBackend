@@ -17,7 +17,7 @@ from member_panel.models import PointRecord, UserInputPointRecord, NumberPointRe
 class PointRecordSerializer(serializers.ModelSerializer):
     contest_criterion = ContestFilteredPrimaryKeyRelatedField(queryset=ContestCriterion.objects)
     contest_criterion_data = ContestCriterionSerializer(source="contest_criterion", read_only=True,
-                                                        fields=["id", "label", "points"])
+                                                        fields=["id", "label", "points", "maximum_possible_points"])
 
     class Meta:
         model = PointRecord
@@ -68,6 +68,9 @@ class PointRecordSerializer(serializers.ModelSerializer):
         # Default implementation, can be overridden in subclasses
         raise NotImplementedError("This method should be implemented by the subclasses")
 
+    def get_maximum_possible_points(self, point_record):
+        return point_record.contest_criterion.points
+
 
 class NumberPointRecordSerializer(PointRecordSerializer):
     class Meta(PointRecordSerializer.Meta):
@@ -82,6 +85,9 @@ class NumberPointRecordSerializer(PointRecordSerializer):
     def calculate_points(self, validated_data):
         criterion: NumberCriterion = self.get_contest_criterion(validated_data)
         validated_data['point_total'] = criterion.points * validated_data['number']
+
+    def get_maximum_possible_points(self, point_record):
+        return point_record.contest_criterion.points * point_record.contest_criterion.upper_bound
 
 
 class UserInputPointRecordSerializer(PointRecordSerializer):
@@ -104,19 +110,27 @@ class MultiCheckboxPointRecordSerializer(PointRecordSerializer):
     def validate_choices(self, value):
         criterion_options = [c["id"] for c in self.get_contest_criterion().options]
         if not all(choice["id"] in criterion_options for choice in value):
-            raise ValidationError({'options_error': gettext('Choices entered are not valid')})
+            raise ValidationError(gettext('Choices entered are not valid'))
         return value
 
     def calculate_points(self, validated_data):
         criterion = self.get_contest_criterion(validated_data)
         correct_criterion_choices = [c["id"] for c in criterion.choices if c["is_correct"]]
         user_choices = validated_data['choices']
-        no_correct_answer = len(filter(lambda uc: uc in correct_criterion_choices, user_choices))
+        num_correct_answer = len(filter(lambda uc: uc in correct_criterion_choices, user_choices))
         if criterion.partial_points:
-            validated_data['point_total'] = no_correct_answer * criterion.points
+            validated_data['point_total'] = num_correct_answer * criterion.points
         else:
             validated_data['point_total'] = criterion.points \
-                if no_correct_answer == len(correct_criterion_choices) else 0
+                if num_correct_answer == len(correct_criterion_choices) else 0
+
+    def get_maximum_possible_points(self, point_record):
+        criterion = point_record.contest_criterion
+        correct_criterion_choices = [c["id"] for c in criterion.choices if c["is_correct"]]
+        if criterion.partial_points:
+            return len(correct_criterion_choices) * criterion.points
+        else:
+            return criterion.points
 
 
 class RadioPointRecordSerializer(PointRecordSerializer):
