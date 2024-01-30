@@ -56,6 +56,17 @@ class CustomPermissionsMixin:
         return NoPermission(),
 
 
+class BulkCreateModelMixin:
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer
+        data = request.data if isinstance(request.data, list) else [request.data]
+        for item in data:
+            _serializer = serializer(data=item)
+            _serializer.is_valid(raise_exception=True)
+            self.perform_create(_serializer)
+        return Response(f"Created {len(data)} items", status=status.HTTP_201_CREATED)
+
+
 class DestroyBeforeContestStartMixin(mixins.DestroyModelMixin):
     def destroy(self, request, *args, **kwargs):
         contest = util_methods.get_current_contest(request)

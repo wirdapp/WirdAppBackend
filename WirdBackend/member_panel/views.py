@@ -11,14 +11,14 @@ from core import util_methods, models_helper
 from core.models import ContestPerson
 from core.permissions import IsContestMember
 from core.serializers import ContestSerializer
-from core.util_classes import CustomPermissionsMixin
+from core.util_classes import CustomPermissionsMixin, BulkCreateModelMixin
 from core.util_methods import get_current_contest_person
 from member_panel.models import PointRecord
 from member_panel.serializers import PolymorphicPointRecordSerializer
 from rest_framework import views
 
 
-class MemberPointRecordViewSet(CustomPermissionsMixin, viewsets.ModelViewSet):
+class MemberPointRecordViewSet(CustomPermissionsMixin, BulkCreateModelMixin, viewsets.ModelViewSet):
     member_allowed_methods = ['list', 'retrieve', 'create', 'update', 'partial_update', 'destroy']
     serializer_class = PolymorphicPointRecordSerializer
 
@@ -30,7 +30,7 @@ class MemberPointRecordViewSet(CustomPermissionsMixin, viewsets.ModelViewSet):
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['record_date'] = self.kwargs["date"]
-        context['person'] = util_methods.get_current_contest_person(self.request)
+        context['person'] = util_methods.get_current_contest_person(self.request).id
         return context
 
 
