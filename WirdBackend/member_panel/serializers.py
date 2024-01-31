@@ -115,8 +115,7 @@ class MultiCheckboxPointRecordSerializer(PointRecordSerializer):
         if criterion.partial_points:
             validated_data['point_total'] = num_correct_answer * criterion.points
         else:
-            validated_data['point_total'] = criterion.points \
-                if num_correct_answer == len(user_choices) else 0
+            validated_data['point_total'] = criterion.points * (num_correct_answer == len(user_choices))
 
 
 class RadioPointRecordSerializer(PointRecordSerializer):
@@ -133,8 +132,8 @@ class RadioPointRecordSerializer(PointRecordSerializer):
     def calculate_points(self, validated_data):
         criterion = self.get_contest_criterion(validated_data)
         user_choice = validated_data['choice']
-        correct_criterion_option = next(option["is_correct"] for option in criterion.options)
-        validated_data['point_total'] = criterion.points * correct_criterion_option["id"] == user_choice
+        correct_criterion_option = next(option for option in criterion.options if option["is_correct"])
+        validated_data['point_total'] = criterion.points * (correct_criterion_option["id"] == user_choice)
 
 
 class CheckboxPointRecordSerializer(PointRecordSerializer):
