@@ -1,7 +1,10 @@
 from datetime import datetime
 from gettext import gettext
 
+from allauth.account.adapter import get_adapter
+from allauth.account.forms import default_token_generator
 from allauth.account.models import EmailAddress
+from allauth.account.utils import user_pk_to_url_str
 from rest_condition import And
 from rest_framework import mixins, exceptions
 from rest_framework import serializers
@@ -12,6 +15,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core import util_methods
+from core.models import Person
 from core.permissions import IsContestAdmin, IsContestSuperAdmin, NoPermission, IsContestMember, EmailVerified
 
 
@@ -109,3 +113,28 @@ class ResendEmailConfirmation(APIView):
     def post(self, request):
         EmailAddress.objects.get(user=request.user).send_confirmation(request)
         return Response({'message': 'Email confirmation sent'}, status=status.HTTP_201_CREATED)
+
+
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    username = serializers.CharField()
+
+    def validate(self, attrs):
+        if Person.objects.filter(email=attrs["email"], username=attrs["username"]).exists():
+            return attrs
+        else:
+            return Response({'error': 'Invalid e-mail or username'}, status=400)
+
+    def save(self):
+        request = self.context.get('request')
+        data = self.validated_data
+        user = Person.objects.get(email=data["email"], username=data["username"])
+        temp_key = default_token_generator.make_token(user)
+        context = {
+            'user': user,
+            'key': temp_key,
+            'uid': user_pk_to_url_str(user),
+        }
+        get_adapter(request).send_mail(
+            'account/email/password_reset_key', data["email"], context
+        )

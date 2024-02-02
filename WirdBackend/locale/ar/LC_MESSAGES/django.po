@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-25 07:13-0600\n"
+"POT-Creation-Date: 2024-02-01 23:05-0600\n"
 "PO-Revision-Date: 2021-11-24 16:27+0000\n"
 "Last-Translator: Mariusz Felisiak <felisiak.mariusz@gmail.com>\n"
 "Language-Team: Arabic (http://www.transifex.com/django/django/language/ar/)\n"
@@ -21,27 +21,31 @@ msgstr ""
 msgid "English"
 msgstr ""
 
-#: admin_panel/models.py:98
+#: admin_panel/member_serializers.py:16
+msgid "you do not have permission to edit the points of this person"
+msgstr ""
+
+#: admin_panel/models.py:114
 msgid "person is member of group"
 msgstr "المستخدم عضو حالي في هذه المجموعة"
 
-#: admin_panel/serializers.py:84
+#: admin_panel/serializers.py:85
 msgid "you can't use this role of this user"
 msgstr ""
 
-#: admin_panel/serializers.py:116
+#: admin_panel/serializers.py:117
 msgid "member already in group"
 msgstr ""
 
-#: admin_panel/serializers.py:118
+#: admin_panel/serializers.py:119
 msgid "super admins and owners can't be added to a group"
 msgstr ""
 
-#: admin_panel/serializers.py:120
+#: admin_panel/serializers.py:121
 msgid "only super admins can assign group admin"
 msgstr ""
 
-#: admin_panel/views.py:75 admin_panel/views.py:97
+#: admin_panel/views.py:85 admin_panel/views.py:106
 msgid "You do not have the permission to do this action"
 msgstr ""
 
@@ -55,7 +59,7 @@ msgstr ""
 msgid "person exists in contest"
 msgstr "المستخدم عضو حالي في هذه المسابقة"
 
-#: core/util_classes.py:63
+#: core/util_classes.py:81
 msgid "cannot edit contest after its start date"
 msgstr ""
 
@@ -69,91 +73,120 @@ msgstr ""
 msgid "cannot join this contest or access code is wrong"
 msgstr ""
 
-#: member_panel/serializers.py:46
+#: member_panel/serializers.py:43
+#, fuzzy
+#| msgid "contest created"
+msgid "contest is in readonly mode"
+msgstr "Contest has been Created"
+
+#: member_panel/serializers.py:49
 msgid "Contest didn't start yet"
 msgstr ""
 
-#: member_panel/serializers.py:48
+#: member_panel/serializers.py:51
 #, fuzzy
 #| msgid "contest created"
 msgid "Contest already ended"
 msgstr "Contest has been Created"
 
-#: member_panel/serializers.py:53
-#, fuzzy
-#| msgid "contest created"
-msgid "Contest is readonly"
-msgstr "Contest has been Created"
-
-#: member_panel/serializers.py:58
+#: member_panel/serializers.py:56
 #, fuzzy
 #| msgid "person is not enrolled in this contest"
-msgid "user is not authorized to access contest"
+msgid "user is not authorized to post data"
 msgstr "المستخدم غير مشترك في هذه المسابقة"
 
-#: member_panel/serializers.py:81
+#: member_panel/serializers.py:79
 msgid "Number entered not in bounds"
 msgstr ""
 
-#: member_panel/serializers.py:96
-#, fuzzy
-#| msgid "member can't review points"
-msgid "a member cannot set their point as reviewed"
-msgstr "لا يمكن للمستخدمين مراجعة النقاط الخاصة بهم"
-
-#: member_panel/serializers.py:113
+#: member_panel/serializers.py:107
 msgid "Choices entered are not valid"
 msgstr ""
 
-#: member_panel/serializers.py:137
+#: member_panel/serializers.py:129
 msgid "Choice entered is not valid"
 msgstr ""
 
-#: member_panel/views.py:61
+#: member_panel/views.py:70
 msgid "leaderboard is not available now"
 msgstr ""
 
 #: templates/account/email/email_confirmation_message.html:149
 #: templates/account/email/email_confirmation_signup_message.html:149
+#: templates/account/email/password_reset_key_message.html:149
+#: templates/email/activation.html:149
 msgid "all_auth_email_html_salam_alaikum"
 msgstr "السلام عليكم"
 
 #: templates/account/email/email_confirmation_message.html:161
 #: templates/account/email/email_confirmation_signup_message.html:161
+#: templates/email/activation.html:161
 msgid "all_auth_email_html_thank_you_text"
 msgstr "شكرا لتسجيلك في منصة وِرد غير الربحية"
 
 #: templates/account/email/email_confirmation_message.html:173
 #: templates/account/email/email_confirmation_signup_message.html:173
+#: templates/email/activation.html:173
 msgid "all_auth_email_html_complete_reg_text"
 msgstr "لإكمال إجراءات تسجيلك في موقع وِرد ، قم بالضغط على المفتاح أدناه"
 
 # HTML all_auth emails
 #: templates/account/email/email_confirmation_message.html:197
 #: templates/account/email/email_confirmation_signup_message.html:197
+#: templates/email/activation.html:197
 msgid "all_auth_email_html_confirm_email_btn"
 msgstr "تأكيد الحساب"
 
 #: templates/account/email/email_confirmation_message.html:209
 #: templates/account/email/email_confirmation_signup_message.html:209
-msgid "all_auth_email_html_ignore_email_text"
+#, fuzzy
+#| msgid "all_auth_email_html_ignore_email_text"
+msgid "all_auth_email_html_ignore_signup_email_text"
 msgstr "إذا لم تقم بالتسجيل في موقع وِرد ، يمكنك تجاهل هذا البريد الإكتروني"
 
 #: templates/account/email/email_confirmation_message.html:221
 #: templates/account/email/email_confirmation_signup_message.html:221
+#: templates/account/email/password_reset_key_message.html:209
+#: templates/email/activation.html:221
 msgid "all_auth_email_html_follow_us"
 msgstr ""
 "للمساعدة الفنية أو لأي سؤال تستطيع التواصل معنا على وسائل التواصل الاجتماعي"
 
 #: templates/account/email/email_confirmation_message.html:270
 #: templates/account/email/email_confirmation_signup_message.html:270
+#: templates/account/email/password_reset_key_message.html:258
+#: templates/email/activation.html:270
 msgid "all_auth_email_html_visit_wird_app"
 msgstr "أو تفضل بزيارة موقعنا على الرابط التالي: "
 
 #: templates/account/email/email_confirmation_message.html:272
 #: templates/account/email/email_confirmation_signup_message.html:272
+#: templates/account/email/password_reset_key_message.html:260
+#: templates/email/activation.html:272
 msgid "all_auth_email_html_wird_app_link"
 msgstr "موقع منصة وِرد"
+
+#: templates/account/email/password_reset_key_message.html:161
+#, fuzzy
+#| msgid "all_auth_email_html_thank_you_text"
+msgid "all_auth_email_html_reset_pwd_text"
+msgstr "شكرا لتسجيلك في منصة وِرد غير الربحية"
+
+#: templates/account/email/password_reset_key_message.html:185
+#, fuzzy
+#| msgid "all_auth_email_html_visit_wird_app"
+msgid "all_auth_email_html_reset_pwd_btn"
+msgstr "أو تفضل بزيارة موقعنا على الرابط التالي: "
+
+#: templates/account/email/password_reset_key_message.html:197
+#, fuzzy
+#| msgid "all_auth_email_html_ignore_email_text"
+msgid "all_auth_email_html_ignore_reset_pwd_email_text"
+msgstr "إذا لم تقم بالتسجيل في موقع وِرد ، يمكنك تجاهل هذا البريد الإكتروني"
+
+#: templates/email/activation.html:209
+msgid "all_auth_email_html_ignore_email_text"
+msgstr "إذا لم تقم بالتسجيل في موقع وِرد ، يمكنك تجاهل هذا البريد الإكتروني"
 
 #: venv/lib/python3.9/site-packages/cachalot/panels.py:67
 #, python-format
@@ -1577,6 +1610,11 @@ msgstr ""
 #: venv/lib/python3.9/site-packages/timezone_field/rest_framework.py:10
 msgid "A valid timezone is required."
 msgstr ""
+
+#, fuzzy
+#~| msgid "member can't review points"
+#~ msgid "a member cannot set their point as reviewed"
+#~ msgstr "لا يمكن للمستخدمين مراجعة النقاط الخاصة بهم"
 
 #~ msgid "all_auth_email_html_title"
 #~ msgstr "منصة وِرد - تأكيد التسجيل"

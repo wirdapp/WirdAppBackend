@@ -20,6 +20,7 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
 from core.util_classes import DateConverter, ResendEmailConfirmation
+from dj_rest_auth.views import PasswordResetConfirmView
 
 register_converter(DateConverter, 'date')
 
@@ -40,11 +41,11 @@ urlpatterns = [
     path('', include('core.urls')),
     path('admin_panel/<str:contest_id>/', include('admin_panel.urls')),
     path('member_panel/<str:contest_id>/', include('member_panel.urls')),
-    path('auth/', include('dj_rest_auth.urls')),
     path("auth/registration/account-confirm-email/", VerifyEmailView.as_view()),
-    path('auth/user/resend_confirmation_email/', ResendEmailConfirmation.as_view(),
-         name='resend-email-confirmation'),
+    path('auth/user/resend_confirmation_email/', ResendEmailConfirmation.as_view(), name='resend-email-confirmation'),
+    path('auth/password/reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('auth/registration/', include('dj_rest_auth.registration.urls')),
+    path('auth/', include('dj_rest_auth.urls')),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
