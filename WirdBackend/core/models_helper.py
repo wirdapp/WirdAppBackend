@@ -19,10 +19,10 @@ def get_current_user_managed_groups(request):
         return Group.objects.filter(contest=contest)
     elif role == ContestPerson.ContestRole.ADMIN.value:
         contest_person_groups = (ContestPersonGroup.objects
-                                 .prefetch_related('group')
-                                 .filter(person__username=username,
-                                         group__contest=contest, group_role=1))
-        return [cpg.groups for cpg in contest_person_groups]
+                                 .prefetch_related('group', "contest_person")
+                                 .filter(contest_person__person__username=username,
+                                         group__contest=contest, group_role=1).values("group"))
+        return Group.objects.filter(id__in=contest_person_groups)
 
     else:
         return Group.objects.none()
