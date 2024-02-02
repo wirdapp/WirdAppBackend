@@ -55,7 +55,7 @@ class ContestCriterionView(DestroyBeforeContestStartMixin, CustomPermissionsMixi
         return Response(f"{gettext('updated the order of criteria successfully')} {no_of_updates}")
 
 
-class GroupView(DestroyBeforeContestStartMixin, CustomPermissionsMixin, viewsets.ModelViewSet):
+class GroupView(CustomPermissionsMixin, viewsets.ModelViewSet):
     admin_allowed_methods = ['list', 'update', 'partial_update', 'retrieve']
     super_admin_allowed_methods = ["create", "destroy"]
     serializer_class = GroupSerializer
@@ -69,10 +69,9 @@ class ContestPersonGroupView(viewsets.ModelViewSet):
     serializer_class = ContestPersonGroupSerializer
     pagination_class = MyPageNumberPagination
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
-    filterset_fields = {"group_role": ["in"]}
+    filterset_fields = {"group_role": ["in", "exact"]}
     ordering_fields = ['contest_person__person__first_name']
     search_fields = [f"contest_person__person__{field}" for field in ["first_name", "last_name", "username"]]
-    lookup_field = "contest_person__person__username"
 
     def get_queryset(self):
         group_id = self.kwargs.get("group_pk")
@@ -80,9 +79,15 @@ class ContestPersonGroupView(viewsets.ModelViewSet):
 
     def check_object_permissions(self, request, obj):
         user_role = util_methods.get_current_user_contest_role(request)
-        obj_role = obj.contest_role
+        obj_role = obj.contest_person.contest_role
         if user_role >= obj_role:
             self.permission_denied(request, gettext("You do not have the permission to do this action"))
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"group_id": self.kwargs["group_pk"]})
+        context.update({"contest_id": self.kwargs["contest_id"]})
+        return context
 
 
 class ContestMembersView(CustomPermissionsMixin, viewsets.ModelViewSet):
@@ -90,7 +95,7 @@ class ContestMembersView(CustomPermissionsMixin, viewsets.ModelViewSet):
     admin_allowed_methods = ["list"]
     super_admin_allowed_methods = ["create", "update", "retrieve", "partial_update", "destroy"]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
-    filterset_fields = {"contest_role": ["in"], "person__username": ["exact"]}
+    filterset_fields = {"contest_role": ["in", "exact"], "person__username": ["exact"]}
     ordering_fields = ['person__username', "person__first_name"]
     search_fields = [f"person__{field}" for field in ["first_name", "last_name", "username"]]
     lookup_field = "person__username"
