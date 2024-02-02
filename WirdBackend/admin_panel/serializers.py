@@ -112,20 +112,23 @@ class ContestPersonGroupSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate(self, attr):
-        user_role = util_methods.get_current_user_contest_role(self.context["request"])
+        user_to_add_role = attr["contest_person"].contest_role
+        current_user_role = util_methods.get_current_user_contest_role(self.context['request'])
         if ContestPersonGroup.objects.filter(contest_person=attr["contest_person"], group=attr["group"]).exists():
             raise ValidationError({"contest_person": gettext("member already in group")})
-        if user_role <= ContestPerson.ContestRole.SUPER_ADMIN.value:
-            raise ValidationError({"contest_person": gettext("super admins and owners can't be added to a group")})
-        if attr["role"] == 1 and user_role > 1:
-            raise ValidationError({"role": gettext("only super admins can assign group admin")})
+        if attr["group_role"] == 1 and current_user_role > 1:
+            raise ValidationError({"contest_person": gettext("only super admins can assign group admins")})
+        if attr["group_role"] == 1 and user_to_add_role != 2:
+            raise ValidationError({"contest_person": gettext("only admins are allowed to become group admins")})
+        if attr["group_role"] == 2 and user_to_add_role not in [3, 4]:
+            raise ValidationError({"contest_person": gettext("only members are allowed to become group members")})
         return attr
 
     def to_internal_value(self, data):
         data = data.copy()
-        data["group"] = self.context.get("view").kwargs.get("group_pk")
+        data["group"] = self.context.get("group_id")
         username = data.pop("username", None)
-        if username:
-            person_id = get_object_or_404(ContestPerson, person__username=username).uuid
+        if username and username[0].strip() != '':
+            person_id = get_object_or_404(ContestPerson, person__username=username).id
             data["contest_person"] = person_id
         return super().to_internal_value(data)
