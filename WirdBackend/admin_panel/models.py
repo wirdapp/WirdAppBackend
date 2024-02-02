@@ -100,8 +100,8 @@ class ContestPersonGroup(models.Model):
         MEMBER = (2, 'member')
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True, editable=False)
-    contest_person = models.ForeignKey(ContestPerson, on_delete=models.PROTECT)
-    group = models.ForeignKey(Group, on_delete=models.PROTECT)
+    contest_person = models.ForeignKey(ContestPerson, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
     group_role = models.PositiveSmallIntegerField(choices=GroupRole.choices, default=GroupRole.MEMBER)
 
     def __str__(self):
