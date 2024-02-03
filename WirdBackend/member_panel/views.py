@@ -70,6 +70,19 @@ class Leaderboard(admin_member_views.Leaderboard):
             return Response(gettext("leaderboard is not available now"), 403)
 
 
+class AnnouncementsView(views.APIView):
+    permission_classes = [IsContestMember]
+
+    def get(self, request, *args, **kwargs):
+        contest = util_methods.get_current_contest(request)
+        contest_announcements = contest.announcements
+        groups_announcements = models_helper.get_person_enrolled_groups(request).values("name", 'announcements')
+        results = {"contest": contest_announcements}
+        for group in groups_announcements:
+            results[group["name"]] = group["announcements"]
+        return Response(results)
+
+
 class HomePageView(views.APIView):
     permission_classes = [IsContestMember]
 

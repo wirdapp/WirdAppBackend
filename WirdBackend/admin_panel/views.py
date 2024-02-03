@@ -61,7 +61,7 @@ class GroupView(CustomPermissionsMixin, viewsets.ModelViewSet):
     serializer_class = GroupSerializer
 
     def get_queryset(self):
-        return models_helper.get_current_user_managed_groups(self.request)
+        return models_helper.get_person_enrolled_groups(self.request)
 
 
 class ContestPersonGroupView(viewsets.ModelViewSet):

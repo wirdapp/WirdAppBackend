@@ -1,5 +1,5 @@
 from admin_panel.models import ContestPersonGroup
-from core.models_helper import get_current_user_managed_groups
+from core.models_helper import get_person_enrolled_groups
 from member_panel.serializers import *
 from rest_framework.exceptions import ValidationError
 
@@ -8,7 +8,7 @@ class AdminPointRecordSerializer(PointRecordSerializer):
 
     def validate(self, attrs):
         user_role = util_methods.get_current_user_contest_role(self.context["request"])
-        managed_groups = get_current_user_managed_groups(self.context["request"])
+        managed_groups = get_person_enrolled_groups(self.context["request"])
         person_to_edit = self.context["person"]
         in_admin_group = ContestPersonGroup.objects.filter(group__in=managed_groups,
                                                            contest_person__id=person_to_edit).exists()

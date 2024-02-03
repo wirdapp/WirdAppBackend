@@ -11,21 +11,22 @@ def get_person_contests(username, contest_role=(0, 1, 2, 3, 4)):
     return [contest_person.contest for contest_person in contest_persons]
 
 
-def get_current_user_managed_groups(request):
+def get_person_enrolled_groups(request):
     contest = util_methods.get_current_contest(request)
-    role = util_methods.get_current_user_contest_role(request)
+    current_user_role = util_methods.get_current_user_contest_role(request)
     username = util_methods.get_username(request)
-    if role <= ContestPerson.ContestRole.SUPER_ADMIN.value:
+    if current_user_role <= ContestPerson.ContestRole.SUPER_ADMIN.value:
         return Group.objects.filter(contest=contest)
-    elif role == ContestPerson.ContestRole.ADMIN.value:
-        contest_person_groups = (ContestPersonGroup.objects
-                                 .prefetch_related('group', "contest_person")
-                                 .filter(contest_person__person__username=username,
-                                         group__contest=contest, group_role=1).values("group"))
-        return Group.objects.filter(id__in=contest_person_groups)
-
+    elif current_user_role == ContestPerson.ContestRole.ADMIN.value:
+        group_role = ContestPersonGroup.GroupRole.ADMIN
     else:
-        return Group.objects.none()
+        group_role = ContestPersonGroup.GroupRole.MEMBER
+
+    contest_person_groups = (ContestPersonGroup.objects
+                             .prefetch_related('group', "contest_person")
+                             .filter(contest_person__person__username=username,
+                                     group__contest=contest, group_role=group_role).values("group"))
+    return Group.objects.filter(id__in=contest_person_groups)
 
 
 def get_person_points_by_date(contest_person, dates, order_by):

@@ -40,7 +40,7 @@ class IsContestOwner(BasePermission):
 class IsGroupAdmin(BasePermission):
     def has_permission(self, request, view):
         group_id = view.kwargs.get("group_pk")
-        managed_groups = models_helper.get_current_user_managed_groups(request)
+        managed_groups = models_helper.get_person_enrolled_groups(request)
         return managed_groups.filter(id=group_id).exists()
 
 
