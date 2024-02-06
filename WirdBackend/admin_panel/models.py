@@ -78,8 +78,7 @@ class UserInputCriterion(ContestCriterion):
 class Group(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=128, default='')
-    announcements = fields.ArrayField(models.CharField(max_length=128, default="", blank=True), blank=True,
-                                      default=list)
+    announcements = models.JSONField(default=dict)
     contest = models.ForeignKey("core.Contest", on_delete=models.PROTECT)
 
     @cached_property
