@@ -7,7 +7,8 @@ from rest_framework.response import Response
 from core import models_helper
 from core.permissions import IsGroupAdmin, IsContestSuperAdmin
 from core.serializers import ContestSerializer
-from core.util_classes import CustomPermissionsMixin, MyPageNumberPagination, DestroyBeforeContestStartMixin
+from core.util_classes import CustomPermissionsMixin, MyPageNumberPagination, DestroyBeforeContestStartMixin, \
+    BulkCreateModelMixin
 from .serializers import *
 from rest_framework import generics
 
@@ -64,7 +65,7 @@ class GroupView(CustomPermissionsMixin, viewsets.ModelViewSet):
         return models_helper.get_person_enrolled_groups(self.request)
 
 
-class ContestPersonGroupView(viewsets.ModelViewSet):
+class ContestPersonGroupView(BulkCreateModelMixin, viewsets.ModelViewSet):
     permission_classes = [IsGroupAdmin]
     serializer_class = ContestPersonGroupSerializer
     pagination_class = MyPageNumberPagination
