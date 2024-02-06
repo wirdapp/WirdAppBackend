@@ -1,12 +1,9 @@
 from django.utils.translation import gettext
-from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from core import models_helper, util_methods
-from core.models import ContestPerson
+from core import models_helper
 from core.serializers import *
 from core.util_classes import CustomPermissionsMixin
 
