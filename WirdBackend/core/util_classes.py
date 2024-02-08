@@ -62,13 +62,21 @@ class CustomPermissionsMixin:
 
 class BulkCreateModelMixin:
     def create(self, request, *args, **kwargs):
+        errors = []
+        created = []
         serializer = self.get_serializer
         data = request.data if isinstance(request.data, list) else [request.data]
         for item in data:
             _serializer = serializer(data=item)
-            _serializer.is_valid(raise_exception=True)
-            self.perform_create(_serializer)
-        return Response(f"Created {len(data)} items", status=status.HTTP_201_CREATED)
+            is_valid = _serializer.is_valid(raise_exception=False)
+            if is_valid:
+                self.perform_create(_serializer)
+                created.append(_serializer.data)
+            else:
+                errors.append({"error": _serializer.errors, "data": _serializer.initial_data})
+        if len(errors) > 0:
+            return Response({"created": created, "errors": errors}, status=207)
+        return Response(created, status=status.HTTP_201_CREATED)
 
 
 class DestroyBeforeContestStartMixin(mixins.DestroyModelMixin):
