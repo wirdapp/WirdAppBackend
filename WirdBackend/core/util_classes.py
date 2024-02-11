@@ -131,7 +131,7 @@ class PasswordResetSerializer(serializers.Serializer):
         if Person.objects.filter(email=attrs["email"], username=attrs["username"]).exists():
             return attrs
         else:
-            return Response({'error': 'Invalid e-mail or username'}, status=400)
+            raise exceptions.ValidationError(gettext('Invalid e-mail or username'))
 
     def save(self):
         request = self.context.get('request')
