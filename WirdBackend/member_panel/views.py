@@ -75,11 +75,15 @@ class AnnouncementsView(views.APIView):
 
     def get(self, request, *args, **kwargs):
         contest = util_methods.get_current_contest(request)
+        results = []
         contest_announcements = contest.announcements
-        groups_announcements = models_helper.get_person_enrolled_groups(request).values("name", 'announcements')
-        results = {"contest": contest_announcements}
-        for group in groups_announcements:
-            results[group["name"]] = group["announcements"]
+        for announcement in contest_announcements:
+            announcement.update({"source": "contest"})
+            results.append(announcement)
+        groups = models_helper.get_person_enrolled_groups(request).values("name", 'announcements')
+        for group in list(groups):
+            [ann.update(source=group["name"]) for ann in group["announcements"]]
+            results.extend(group["announcements"])
         return Response(results)
 
 
