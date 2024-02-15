@@ -115,14 +115,6 @@ class ContestFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
         return queryset
 
 
-class ResendEmailConfirmation(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        EmailAddress.objects.get(user=request.user).send_confirmation(request)
-        return Response({'message': 'Email confirmation sent'}, status=status.HTTP_201_CREATED)
-
-
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
     username = serializers.CharField()

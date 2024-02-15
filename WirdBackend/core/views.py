@@ -1,11 +1,12 @@
 from django.utils.translation import gettext
-from rest_framework import viewsets
+from rest_framework import viewsets, views
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from core import models_helper
 from core.serializers import *
 from core.util_classes import CustomPermissionsMixin
+from rest_framework import generics, permissions
 
 
 class ContestView(CustomPermissionsMixin, viewsets.ModelViewSet):
@@ -48,3 +49,20 @@ class ContestView(CustomPermissionsMixin, viewsets.ModelViewSet):
 
     def get_serializer(self, *args, **kwargs):
         return super().get_serializer(*args, fields=self.serializer_fields.get(self.action, None), **kwargs)
+
+
+class DeleteUserView(generics.DestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.is_active = False
+        return Response(status=204)
+
+
+class ResendEmailConfirmation(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        EmailAddress.objects.get(user=request.user).send_confirmation(request)
+        return Response({'message': 'Email confirmation sent'}, status=201)

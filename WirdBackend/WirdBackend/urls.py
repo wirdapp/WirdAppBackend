@@ -19,7 +19,8 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
-from core.util_classes import DateConverter, ResendEmailConfirmation
+from core.util_classes import DateConverter
+from core.views import DeleteUserView, ResendEmailConfirmation
 from dj_rest_auth.views import PasswordResetConfirmView
 
 register_converter(DateConverter, 'date')
@@ -43,6 +44,7 @@ urlpatterns = [
     path('member_panel/<str:contest_id>/', include('member_panel.urls')),
     path("auth/registration/account-confirm-email/", VerifyEmailView.as_view()),
     path('auth/user/resend_confirmation_email/', ResendEmailConfirmation.as_view(), name='resend-email-confirmation'),
+    path('auth/user/delete/', DeleteUserView.as_view(), name='resend-email-confirmation'),
     path('auth/password/reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('auth/registration/', include('dj_rest_auth.registration.urls')),
     path('auth/', include('dj_rest_auth.urls')),
