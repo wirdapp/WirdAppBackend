@@ -1,3 +1,4 @@
+import datetime
 from gettext import gettext
 
 from rest_framework import serializers
@@ -45,10 +46,16 @@ class PointRecordSerializer(serializers.ModelSerializer):
 
     def validate_record_date(self, value):
         contest = util_methods.get_current_contest(self.context['request'])
+        today = datetime.date.today()
         if value < contest.start_date:
             raise ValidationError(gettext("Contest didn't start yet"))
         if value > contest.end_date:
             raise ValidationError(gettext("Contest already ended"))
+        if value > today:
+            raise ValidationError(gettext("you can't record in the future"))
+        if today > value + datetime.timedelta(days=contest.days_to_record_in_past):
+            message = gettext("exceeded_allowed_days_to_record_points" % {"days": contest.days_to_record_in_past})
+            raise ValidationError(message)
         return value
 
     def validate_person(self, person):

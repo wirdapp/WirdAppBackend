@@ -2,7 +2,6 @@ import uuid
 from gettext import gettext
 
 from django.contrib.auth.models import AbstractUser
-from django.contrib.postgres import fields
 from django.core.validators import integer_validator, MinLengthValidator
 from django.db import models
 from django_resized import ResizedImageField
@@ -25,7 +24,8 @@ class Contest(models.Model):
     show_standings = models.BooleanField(default=True)
     announcements = models.JSONField(default=dict)
     readonly_mode = models.BooleanField(default=False, help_text=gettext('readonly_mode'))
-    contest_photo = ResizedImageField(size=[500, 500], upload_to=upload_location, blank=True)
+    contest_photo = ResizedImageField(size=[500, 500], upload_to=upload_location, default="wirdLogo.png")
+    days_to_record_in_past = models.PositiveSmallIntegerField(default=1, help_text="if zero then disabled")
     start_date = models.DateField()
     end_date = models.DateField()
 

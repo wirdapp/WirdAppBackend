@@ -16,6 +16,17 @@ class AdminPointRecordSerializer(PointRecordSerializer):
             raise ValidationError(gettext("you do not have permission to edit the points of this person"))
         return attrs
 
+    def validate_record_date(self, value):
+        contest = util_methods.get_current_contest(self.context['request'])
+        today = datetime.date.today()
+        if value < contest.start_date:
+            raise ValidationError(gettext("Contest didn't start yet"))
+        if value > contest.end_date:
+            raise ValidationError(gettext("Contest already ended"))
+        if value > today:
+            raise ValidationError(gettext("you can't record in the future"))
+        return value
+
 
 class AdminNumberPointRecordSerializer(AdminPointRecordSerializer, NumberPointRecordSerializer):
     pass
