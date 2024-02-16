@@ -20,7 +20,8 @@ class Leaderboard(APIView):
     def get(self, request, *args, **kwargs):
         contest = util_methods.get_current_contest(request)
         limit = request.query_params.get("limit", None)
-        leaderboard = models_helper.get_leaderboard(contest)
+        person_info = ["person__" + i for i in ["username", "first_name", "last_name", "profile_photo"]]
+        leaderboard = models_helper.get_leaderboard(contest).values("id", "total_points", *person_info)
         if limit:
             leaderboard = leaderboard[:int(limit)]
         return Response(leaderboard)
@@ -29,8 +30,9 @@ class Leaderboard(APIView):
 class ContestOverallResultsView(APIView):
     def get(self, request, *args, **kwargs):
         contest = util_methods.get_current_contest(request)
-        start_date, end_date = self.get_start_and_end_date(request, contest)
+        start_date, end_date = util_methods.get_contest_and_request_related_start_and_end_date(request, contest)
         dates = util_methods.get_dates_between_two_dates(start_date, end_date)
+
         members = (ContestPerson.objects.filter(contest=contest, contest_role=ContestPerson.ContestRole.MEMBER)
                    .prefetch_related("contest_person_points", "person"))
 
@@ -60,12 +62,6 @@ class ContestOverallResultsView(APIView):
 
         return Response(results)
 
-    @staticmethod
-    def get_start_and_end_date(request, contest):
-        start_date = request.query_params.get("start_date", contest.start_date)
-        end_date = request.query_params.get("end_date", contest.end_date)
-        return start_date, end_date
-
 
 class UserResultsView(APIView):
     permission_classes = [IsContestAdmin]
@@ -79,19 +75,15 @@ class UserResultsView(APIView):
         person_data.update({"id": contest_person.id})
         total_points = contest_person.contest_person_points.aggregate(total_points=Sum('point_total'))['total_points']
         scores = models_helper.get_person_points_by_criterion(contest_person).order_by("-point_total")
-        start_date, end_date = self.get_start_and_end_date(request, contest)
+        start_date, end_date = util_methods.get_contest_and_request_related_start_and_end_date(request, contest)
         dates = util_methods.get_dates_between_two_dates(start_date, end_date)
-        points_by_date = dict(models_helper.get_person_points_by_date(contest_person, dates, "-record_date"))
+        points_by_date = dict(models_helper.get_person_points_by_date(contest_person, dates, "-record_date")
+                              .values_list('record_date', "points"))
         days = [{"index": i, "date": date.strftime("%Y-%m-%d"), "points": points_by_date.get(date, 0)}
                 for i, date in enumerate(dates, start=1)]
-        result = dict(person_data=person_data, total_points=total_points, days=days, scores=scores)
+        result = dict(person_data=person_data, total_points=total_points, days=days, scores=scores,
+                      rank=models_helper.get_person_rank(contest_person))
         return Response(result)
-
-    @staticmethod
-    def get_start_and_end_date(request, contest):
-        start_date = request.query_params.get("start_date", contest.start_date)
-        end_date = request.query_params.get("end_date", contest.end_date)
-        return start_date, end_date
 
     def get_user_id(self, request, **kwargs):
         return kwargs["user_id"]

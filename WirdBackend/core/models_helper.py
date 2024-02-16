@@ -34,8 +34,7 @@ def get_person_points_by_date(contest_person, dates, order_by):
             .filter(record_date__in=dates)
             .values('record_date')
             .annotate(points=Sum('point_total'))
-            .order_by(order_by)
-            .values_list('record_date', "points"))
+            .order_by(order_by))
 
 
 def get_person_points_by_criterion(contest_person):
@@ -50,6 +49,19 @@ def get_leaderboard(contest):
             .filter(contest=contest, contest_role=ContestPerson.ContestRole.MEMBER)
             .annotate(total_points=Sum('contest_person_points__point_total'))
             .filter(total_points__gt=0)
-            .order_by("-total_points")
-            .values("id", "person__username", "person__first_name", "person__last_name"
-                    , "person__profile_photo", "total_points"))
+            .order_by("-total_points"))
+
+
+def get_person_rank(contest_person):
+    leaderboard = get_leaderboard(contest_person.contest)
+    try:
+        rank = list(leaderboard).index(contest_person) + 1
+    except ValueError:
+        rank = -1
+    return rank
+
+
+def get_group_leaderboard(group):
+    person_ids = (ContestPersonGroup.objects.filter(group=group, group_role=ContestPersonGroup.GroupRole.MEMBER)
+                  .values("contest_person__id"))
+    return get_leaderboard(group.contest).filter(id__in=person_ids)

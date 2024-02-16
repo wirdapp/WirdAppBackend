@@ -97,8 +97,11 @@ class HomePageView(views.APIView):
         contest_person = util_methods.get_current_contest_person(request)
         result["contest"] = ContestSerializer(contest, fields=["name", "contest_photo", "start_date", "end_date"]).data
         result["participant"] = ContestPerson.objects.filter(contest=contest).count()
-        result["leaderboard"] = models_helper.get_leaderboard(contest)[:3]
+        person_info = ["person__" + i for i in ["username", "first_name", "last_name", "profile_photo"]]
+        result["leaderboard"] = (models_helper.get_leaderboard(contest)[:3].values(*person_info, "total_points"))
         today = datetime.today()
         yesterday = today - timedelta(days=1)
-        result["points"] = models_helper.get_person_points_by_date(contest_person, [yesterday, today], "-record_date")
+        result["points"] = (models_helper.get_person_points_by_date(contest_person, [yesterday, today], "-record_date")
+                            .values('record_date', "points"))
+        result["rank"] = models_helper.get_person_rank(contest_person)
         return Response(result)
