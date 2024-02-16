@@ -3,10 +3,11 @@ from rest_framework import viewsets, views
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from WirdBackend.settings import settings
 from core import models_helper
 from core.serializers import *
 from core.util_classes import CustomPermissionsMixin
-from rest_framework import generics, permissions
+from rest_framework import permissions
 
 
 class ContestView(CustomPermissionsMixin, viewsets.ModelViewSet):
@@ -51,13 +52,19 @@ class ContestView(CustomPermissionsMixin, viewsets.ModelViewSet):
         return super().get_serializer(*args, fields=self.serializer_fields.get(self.action, None), **kwargs)
 
 
-class DeleteUserView(generics.DestroyAPIView):
+class DeleteUserView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ["delete"]
 
-    def delete(self, request, *args, **kwargs):
-        instance = self.get_object()
+    @staticmethod
+    def delete(request, *args, **kwargs):
+        instance = request.user
         instance.is_active = False
-        return Response(status=204)
+        instance.save()
+        response = Response(status=204)
+        response.delete_cookie(settings.REST_AUTH["JWT_AUTH_COOKIE"])
+        response.delete_cookie(settings.REST_AUTH["JWT_AUTH_REFRESH_COOKIE"])
+        return response
 
 
 class ResendEmailConfirmation(views.APIView):
