@@ -1,13 +1,18 @@
+import datetime
+
+from django.db.models import Count
 from django.utils.translation import gettext
+from rest_framework import permissions
 from rest_framework import viewsets, views
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from WirdBackend.settings import settings
 from core import models_helper
+from core.models import ContestInfo
 from core.serializers import *
 from core.util_classes import CustomPermissionsMixin
-from rest_framework import permissions
+from member_panel.models import PointRecord
 
 
 class ContestView(CustomPermissionsMixin, viewsets.ModelViewSet):
@@ -73,3 +78,19 @@ class ResendEmailConfirmation(views.APIView):
     def post(self, request):
         EmailAddress.objects.get(user=request.user).send_confirmation(request)
         return Response({'message': 'Email confirmation sent'}, status=201)
+
+
+class GeneralStatsView(views.APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        members_count = Person.objects.count()
+        contest_count = Contest.objects.count()
+        today = datetime.date.today()
+        last_week = util_methods.get_dates_between_two_dates(today - datetime.timedelta(days=7), today)
+        submission_count = PointRecord.objects.filter(record_date__in=last_week).count()
+        countries = (ContestInfo.objects.annotate(country_count=Count('contest_country'))
+                     .values("contest_country", "country_count"))
+        data = dict(members_count=members_count, contest_count=contest_count,
+                    submission_count=submission_count, countries=countries)
+        return Response(data)

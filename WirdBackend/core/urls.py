@@ -8,4 +8,5 @@ router.register(r'contests', views.ContestView, basename='contests')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('general_stats/', views.GeneralStatsView.as_view(), name='General Stats'),
 ]

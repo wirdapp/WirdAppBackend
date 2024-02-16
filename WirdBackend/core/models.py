@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import integer_validator, MinLengthValidator
 from django.db import models
 from django_resized import ResizedImageField
+from django_countries.fields import CountryField
 
 
 def upload_location(instance, filename):
@@ -28,6 +29,15 @@ class Contest(models.Model):
     days_to_record_in_past = models.PositiveSmallIntegerField(default=1, help_text="if zero then disabled")
     start_date = models.DateField()
     end_date = models.DateField()
+
+
+class ContestInfo(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
+    main_contact_full_name = models.CharField(max_length=128)
+    main_contact_phone_number = models.CharField(max_length=128)
+    main_contact_email = models.CharField(max_length=128)
+    contest_country = CountryField()
 
 
 class Person(AbstractUser):
