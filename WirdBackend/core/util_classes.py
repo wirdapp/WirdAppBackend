@@ -4,14 +4,12 @@ from gettext import gettext
 from allauth.account.adapter import get_adapter
 from allauth.account.forms import default_token_generator
 from allauth.account.utils import user_pk_to_url_str
-from rest_condition import And
 from rest_framework import mixins, exceptions
 from rest_framework import serializers
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from core import util_methods
 from core.models import Person
@@ -50,8 +48,6 @@ class CustomPermissionsMixin:
             return EmailVerified(),
         if self.action in self.member_allowed_methods:
             return IsContestMember(),
-        if self.action in self.verified_members_allowed_methods:
-            return And(EmailVerified(), IsContestMember()),
         if self.action in self.admin_allowed_methods:
             return IsContestAdmin(),
         if self.action in self.super_admin_allowed_methods:
