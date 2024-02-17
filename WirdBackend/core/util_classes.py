@@ -3,7 +3,6 @@ from gettext import gettext
 
 from allauth.account.adapter import get_adapter
 from allauth.account.forms import default_token_generator
-from allauth.account.models import EmailAddress
 from allauth.account.utils import user_pk_to_url_str
 from rest_condition import And
 from rest_framework import mixins, exceptions
