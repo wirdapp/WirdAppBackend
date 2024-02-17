@@ -11,10 +11,12 @@ SECRET_KEY = get_random_secret_key()
 DEBUG = False
 
 ALLOWED_HOSTS = ["localhost", '0.0.0.0', 'api.wird.app', "admin.wird.app"]
-CORS_ALLOWED_ORIGINS = ["http://localhost", 'http://0.0.0.0', 'https://api.wird.app', 'https://admin.wird.app']
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:8000',
-                        'https://api.wird.app', 'http://localhost:8200']
 CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:8000',
+                        'https://api.wird.app', 'https://admin.wird.app', 'http://localhost:8200']
+CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:8000',
+                        'https://api.wird.app', 'https://admin.wird.app', 'http://localhost:8200']
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
