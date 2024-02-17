@@ -1,4 +1,3 @@
-
 import multiprocessing
 
 # Django WSGI application path in pattern MODULE_NAME:VARIABLE_NAME
@@ -12,5 +11,5 @@ errorlog = "/var/log/gunicorn/error.log"
 capture_output = True
 # PID file so you can easily fetch process ID
 pidfile = "/var/run/gunicorn/prod.pid"
-# Daemonize the Gunicorn process (detach & enter background)
-#daemon = True
+timeout = 10
+keepalive = 2

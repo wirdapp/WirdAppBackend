@@ -13,9 +13,10 @@ except KeyError as e:
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['0.0.0.0']
+ALLOWED_HOSTS = ["localhost", '0.0.0.0', 'student.wird.app', 'admin.wird.app']
 CORS_ALLOWED_ORIGINS = ["http://localhost", 'http://0.0.0.0', 'https://student.wird.app', 'https://admin.wird.app']
-
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:8000',
+                        'https://admin.wird.app', 'http://localhost:8200']
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
@@ -40,7 +41,7 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAdminUser'
+        'rest_framework.permissions.IsAuthenticated'
     ],
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend'
@@ -55,7 +56,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_RATES': {
         'anon': '300/day',
-        'user': '30/minute',
+        'user': '50/minute',
     },
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
@@ -109,9 +110,9 @@ LOGGING = {
 }
 
 INSTALLED_APPS = [
-    "django.contrib.messages",
-    'django.contrib.admin',
-    'django.contrib.sessions',
+    # "django.contrib.messages",
+    # 'django.contrib.admin',
+    # 'django.contrib.sessions',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     "django.contrib.postgres",
@@ -167,6 +168,10 @@ WSGI_APPLICATION = 'WirdBackend.wsgi.application'
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'OPTIONS': {
+            'max_similarity': 0.3,
+            "user_attributes": ["username", "first_name", "last_name", "email", "phone_number"]
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
@@ -194,11 +199,10 @@ USE_TZ = True
 
 USE_L10N = False
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = 'media/'
-EXCEL_FILES = MEDIA_URL + 'excelfiles/'
+MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -241,6 +245,15 @@ SITE_ID = 1
 ACCOUNT_AUTHENTICATION_METHOD = 'username'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
-ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 3600
 ACCOUNT_UNIQUE_EMAIL = False
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "Wird Platform"
+ACCOUNT_USERNAME_BLACKLIST = ["wird", "wirdapp", "wirduser", "wirdadmin", "wird_admin", "wird_user", "admin",
+                              "wird_app"]
+
+# DB Backup
+DBBACKUP_SEND_EMAIL = True
+DBBACKUP_STORAGE = 'storages.backends.dropbox.DropBoxStorage'
+DBBACKUP_STORAGE_OPTIONS = {
+    'oauth2_access_token': os.environ["DROPBOX_TOKEN"],
+}
+DBBACKUP_ADMINS = (("Osama Abu Hamdan", "osamaabuhamdan@yahoo.com"))
