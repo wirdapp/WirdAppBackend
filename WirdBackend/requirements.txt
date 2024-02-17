@@ -14,12 +14,15 @@ django-dbbackup==4.1.0
 django-filter==23.5
 django-permissions-policy==4.19.0
 django-polymorphic==3.1.0
+django-redis==5.4.0
 django-resized==1.0.2
 django-rest-polymorphic==0.1.10
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.1
 drf-nested-routers==0.93.5
 drf-yasg==1.21.7
+funcy==2.0
+hiredis==2.3.2
 idna==3.6
 inflection==0.5.1
 jsonpickle==3.0.2
