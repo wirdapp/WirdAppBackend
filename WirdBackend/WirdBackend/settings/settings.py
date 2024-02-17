@@ -25,7 +25,7 @@ CORS_ALLOWED_ORIGINS = TRUSTED_ORIGINS
 
 CACHES = {
     'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
         'LOCATION': f"redis://{os.environ.get('REDIS_URL', '127.0.0.1')}:{os.environ.get('REDIS_PORT', '6379')}",
         'TIMEOUT': 60
     }
