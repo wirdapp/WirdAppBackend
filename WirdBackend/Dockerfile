@@ -62,8 +62,6 @@ RUN apt-get update \
         python3-pip \
         cython3 \
         libpq-dev \
-        postgresql-client\
-        cron\
     && apt install -y netcat \
     && rm -rf /var/lib/apt/lists/*
 

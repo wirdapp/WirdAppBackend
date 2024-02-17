@@ -137,7 +137,6 @@ INSTALLED_APPS = [
     'polymorphic',
     'drf_yasg',
     "cachalot",
-    "dbbackup"
 ]
 
 MIDDLEWARE = [
@@ -257,11 +256,3 @@ ACCOUNT_UNIQUE_EMAIL = False
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "Wird Platform"
 ACCOUNT_USERNAME_BLACKLIST = ["wird", "wirdapp", "wirduser", "wirdadmin", "wird_admin", "wird_user", "admin",
                               "wird_app"]
-
-# DB Backup
-DBBACKUP_SEND_EMAIL = True
-DBBACKUP_STORAGE = 'storages.backends.dropbox.DropBoxStorage'
-DBBACKUP_STORAGE_OPTIONS = {
-    'oauth2_access_token': os.environ.get("DROPBOX_TOKEN", ""),
-}
-DBBACKUP_ADMINS = (("Osama Abu Hamdan", "osamaabuhamdan@yahoo.com"))
