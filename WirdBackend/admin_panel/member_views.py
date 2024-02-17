@@ -28,6 +28,8 @@ class Leaderboard(APIView):
 
 
 class ContestOverallResultsView(APIView):
+    permission_classes = [IsContestAdmin]
+
     def get(self, request, *args, **kwargs):
         contest = util_methods.get_current_contest(request)
         start_date, end_date = util_methods.get_contest_and_request_related_start_and_end_date(request, contest)
