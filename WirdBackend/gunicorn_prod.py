@@ -11,5 +11,5 @@ errorlog = "/var/log/gunicorn/error.log"
 capture_output = True
 # PID file so you can easily fetch process ID
 pidfile = "/var/run/gunicorn/prod.pid"
-timeout = 10
-keepalive = 2
+bind = "0.0.0.0:8000"
+daemon = True
