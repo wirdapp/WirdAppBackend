@@ -1,0 +1,1 @@
+python manage.py dbbackup --noinput  --quiet --compress

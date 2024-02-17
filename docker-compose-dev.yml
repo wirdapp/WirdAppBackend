@@ -1,39 +1,37 @@
 version: '3.8'
 
 services:
-  wird_back:
-    build:
-      context: ./Ramadan_Competition_Rest
-    command: python manage.py runserver 0.0.0.0:8000
-    expose:
-      - 8000
+  wird_dev_backend:
+    image: wird_back:latest
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - 8100:8000
     env_file:
-      - .wird_django_local.env
+      - backend_dev_vars.env
     depends_on:
-      - db
+      - wird_dev_db
+      - wird_dev_redis
     networks:
-      - wird-network
+      - wird_dev_network
 
-  db:
+  wird_dev_db:
     image: postgres:13.0-alpine
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - wird_dev_db_data:/var/lib/postgresql/data/
     env_file:
-      - .wird_db_local.env
+      - db_dev_vars.env
     networks:
-      - wird-network
+      - wird_dev_network
 
-  redis:
+  wird_dev_redis:
     image: redis:7.0.2-alpine
     command: redis-server
-    expose:
-      - "6379"
     networks:
-      - wird-network
+      - wird_dev_network
 
 volumes:
-  postgres_data:
+  wird_dev_db_data:
 
 networks:
-  wird-network:
+  wird_dev_network:
     driver: bridge
