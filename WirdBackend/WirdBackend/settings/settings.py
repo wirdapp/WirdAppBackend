@@ -12,10 +12,11 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["localhost", '0.0.0.0', 'api.wird.app', "admin.wird.app"]
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True  # If this is used then `CORS_ALLOWED_ORIGINS` will not have any effect
 CSRF_TRUSTED_ORIGINS = ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:8000',
                         'https://api.wird.app', 'https://admin.wird.app', 'http://localhost:8200']
-CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:8000',
-                        'https://api.wird.app', 'https://admin.wird.app', 'http://localhost:8200']
+CORS_ORIGIN_WHITELIST = ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:8000',
+                         'https://api.wird.app', 'https://admin.wird.app', 'http://localhost:8200']
 
 CACHES = {
     'default': {
