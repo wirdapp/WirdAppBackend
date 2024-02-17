@@ -75,9 +75,9 @@ RUN pip install /wheels/*
 RUN mkdir -p /var/log/gunicorn/ /var/run/gunicorn/ /var/log/wird_app/
 RUN chown -R app:app /var/log/gunicorn/ /var/run/gunicorn/ /var/log/wird_app/
 
-RUN chmod +x $APP_HOME/start-server.sh
-
 COPY . $APP_HOME
+
 RUN chown -R app:app $APP_HOME
+RUN chmod +x $APP_HOME/start-server.sh
 
 USER app
