@@ -1,18 +1,16 @@
 import datetime
 
+from WirdBackend.settings import settings
+from core import models_helper
+from core.serializers import *
+from core.util_classes import CustomPermissionsMixin
 from django.db.models import Count
 from django.utils.translation import gettext
+from member_panel.models import PointRecord
 from rest_framework import permissions
 from rest_framework import viewsets, views
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
-from WirdBackend.settings import settings
-from core import models_helper
-from core.models import ContestInfo
-from core.serializers import *
-from core.util_classes import CustomPermissionsMixin
-from member_panel.models import PointRecord
 
 
 class ContestView(CustomPermissionsMixin, viewsets.ModelViewSet):
@@ -89,8 +87,8 @@ class GeneralStatsView(views.APIView):
         today = datetime.date.today()
         last_week = util_methods.get_dates_between_two_dates(today - datetime.timedelta(days=7), today)
         submission_count = PointRecord.objects.filter(record_date__in=last_week).count()
-        countries = (ContestInfo.objects.annotate(country_count=Count('contest_country'))
-                     .values("contest_country", "country_count"))
+        countries = (Contest.objects.values("country").annotate(country_count=Count('country'))
+                     .values("country", "country_count"))
         data = dict(members_count=members_count, contest_count=contest_count,
                     submission_count=submission_count, countries=countries)
         return Response(data)

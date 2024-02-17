@@ -8,7 +8,7 @@ import django_resized.forms
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0003_contestinfo'),
+        ('core', '0002_alter_contest_announcements'),
     ]
 
     operations = [

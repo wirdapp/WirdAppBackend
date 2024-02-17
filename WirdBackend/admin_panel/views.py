@@ -1,20 +1,19 @@
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
-from rest_framework import viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
-
 from core import models_helper
-from core.permissions import IsGroupAdmin, IsContestSuperAdmin
+from core.permissions import IsGroupAdmin, IsContestOwner
 from core.serializers import ContestSerializer
 from core.util_classes import CustomPermissionsMixin, MyPageNumberPagination, DestroyBeforeContestStartMixin, \
     BulkCreateModelMixin
-from .serializers import *
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 from rest_framework import generics
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from .serializers import *
 
 
-class ContestView(generics.RetrieveUpdateAPIView):
-    permission_classes = [IsContestSuperAdmin]
+class ContestView(DestroyBeforeContestStartMixin, generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsContestOwner]
     serializer_class = ContestSerializer
 
     def get_object(self):
