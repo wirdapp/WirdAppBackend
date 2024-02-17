@@ -6,10 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-try:
-    SECRET_KEY = os.environ.get("SECRET_KEY")
-except KeyError as e:
-    SECRET_KEY = get_random_secret_key()
+SECRET_KEY = get_random_secret_key()
 
 DEBUG = False
 
@@ -254,6 +251,6 @@ ACCOUNT_USERNAME_BLACKLIST = ["wird", "wirdapp", "wirduser", "wirdadmin", "wird_
 DBBACKUP_SEND_EMAIL = True
 DBBACKUP_STORAGE = 'storages.backends.dropbox.DropBoxStorage'
 DBBACKUP_STORAGE_OPTIONS = {
-    'oauth2_access_token': os.environ["DROPBOX_TOKEN"],
+    'oauth2_access_token': os.environ.get("DROPBOX_TOKEN", ""),
 }
 DBBACKUP_ADMINS = (("Osama Abu Hamdan", "osamaabuhamdan@yahoo.com"))
