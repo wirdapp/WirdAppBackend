@@ -2,4 +2,4 @@
 
 export DJANGO_SETTINGS_MODULE="WirdBackend.settings.settings"
 python manage.py migrate --no-input
-gunicorn -c gunicorn_prod.py
+gunicorn -c gunicorn_prod.py WirdBackend.wsgi:application
