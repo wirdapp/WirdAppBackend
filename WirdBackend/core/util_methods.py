@@ -61,7 +61,7 @@ def is_person_role_in_contest(request, expected_roles):
 
 def get_contest_and_request_related_start_and_end_date(request, contest):
     contest_start_date = contest.start_date
-    contest_end_date = contest.start_date
+    contest_end_date = contest.end_date
     start_date = max(request.query_params.get("start_date", contest_start_date), contest_start_date)
     end_date = min(datetime.today().date() + timedelta(days=1), request.query_params.get("end_date", contest_end_date))
     return start_date, end_date
