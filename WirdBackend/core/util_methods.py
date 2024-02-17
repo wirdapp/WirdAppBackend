@@ -1,7 +1,6 @@
 from datetime import timedelta, datetime
 
 from django.shortcuts import get_object_or_404
-from hijri_converter import Hijri
 from rest_framework import exceptions
 
 from core.models import ContestPerson, Contest
@@ -13,10 +12,6 @@ def get_dates_between_two_dates(start, end):
     if isinstance(end, str):
         end = datetime.strptime(end, "%Y-%m-%d").date()
     return [start + timedelta(days=d) for d in range((end - start).days)]
-
-
-def get_today_date_hijri():
-    return Hijri.today()
 
 
 def get_username(request):
