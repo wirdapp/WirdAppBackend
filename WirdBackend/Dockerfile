@@ -1,5 +1,5 @@
 # Use an argument for Python version
-ARG PYTHON_VERSION=3.9.6
+ARG PYTHON_VERSION=3.11.0
 
 ###########
 # BUILDER #
