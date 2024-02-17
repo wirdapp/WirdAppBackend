@@ -131,7 +131,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'polymorphic',
     'drf_yasg',
-    "cachalot"
+    "cachalot",
+    "dbbackup"
 ]
 
 MIDDLEWARE = [
