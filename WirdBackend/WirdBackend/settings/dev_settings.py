@@ -18,6 +18,31 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'core.global_exception_handler.custom_exception_handler',
 }
 
+INSTALLED_APPS = [
+    "django.contrib.messages",
+    'django.contrib.admin',
+    'django.contrib.sessions',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    "django.contrib.postgres",
+    'member_panel.apps.StudentConfig',
+    'admin_panel.apps.AdminPanelConfig',
+    'core.apps.CoreConfig',
+    'rest_framework',
+    "rest_framework.authtoken",
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    'django_filters',
+    'corsheaders',
+    'polymorphic',
+    'drf_yasg',
+    "cachalot",
+]
+
+
 MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
