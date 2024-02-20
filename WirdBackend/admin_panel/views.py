@@ -56,12 +56,22 @@ class ContestCriterionView(DestroyBeforeContestStartMixin, CustomPermissionsMixi
 
 
 class GroupView(CustomPermissionsMixin, viewsets.ModelViewSet):
-    admin_allowed_methods = ['list', 'update', 'partial_update', 'retrieve']
+    admin_allowed_methods = ['list', 'update', 'partial_update', 'retrieve', "leaderboard"]
     super_admin_allowed_methods = ["create", "destroy"]
     serializer_class = GroupSerializer
 
     def get_queryset(self):
         return models_helper.get_person_enrolled_groups(self.request)
+
+    @action(detail=True, methods=["get"])
+    def leaderboard(self, request, *args, **kwargs):
+        group = self.get_object()
+        limit = request.query_params.get("limit", None)
+        person_info = ["person__" + i for i in ["username", "first_name", "last_name", "profile_photo"]]
+        leaderboard = models_helper.get_group_leaderboard(group).values("id", "total_points", *person_info)
+        if limit:
+            leaderboard = leaderboard[:int(limit)]
+        return Response(leaderboard)
 
 
 class ContestPersonGroupView(BulkCreateModelMixin, viewsets.ModelViewSet):
