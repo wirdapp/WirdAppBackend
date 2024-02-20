@@ -120,7 +120,7 @@ LOGGING = {
 INSTALLED_APPS = [
     # "django.contrib.messages",
     # 'django.contrib.admin',
-    'django.contrib.sessions',
+    # 'django.contrib.sessions',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     "django.contrib.postgres",
@@ -129,10 +129,10 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
     'rest_framework',
     "rest_framework.authtoken",
-    "dj_rest_auth",
-    "dj_rest_auth.registration",
-    "allauth",
-    "allauth.account",
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'dj_rest_auth.registration',
     'django_filters',
     'corsheaders',
     'polymorphic',
@@ -141,7 +141,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',  # Keep for handling Cross-Origin Resource Sharing (CORS)
     'django.middleware.security.SecurityMiddleware',  # Keep for security enhancements
     'whitenoise.middleware.WhiteNoiseMiddleware',  # Keep for static file serving optimization
@@ -258,3 +257,6 @@ ACCOUNT_UNIQUE_EMAIL = False
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "Wird Platform"
 ACCOUNT_USERNAME_BLACKLIST = ["wird", "wirdapp", "wirduser", "wirdadmin", "wird_admin", "wird_user", "admin",
                               "wird_app"]
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
+ACCOUNT_ADAPTER = "core.util_classes.AllAuthSessionLessAdapter"
+ACCOUNT_SIGNUP_REDIRECT_URL = "/"
