@@ -120,7 +120,7 @@ LOGGING = {
 INSTALLED_APPS = [
     # "django.contrib.messages",
     # 'django.contrib.admin',
-    # 'django.contrib.sessions',
+    'django.contrib.sessions',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     "django.contrib.postgres",
@@ -133,7 +133,6 @@ INSTALLED_APPS = [
     "dj_rest_auth.registration",
     "allauth",
     "allauth.account",
-    "allauth.socialaccount",
     'django_filters',
     'corsheaders',
     'polymorphic',
@@ -142,6 +141,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',  # Keep for handling Cross-Origin Resource Sharing (CORS)
     'django.middleware.security.SecurityMiddleware',  # Keep for security enhancements
     'whitenoise.middleware.WhiteNoiseMiddleware',  # Keep for static file serving optimization
