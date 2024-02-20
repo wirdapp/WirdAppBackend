@@ -1,7 +1,9 @@
-from datetime import datetime, timedelta
+import datetime
 from gettext import gettext
 
+from rest_framework import views
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from admin_panel import member_views as admin_member_views
@@ -11,15 +13,15 @@ from core import util_methods, models_helper
 from core.models import ContestPerson
 from core.permissions import IsContestMember
 from core.serializers import ContestSerializer
-from core.util_classes import CustomPermissionsMixin, BulkCreateModelMixin
+from core.util_classes import CustomPermissionsMixin, BulkCreateModelMixin, BulkUpdateModelMixin
 from core.util_methods import get_current_contest_person
 from member_panel.models import PointRecord
 from member_panel.serializers import PolymorphicPointRecordSerializer
-from rest_framework import views
 
 
-class MemberPointRecordViewSet(CustomPermissionsMixin, BulkCreateModelMixin, viewsets.ModelViewSet):
-    member_allowed_methods = ['list', 'retrieve', 'create', 'update', 'partial_update', 'destroy']
+class MemberPointRecordViewSet(CustomPermissionsMixin, BulkCreateModelMixin, BulkUpdateModelMixin,
+                               viewsets.ModelViewSet):
+    member_allowed_methods = ['list', 'retrieve', 'create', 'update', 'partial_update', 'destroy', 'bulk_update']
     serializer_class = PolymorphicPointRecordSerializer
 
     def get_queryset(self):
@@ -32,6 +34,12 @@ class MemberPointRecordViewSet(CustomPermissionsMixin, BulkCreateModelMixin, vie
         context['record_date'] = self.kwargs["date"]
         context['person'] = util_methods.get_current_contest_person(self.request).id
         return context
+
+    @action(detail=False, methods=['patch', 'put'])
+    def bulk_update(self, request, *args, **kwargs):
+        if request.method == "PATCH":
+            kwargs["partial"] = True
+        return super().bulk_update(request, *args, **kwargs)
 
 
 class ContestCriteriaViewSet(viewsets.ReadOnlyModelViewSet):
@@ -99,8 +107,8 @@ class HomePageView(views.APIView):
         result["participant"] = ContestPerson.objects.filter(contest=contest).count()
         person_info = ["person__" + i for i in ["username", "first_name", "last_name", "profile_photo"]]
         result["leaderboard"] = (models_helper.get_leaderboard(contest)[:3].values(*person_info, "total_points"))
-        today = datetime.today()
-        yesterday = today - timedelta(days=1)
+        today = datetime.datetime.today()
+        yesterday = today - datetime.timedelta(days=1)
         result["points"] = (models_helper.get_person_points_by_date(contest_person, [yesterday, today], "-record_date")
                             .values('record_date', "points"))
         result["rank"] = models_helper.get_person_rank(contest_person)

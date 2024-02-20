@@ -74,6 +74,41 @@ class BulkCreateModelMixin:
         return Response(created, status=status.HTTP_201_CREATED)
 
 
+class BulkUpdateModelMixin:
+    def bulk_update(self, request, *args, **kwargs):
+        errors = []
+        updated = []
+        partial = kwargs.pop('partial', False)
+        serializer = self.get_serializer
+        data = request.data if isinstance(request.data, list) else [request.data]
+        for item in data:
+            instance = self.get_object(item)
+            if instance:
+                _serializer = serializer(instance, data=item, partial=partial)
+                _is_valid = _serializer.is_valid(raise_exception=True)
+                if _is_valid:
+                    self.perform_update(_serializer)
+                    updated.append(_serializer.data)
+                    if getattr(instance, '_prefetched_objects_cache', None):
+                        instance._prefetched_objects_cache = {}
+                else:
+                    errors.append({"error": _serializer.errors, "data": _serializer.initial_data})
+            else:
+                errors.append({"error": "Object not Found", "data": item})
+        if len(errors) > 0:
+            return Response({"updated": updated, "errors": errors}, status=207)
+        return Response(updated, status=status.HTTP_200_OK)
+
+    def get_object(self, item):
+        queryset = self.filter_queryset(self.get_queryset())
+        try:
+            obj = queryset.get(pk=item["id"])
+        except queryset.model.DoesNotExist:
+            return None
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+
 class DestroyBeforeContestStartMixin(mixins.DestroyModelMixin):
     def destroy(self, request, *args, **kwargs):
         contest = util_methods.get_current_contest(request)
