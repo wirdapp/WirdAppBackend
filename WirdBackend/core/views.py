@@ -11,6 +11,9 @@ from rest_framework import permissions
 from rest_framework import viewsets, views
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from allauth.account.adapter import get_adapter
+from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
 
 
 class ContestView(CustomPermissionsMixin, viewsets.ModelViewSet):
@@ -44,7 +47,7 @@ class ContestView(CustomPermissionsMixin, viewsets.ModelViewSet):
 
     serializer_fields = dict(
         list=["id", "contest_id", "name", "contest_photo", "person_contest_role"],
-        create=["contest_id", "name", "description", "contest_photo", "start_date", "end_date"],
+        create=["contest_id", "name", "description", "contest_photo", "country", "start_date", "end_date"],
         join_contest=["contest_id"],
     )
 
@@ -76,6 +79,21 @@ class ResendEmailConfirmation(views.APIView):
     def post(self, request):
         EmailAddress.objects.get(user=request.user).send_confirmation(request)
         return Response({'message': 'Email confirmation sent'}, status=201)
+
+
+class UsernameResetView(views.APIView):
+    permission_classes = [permissions.AllowAny]
+
+    @method_decorator(ratelimit(key='ip', rate='1/d', method='POST'))
+    def post(self, request, *args, **kwargs):
+        try:
+            email = request.data.get("email", "")
+            usernames = list(EmailAddress.objects.filter(email=email).values_list("user__username", flat=True))
+            context = {"usernames": usernames}
+            get_adapter(request).send_mail('account/email/username_reset', email, context)
+        except Exception as e:
+            pass  # for security reasons
+        return Response(gettext("email sent"))
 
 
 class GeneralStatsView(views.APIView):
