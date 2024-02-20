@@ -76,6 +76,7 @@ class DeleteUserView(views.APIView):
 class ResendEmailConfirmation(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @method_decorator(ratelimit(key='ip', rate='10/d', method='POST'))
     def post(self, request):
         EmailAddress.objects.get(user=request.user).send_confirmation(request)
         return Response({'message': 'Email confirmation sent'}, status=201)
@@ -84,7 +85,7 @@ class ResendEmailConfirmation(views.APIView):
 class UsernameResetView(views.APIView):
     permission_classes = [permissions.AllowAny]
 
-    @method_decorator(ratelimit(key='ip', rate='1/d', method='POST'))
+    @method_decorator(ratelimit(key='ip', rate='10/d', method='POST'))
     def post(self, request, *args, **kwargs):
         try:
             email = request.data.get("email", "")
