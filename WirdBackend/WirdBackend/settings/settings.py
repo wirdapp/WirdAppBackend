@@ -10,7 +10,7 @@ SECRET_KEY = get_random_secret_key()
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["localhost", '0.0.0.0', 'api.wird.app', "admin.wird.app"]
+ALLOWED_HOSTS = ["localhost", '0.0.0.0', 'api.wird.app', "admin.wird.app", "wird.app"]
 CORS_ALLOW_CREDENTIALS = True
 TRUSTED_ORIGINS = [
     "http://localhost:3000",
@@ -18,6 +18,8 @@ TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "https://api.wird.app",
     "https://admin.wird.app",
+    "https://wird.app",
+    "https://www.wird.app",
     "http://localhost:8200",
 ]
 CSRF_TRUSTED_ORIGINS = TRUSTED_ORIGINS
