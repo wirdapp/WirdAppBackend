@@ -59,8 +59,8 @@ ALLOWED_HOSTS = [
     "dev.wird.app",
     'admin.wird.app',
     'admin.wird.app',
-    "api_dev.wird.app",
-    "admin_dev.wird.app",
+    "apidev.wird.app",
+    "admindev.wird.app",
 ]
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
@@ -68,14 +68,14 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8080',
     'http://localhost:8000',
     'https://admin.wird.app',
-    'https://api_dev.wird.app',
-    "https://admin_dev.wird.app"
+    'https://apidev.wird.app',
+    "https://admindev.wird.app"
 ]
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:8080',
     'http://localhost:8000',
     'https://admin.wird.app',
-    'https://api_dev.wird.app',
-    "https://admin_dev.wird.app"
+    'https://apidev.wird.app',
+    "https://admindev.wird.app"
 ]
