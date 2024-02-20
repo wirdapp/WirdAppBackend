@@ -69,7 +69,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
     'https://admin.wird.app',
     'https://api_dev.wird.app',
-    "https://admin_dev.wird.app/"
+    "https://admin_dev.wird.app"
 ]
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
@@ -77,5 +77,5 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000',
     'https://admin.wird.app',
     'https://api_dev.wird.app',
-    "https://admin_dev.wird.app/"
+    "https://admin_dev.wird.app"
 ]
