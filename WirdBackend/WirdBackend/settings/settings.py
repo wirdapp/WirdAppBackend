@@ -257,6 +257,6 @@ ACCOUNT_UNIQUE_EMAIL = False
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "Wird Platform"
 ACCOUNT_USERNAME_BLACKLIST = ["wird", "wirdapp", "wirduser", "wirdadmin", "wird_admin", "wird_user", "admin",
                               "wird_app"]
-ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
-ACCOUNT_ADAPTER = "core.util_classes.AllAuthSessionLessAdapter"
-ACCOUNT_SIGNUP_REDIRECT_URL = "/"
+# ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
+# ACCOUNT_ADAPTER = "core.util_classes.AllAuthSessionLessAdapter"
+# ACCOUNT_SIGNUP_REDIRECT_URL = "/"

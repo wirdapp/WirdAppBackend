@@ -9,3 +9,7 @@ capture_output = True
 # PID file so you can easily fetch process ID
 pidfile = "/var/run/gunicorn/prod.pid"
 bind = "0.0.0.0:8000"
+loglevel = 'info'
+access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'
+certfile = '/etc/letsencrypt/live/wird.app/fullchain.pem'
+keyfile = '/etc/letsencrypt/live/wird.app/privkey.pem'
