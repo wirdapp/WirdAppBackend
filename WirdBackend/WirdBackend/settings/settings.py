@@ -141,15 +141,15 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # Keep for handling Cross-Origin Resource Sharing (CORS)
-    'django.middleware.security.SecurityMiddleware',  # Keep for security enhancements
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Keep for static file serving optimization
-    'django.middleware.common.CommonMiddleware',  # Keep for various common functionalities
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',  # Keep for clickjacking protection
-    "django_permissions_policy.PermissionsPolicyMiddleware",  # Keep for setting various browser permissions policies
-    'django.middleware.locale.LocaleMiddleware',  # Optional, remove if not needed for internationalization
-    'allauth.account.middleware.AccountMiddleware',  # Remove if not using Django Allauth for authentication
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django_permissions_policy.PermissionsPolicyMiddleware",
+    'django.middleware.locale.LocaleMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'WirdBackend.urls'
@@ -257,6 +257,4 @@ ACCOUNT_UNIQUE_EMAIL = False
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "Wird Platform"
 ACCOUNT_USERNAME_BLACKLIST = ["wird", "wirdapp", "wirduser", "wirdadmin", "wird_admin", "wird_user", "admin",
                               "wird_app"]
-# ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
-# ACCOUNT_ADAPTER = "core.util_classes.AllAuthSessionLessAdapter"
-# ACCOUNT_SIGNUP_REDIRECT_URL = "/"
+
