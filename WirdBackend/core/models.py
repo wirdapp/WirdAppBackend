@@ -9,9 +9,9 @@ from django_resized import ResizedImageField
 
 def upload_location(instance, filename):
     extension = filename.split('.')[-1]
-    if instance is Person:
+    if isinstance(instance, Person):
         filename = f'{instance.username}_profile_photo.{extension}'
-    elif instance is Contest:
+    elif isinstance(instance, Contest):
         filename = f'{instance.id}_contest_photo.{extension}'
     return filename
 
