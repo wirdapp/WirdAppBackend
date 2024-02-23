@@ -120,7 +120,7 @@ LOGGING = {
 INSTALLED_APPS = [
     # "django.contrib.messages",
     # 'django.contrib.admin',
-    # 'django.contrib.sessions',
+    'django.contrib.sessions',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     "django.contrib.postgres",
@@ -149,6 +149,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django_permissions_policy.PermissionsPolicyMiddleware",
     'django.middleware.locale.LocaleMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'allauth.account.middleware.AccountMiddleware',
 ]
 
@@ -258,5 +259,7 @@ ACCOUNT_EMAIL_SUBJECT_PREFIX = "Wird Platform"
 ACCOUNT_USERNAME_BLACKLIST = ["wird", "wirdapp", "wirduser", "wirdadmin", "wird_admin", "wird_user", "admin",
                               "wird_app"]
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
-ACCOUNT_ADAPTER = "core.util_classes.AllAuthSessionLessAdapter"
 ACCOUNT_SIGNUP_REDIRECT_URL = "/"
+SESSION_COOKIE_AGE = 0
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+# TODO: Remove any dependence on sessions (Remove any dependence on django allauth)
