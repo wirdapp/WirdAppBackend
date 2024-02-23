@@ -10,8 +10,8 @@ from core.models import ContestPerson
 
 class PointRecord(PolymorphicModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    person = models.ForeignKey(ContestPerson, on_delete=models.PROTECT, related_name='contest_person_points')
-    contest_criterion = models.ForeignKey(ContestCriterion, on_delete=models.PROTECT)
+    person = models.ForeignKey(ContestPerson, on_delete=models.CASCADE, related_name='contest_person_points')
+    contest_criterion = models.ForeignKey(ContestCriterion, on_delete=models.CASCADE)
     record_date = models.DateField()
     timestamp = models.DateTimeField(auto_now=True)
     point_total = models.IntegerField(default=0)
@@ -21,7 +21,7 @@ class PointRecord(PolymorphicModel):
         unique_together = ('person', 'contest_criterion', 'record_date')
 
     def __str__(self):
-        return f'{self.person.person_id}:{self.point_template.label}:date:{self.record_date}'
+        return f'{self.person.id}:{self.contest_criterion.label}:date:{self.record_date}'
 
 
 class NumberPointRecord(PointRecord):

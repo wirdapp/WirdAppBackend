@@ -13,7 +13,7 @@ class Section(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     label = models.CharField(default='', max_length=120)
     position = models.IntegerField()
-    contest = models.ForeignKey("core.Contest", on_delete=models.PROTECT, related_name='contest_sections')
+    contest = models.ForeignKey("core.Contest", on_delete=models.CASCADE, related_name='contest_sections')
 
     def __str__(self):
         return f"{self.label} @ {self.contest.name}"
@@ -28,8 +28,8 @@ class ContestCriterion(PolymorphicModel):
     active = models.BooleanField(default=True)
     activate_on_dates = fields.ArrayField(models.DateField(), blank=True, default=list)
     deactivate_on_dates = fields.ArrayField(models.DateField(), blank=True, default=list)
-    contest = models.ForeignKey("core.Contest", on_delete=models.PROTECT)
-    section = models.ForeignKey(Section, on_delete=models.PROTECT)
+    contest = models.ForeignKey("core.Contest", on_delete=models.CASCADE)
+    section = models.ForeignKey(Section, on_delete=models.CASCADE)
     points = models.IntegerField(default=1)
 
     def __str__(self):
@@ -79,7 +79,7 @@ class Group(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=128, default='')
     announcements = models.JSONField(default=dict)
-    contest = models.ForeignKey("core.Contest", on_delete=models.PROTECT)
+    contest = models.ForeignKey("core.Contest", on_delete=models.CASCADE)
 
     @cached_property
     def members_count(self):

@@ -15,6 +15,7 @@ from .serializers import *
 class ContestView(DestroyBeforeContestStartMixin, generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsContestOwner]
     serializer_class = ContestSerializer
+    destroy_message = gettext("deleting a contest will delete all users, points, groups, and results in it")
 
     def get_object(self):
         return util_methods.get_current_contest(self.request)
@@ -24,6 +25,7 @@ class SectionView(DestroyBeforeContestStartMixin, CustomPermissionsMixin, viewse
     serializer_class = SectionSerializer
     admin_allowed_methods = ['list', 'retrieve']
     super_admin_allowed_methods = ["create", "update", "partial_update", "destroy", "update_order"]
+    destroy_message = gettext("deleting a section will delete all contest criteria in it")
 
     def get_queryset(self):
         contest = util_methods.get_current_contest(self.request)
@@ -41,6 +43,7 @@ class ContestCriterionView(DestroyBeforeContestStartMixin, CustomPermissionsMixi
     admin_allowed_methods = ['list', 'retrieve']
     super_admin_allowed_methods = ['create', "update", "partial_update", "destroy", "update_order"]
     serializer_class = ContestPolymorphicCriterionSerializer
+    destroy_message = gettext("deleting a criterion will delete all points members recorded under it")
 
     def get_queryset(self):
         contest = util_methods.get_current_contest(self.request)
