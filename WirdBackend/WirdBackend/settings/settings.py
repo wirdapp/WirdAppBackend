@@ -263,3 +263,6 @@ ACCOUNT_SIGNUP_REDIRECT_URL = "/"
 SESSION_COOKIE_AGE = 0
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 # TODO: Remove any dependence on sessions (Remove any dependence on django allauth)
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
+ACCOUNT_ADAPTER = "core.util_classes.AllAuthSessionLessAdapter"
+ACCOUNT_SIGNUP_REDIRECT_URL = "/"

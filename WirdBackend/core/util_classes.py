@@ -14,6 +14,8 @@ from rest_framework.response import Response
 from core import util_methods
 from core.models import Person
 from core.permissions import IsContestAdmin, IsContestSuperAdmin, NoPermission, IsContestMember, EmailVerified
+from allauth.account.adapter import DefaultAccountAdapter
+
 
 class DateConverter:
     regex = '[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}'
@@ -171,3 +173,25 @@ class PasswordResetSerializer(serializers.Serializer):
             'account/email/password_reset_key', data["email"], context
         )
 
+
+class AllAuthSessionLessAdapter(DefaultAccountAdapter):
+    def stash_verified_email(self, request, email):
+        pass
+
+    def unstash_verified_email(self, request):
+        return None
+
+    def stash_user(self, request, user):
+        pass
+
+    def unstash_user(self, request):
+        return request.user.pk
+
+    def is_email_verified(self, request, email):
+        return False
+
+    def pre_login(self, request, user, *, email_verification, signal_kwargs, email, signup, redirect_url):
+        info = dict(email_verification=email_verification, signal_kwargs=signal_kwargs, email=email, signup=signup,
+                    redirect_url=redirect_url)
+        super().pre_login(request, user, **info)
+        return Response("Welcome!")
