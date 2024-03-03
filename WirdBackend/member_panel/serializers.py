@@ -139,7 +139,7 @@ class RadioPointRecordSerializer(PointRecordSerializer):
     def calculate_points(self, validated_data):
         criterion = self.get_contest_criterion(validated_data)
         user_choice = validated_data['choice']
-        correct_criterion_option = next(option for option in criterion.options if option["is_correct"])
+        correct_criterion_option = next((option for option in criterion.options if option["is_correct"]), {"id": ""})
         validated_data['point_total'] = criterion.points * (correct_criterion_option["id"] == user_choice)
 
 
