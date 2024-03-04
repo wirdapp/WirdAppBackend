@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-19 23:00-0600\n"
+"POT-Creation-Date: 2024-03-04 11:16-0600\n"
 "PO-Revision-Date: 2021-11-24 16:27+0000\n"
 "Last-Translator: Mariusz Felisiak <felisiak.mariusz@gmail.com>\n"
 "Language-Team: Arabic (http://www.transifex.com/django/django/language/ar/)\n"
@@ -13,11 +13,11 @@ msgstr ""
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
-#: WirdBackend/settings/settings.py:197
+#: WirdBackend/settings/settings.py:199
 msgid "Arabic"
 msgstr ""
 
-#: WirdBackend/settings/settings.py:198
+#: WirdBackend/settings/settings.py:200
 msgid "English"
 msgstr ""
 
@@ -65,7 +65,20 @@ msgstr ""
 msgid "only members are allowed to become group members"
 msgstr ""
 
-#: admin_panel/views.py:84 admin_panel/views.py:116
+#: admin_panel/views.py:18
+msgid ""
+"deleting a contest will delete all users, points, groups, and results in it"
+msgstr ""
+
+#: admin_panel/views.py:28
+msgid "deleting a section will delete all contest criteria in it"
+msgstr ""
+
+#: admin_panel/views.py:46
+msgid "deleting a criterion will delete all points members recorded under it"
+msgstr ""
+
+#: admin_panel/views.py:97 admin_panel/views.py:129
 msgid "You do not have the permission to do this action"
 msgstr ""
 
@@ -79,25 +92,25 @@ msgstr ""
 msgid "person exists in contest"
 msgstr "المستخدم عضو حالي في هذه المسابقة"
 
-#: core/util_classes.py:81
-msgid "cannot edit contest after its start date"
+#: core/util_classes.py:114
+msgid "this action will destroy all objects related to it"
 msgstr ""
 
-#: core/util_classes.py:121
+#: core/util_classes.py:160
 msgid "Invalid e-mail or username"
 msgstr ""
 
-#: core/views.py:38
+#: core/views.py:40
 msgid "joined the new contest"
 msgstr ""
 "لقد اشتركت في المسابقة بنجاح ، يمكنك الذهاب إلى الصفحة الرئيسية وبالبدء "
 "بإدخال النقاط"
 
-#: core/views.py:40
+#: core/views.py:42
 msgid "cannot join this contest or access code is wrong"
 msgstr ""
 
-#: core/views.py:93
+#: core/views.py:97
 msgid "email sent"
 msgstr ""
 
@@ -129,7 +142,7 @@ msgstr ""
 msgid "Choice entered is not valid"
 msgstr ""
 
-#: member_panel/views.py:70
+#: member_panel/views.py:78
 msgid "leaderboard is not available now"
 msgstr ""
 
@@ -171,19 +184,46 @@ msgid "all_auth_email_html_follow_us"
 msgstr ""
 "للمساعدة الفنية أو لأي سؤال تستطيع التواصل معنا على وسائل التواصل الاجتماعي"
 
-#: templates/account/email/email_confirmation_message.html:270
-#: templates/account/email/email_confirmation_signup_message.html:270
-#: templates/account/email/password_reset_key_message.html:258
-#: templates/account/email/username_reset_message.html:250
+#: templates/account/email/email_confirmation_message.html:252
+#: templates/account/email/email_confirmation_message.html:292
+#: templates/account/email/email_confirmation_signup_message.html:252
+#: templates/account/email/email_confirmation_signup_message.html:292
+#: templates/account/email/password_reset_key_message.html:240
+#: templates/account/email/password_reset_key_message.html:280
+#: templates/account/email/username_reset_message.html:232
+#: templates/account/email/username_reset_message.html:272
+msgid "all_auth_email_youtube_guide_link"
+msgstr ""
+"https://www.youtube.com/watch?"
+"v=OZGjdevnarI&list=PLh7mINmitSDXo2A2G6LqA8zRxZZJuhzvs&pp=gAQBiAQB"
+
+#: templates/account/email/email_confirmation_message.html:279
+#: templates/account/email/email_confirmation_signup_message.html:279
+#: templates/account/email/password_reset_key_message.html:267
+#: templates/account/email/username_reset_message.html:259
 msgid "all_auth_email_html_visit_wird_app"
 msgstr "أو تفضل بزيارة موقعنا على الرابط التالي: "
 
-#: templates/account/email/email_confirmation_message.html:272
-#: templates/account/email/email_confirmation_signup_message.html:272
-#: templates/account/email/password_reset_key_message.html:260
-#: templates/account/email/username_reset_message.html:252
+#: templates/account/email/email_confirmation_message.html:281
+#: templates/account/email/email_confirmation_signup_message.html:281
+#: templates/account/email/password_reset_key_message.html:269
+#: templates/account/email/username_reset_message.html:261
 msgid "all_auth_email_html_wird_app_link"
 msgstr "موقع منصة وِرد"
+
+#: templates/account/email/email_confirmation_message.html:291
+#: templates/account/email/email_confirmation_signup_message.html:291
+#: templates/account/email/password_reset_key_message.html:279
+#: templates/account/email/username_reset_message.html:271
+msgid "all_auth_email_youtube_guide"
+msgstr "شاهد شروحات المنصة على اليوتيوب"
+
+#: templates/account/email/email_confirmation_message.html:293
+#: templates/account/email/email_confirmation_signup_message.html:293
+#: templates/account/email/password_reset_key_message.html:281
+#: templates/account/email/username_reset_message.html:273
+msgid "all_auth_email_youtube_guide_link_text"
+msgstr "شروحات المنصة والتطبيق"
 
 #: templates/account/email/password_reset_key_message.html:161
 #, fuzzy

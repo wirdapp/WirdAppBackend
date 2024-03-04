@@ -222,17 +222,26 @@
                                                                                          title="facebook"
                                                                                          width="32"/></a></td>
                                                             <td style="padding:0 5px 0 5px;"><a
-                                                                    href="https://www.whatsapp.com" target="_blank"><img
+                                                                    href="https://api.whatsapp.com/send/?phone=%2B962781508132&text&type=phone_number"
+                                                                    target="_blank"><img
                                                                     alt="WhatsApp" height="32"
                                                                     src="https://wird.app/assets/whatsapp2x.png"
                                                                     style="display: block; height: auto; border: 0;"
                                                                     title="WhatsApp" width="32"/></a></td>
                                                             <td style="padding:0 5px 0 5px;"><a
-                                                                    href="https://www.youtube.com/" target="_blank"><img
+                                                                    href="{% trans 'all_auth_email_youtube_guide_link' %}"
+                                                                    target="_blank"><img
                                                                     alt="YouTube" height="32"
                                                                     src="https://wird.app/assets/youtube2x.png"
                                                                     style="display: block; height: auto; border: 0;"
                                                                     title="YouTube" width="32"/></a></td>
+                                                            <td style="padding:0 5px 0 5px;"><a
+                                                                    href="https://t.me/wird_platform"
+                                                                    target="_blank"><img
+                                                                    alt="Telegram" height="32"
+                                                                    src="https://wird.app/assets/telegram-logo.png.png"
+                                                                    style="display: block; height: auto; border: 0;"
+                                                                    title="Telegram" width="32"/></a></td>
                                                         </tr>
                                                     </table>
                                                 </div>
@@ -250,6 +259,18 @@
                                                         {% trans "all_auth_email_html_visit_wird_app" %}
                                                         <a href="https://wird.app">
                                                             {% trans "all_auth_email_html_wird_app_link" %}
+                                                        </a>
+                                                    </p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="pad">
+                                                <div style="color:#101112;direction:ltr;font-family:'Merriweather', 'Georgia', serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:center;mso-line-height-alt:19.2px;">
+                                                    <p style="margin: 0;">
+                                                        {% trans "all_auth_email_youtube_guide" %}
+                                                        <a href="{% trans 'all_auth_email_youtube_guide_link' %}">
+                                                            {% trans "all_auth_email_youtube_guide_link_text" %}
                                                         </a>
                                                     </p>
                                                 </div>
