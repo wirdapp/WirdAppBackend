@@ -208,6 +208,8 @@ USE_TZ = True
 
 USE_L10N = False
 
+TIME_ZONE = "Asia/Amman"
+
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
