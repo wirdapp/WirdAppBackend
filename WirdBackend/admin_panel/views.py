@@ -111,7 +111,6 @@ class ContestMembersView(CustomPermissionsMixin, viewsets.ModelViewSet):
     filterset_fields = {"contest_role": ["in", "exact"], "person__username": ["exact"]}
     ordering_fields = ['person__username', "person__first_name"]
     search_fields = [f"person__{field}" for field in ["first_name", "last_name", "username"]]
-    lookup_field = "person__username"
 
     def perform_destroy(self, instance):
         # Delete groups enrollment when removing from contest
