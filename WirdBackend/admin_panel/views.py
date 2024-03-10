@@ -1,8 +1,7 @@
 from core import models_helper
 from core.permissions import IsGroupAdmin, IsContestOwner
 from core.serializers import ContestSerializer
-from core.util_classes import CustomPermissionsMixin, MyPageNumberPagination, DestroyBeforeContestStartMixin, \
-    BulkCreateModelMixin
+from core.util_classes import CustomPermissionsMixin, MyPageNumberPagination, BulkCreateModelMixin
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework import generics
@@ -12,20 +11,18 @@ from rest_framework.response import Response
 from .serializers import *
 
 
-class ContestView(DestroyBeforeContestStartMixin, generics.RetrieveUpdateDestroyAPIView):
+class ContestView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsContestOwner]
     serializer_class = ContestSerializer
-    destroy_message = gettext("deleting a contest will delete all users, points, groups, and results in it")
 
     def get_object(self):
         return util_methods.get_current_contest(self.request)
 
 
-class SectionView(DestroyBeforeContestStartMixin, CustomPermissionsMixin, viewsets.ModelViewSet):
+class SectionView(CustomPermissionsMixin, viewsets.ModelViewSet):
     serializer_class = SectionSerializer
     admin_allowed_methods = ['list', 'retrieve']
     super_admin_allowed_methods = ["create", "update", "partial_update", "destroy", "update_order"]
-    destroy_message = gettext("deleting a section will delete all contest criteria in it")
 
     def get_queryset(self):
         contest = util_methods.get_current_contest(self.request)
@@ -39,11 +36,10 @@ class SectionView(DestroyBeforeContestStartMixin, CustomPermissionsMixin, viewse
         return Response(f"{gettext('updated the order of sections successfully')} {no_of_updates}")
 
 
-class ContestCriterionView(DestroyBeforeContestStartMixin, CustomPermissionsMixin, viewsets.ModelViewSet):
+class ContestCriterionView(CustomPermissionsMixin, viewsets.ModelViewSet):
     admin_allowed_methods = ['list', 'retrieve']
     super_admin_allowed_methods = ['create', "update", "partial_update", "destroy", "update_order"]
     serializer_class = ContestPolymorphicCriterionSerializer
-    destroy_message = gettext("deleting a criterion will delete all points members recorded under it")
 
     def get_queryset(self):
         contest = util_methods.get_current_contest(self.request)
@@ -111,11 +107,6 @@ class ContestMembersView(CustomPermissionsMixin, viewsets.ModelViewSet):
     filterset_fields = {"contest_role": ["in", "exact"], "person__username": ["exact"]}
     ordering_fields = ['person__username', "person__first_name"]
     search_fields = [f"person__{field}" for field in ["first_name", "last_name", "username"]]
-
-    def perform_destroy(self, instance):
-        # Delete groups enrollment when removing from contest
-        ContestPersonGroup.objects.filter(contest_person=instance).delete()
-        super().perform_destroy(instance)
 
     def get_queryset(self):
         contest = util_methods.get_current_contest(self.request)

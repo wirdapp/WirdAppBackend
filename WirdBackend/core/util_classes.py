@@ -110,18 +110,6 @@ class BulkUpdateModelMixin:
         return obj
 
 
-class DestroyBeforeContestStartMixin(mixins.DestroyModelMixin):
-    destroy_message = gettext("this action will destroy all objects related to it")
-
-    def destroy(self, request, *args, **kwargs):
-        contest = util_methods.get_current_contest(request)
-        sure = request.query_params.get('sure', False)
-        if datetime.today().date() >= contest.start_date and not sure:
-            return Response(self.destroy_message, status=405)
-        else:
-            return super().destroy(request, *args, **kwargs)
-
-
 class DynamicFieldsCategorySerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         # Don't pass the 'fields' arg up to the superclass

@@ -8,10 +8,14 @@ from admin_panel.models import ContestCriterion
 from core.models import ContestPerson
 
 
+def NON_POLYMORPHIC_CASCADE(collector, field, sub_objs, using):
+    return models.CASCADE(collector, field, sub_objs.non_polymorphic(), using)
+
+
 class PointRecord(PolymorphicModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    person = models.ForeignKey(ContestPerson, on_delete=models.CASCADE, related_name='contest_person_points')
-    contest_criterion = models.ForeignKey(ContestCriterion, on_delete=models.CASCADE)
+    person = models.ForeignKey(ContestPerson, on_delete=NON_POLYMORPHIC_CASCADE, related_name='contest_person_points')
+    contest_criterion = models.ForeignKey(ContestCriterion, on_delete=NON_POLYMORPHIC_CASCADE)
     record_date = models.DateField()
     timestamp = models.DateTimeField(auto_now=True)
     point_total = models.IntegerField(default=0)
