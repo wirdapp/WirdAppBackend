@@ -92,8 +92,8 @@ class UserResultsView(APIView):
 
 
 class MemberPointRecordViewSet(CustomPermissionsMixin, viewsets.ModelViewSet):
-    # super_admin_allowed_methods = ['list', 'retrieve', 'create', 'update', 'partial_update', 'destroy']
-    permission_classes = [IsContestAdmin]
+    super_admin_allowed_methods = ['list', 'retrieve', 'create', 'update', 'partial_update', 'destroy']
+    admin_allowed_methods = ['list', 'retrieve', 'create', 'update', 'partial_update', 'destroy']
     # TODO: Admin is only allowed to edit points of his Group students
     serializer_class = AdminPolymorphicPointRecordSerializer
 
