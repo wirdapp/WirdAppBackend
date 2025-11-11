@@ -12,11 +12,15 @@ from core.permissions import IsContestAdmin
 from core.serializers import PersonSerializer
 from core.util_classes import CustomPermissionsMixin
 from member_panel.models import PointRecord
+from drf_spectacular.utils import extend_schema, inline_serializer
+from rest_framework import serializers
+from admin_panel.api_schemas import UserResultsViewAPISchema, leaderboard_api_response
 
 
 class Leaderboard(APIView):
     permission_classes = [IsContestAdmin]
 
+    @extend_schema(responses=leaderboard_api_response)
     def get(self, request, *args, **kwargs):
         contest = util_methods.get_current_contest(request)
         limit = request.query_params.get("limit", None)
@@ -68,6 +72,7 @@ class ContestOverallResultsView(APIView):
 class UserResultsView(APIView):
     permission_classes = [IsContestAdmin]
 
+    @extend_schema(responses=UserResultsViewAPISchema)
     def get(self, request, *args, **kwargs):
         user_id = self.get_user_id(request, **kwargs)
         contest = util_methods.get_current_contest(request)

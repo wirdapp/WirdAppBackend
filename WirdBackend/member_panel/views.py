@@ -17,7 +17,8 @@ from core.util_classes import CustomPermissionsMixin, BulkCreateModelMixin, Bulk
 from core.util_methods import get_current_contest_person
 from member_panel.models import PointRecord
 from member_panel.serializers import PolymorphicPointRecordSerializer
-
+from drf_spectacular.utils import extend_schema, inline_serializer
+from member_panel.api_schemas import announcements_api_response, leaderboard_api_response
 
 class MemberPointRecordViewSet(CustomPermissionsMixin, BulkCreateModelMixin, BulkUpdateModelMixin,
                                viewsets.ModelViewSet):
@@ -70,6 +71,7 @@ class UserResultsView(admin_member_views.UserResultsView):
 class Leaderboard(admin_member_views.Leaderboard):
     permission_classes = [IsContestMember]
 
+    @extend_schema(responses=leaderboard_api_response)
     def get(self, request, *args, **kwargs):
         contest = util_methods.get_current_contest(request)
         if contest.show_standings:
@@ -81,6 +83,7 @@ class Leaderboard(admin_member_views.Leaderboard):
 class AnnouncementsView(views.APIView):
     permission_classes = [IsContestMember]
 
+    @extend_schema(responses=announcements_api_response)
     def get(self, request, *args, **kwargs):
         contest = util_methods.get_current_contest(request)
         results = []
@@ -93,23 +96,3 @@ class AnnouncementsView(views.APIView):
             [ann.update(source=group["name"]) for ann in group["announcements"]]
             results.extend(group["announcements"])
         return Response(results)
-
-
-class HomePageView(views.APIView):
-    permission_classes = [IsContestMember]
-
-    # TODO: Delete this after this year
-    def get(self, request, *args, **kwargs):
-        result = {}
-        contest = util_methods.get_current_contest(request)
-        contest_person = util_methods.get_current_contest_person(request)
-        result["contest"] = ContestSerializer(contest, fields=["name", "contest_photo", "start_date", "end_date"]).data
-        result["participant"] = ContestPerson.objects.filter(contest=contest).count()
-        person_info = ["person__" + i for i in ["username", "first_name", "last_name", "profile_photo"]]
-        result["leaderboard"] = (models_helper.get_leaderboard(contest)[:3].values(*person_info, "total_points"))
-        today = datetime.datetime.today()
-        yesterday = today - datetime.timedelta(days=1)
-        result["points"] = (models_helper.get_person_points_by_date(contest_person, [yesterday, today], "-record_date")
-                            .values('record_date', "points"))
-        result["rank"] = models_helper.get_person_rank(contest_person)
-        return Response(result)
