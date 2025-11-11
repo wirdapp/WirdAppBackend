@@ -1,19 +1,23 @@
 import datetime
 
+from allauth.account.adapter import get_adapter
+from django.core.cache import cache
+from django.db import connection
+from django.db.models import Count
+from django.utils.decorators import method_decorator
+from django.utils.translation import gettext
+from django_ratelimit.decorators import ratelimit
+from rest_framework import permissions
+from rest_framework import viewsets, views
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+
 from WirdBackend.settings import settings
 from core import models_helper
 from core.serializers import *
 from core.util_classes import CustomPermissionsMixin
-from django.db.models import Count
-from django.utils.translation import gettext
 from member_panel.models import PointRecord
-from rest_framework import permissions
-from rest_framework import viewsets, views
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from allauth.account.adapter import get_adapter
-from django.utils.decorators import method_decorator
-from django_ratelimit.decorators import ratelimit
 
 
 class ContestView(CustomPermissionsMixin, viewsets.ModelViewSet):
@@ -111,3 +115,36 @@ class GeneralStatsView(views.APIView):
         data = dict(members_count=members_count, contest_count=contest_count,
                     submission_count=submission_count, countries=countries)
         return Response(data)
+
+
+class HealthCheckView(views.APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        health_status = {
+            'status': 'healthy',
+            'database': 'unknown',
+            'cache': 'unknown'
+        }
+
+        # Check database
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT 1")
+            health_status['database'] = 'connected'
+        except Exception:
+            health_status['database'] = 'disconnected'
+            health_status['status'] = 'unhealthy'
+
+        # Check cache
+        try:
+            cache.set('health_check', 'ok', 1)
+            if cache.get('health_check') == 'ok':
+                health_status['cache'] = 'connected'
+            else:
+                health_status['cache'] = 'disconnected'
+        except Exception:
+            health_status['cache'] = 'disconnected'
+
+        status_code = 200 if health_status['status'] == 'healthy' else 503
+        return Response(health_status, status=status_code)

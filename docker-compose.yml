@@ -1,40 +1,50 @@
 version: '3.8'
 
 services:
-  wird_backend:
+  backend:
     image: wird_back:prod
-    command: ./start-server.sh
+    command: ./start-server.sh production
     volumes:
-      - /var/www/html/wird_app:/home/app/web/staticfiles
-      - /var/www/html/wird_app:/home/app/web/mediafiles
+      - /var/www/html/wird_app/static:/home/app/web/staticfiles
+      - /var/www/html/wird_app/media:/home/app/web/mediafiles
     ports:
-      - 8200:8000
+      - "8200:8000"
     env_file:
       - backend_vars.env
     depends_on:
-      - wird_db
-      - wird_redis
+      - db
+      - redis
     networks:
-      - wird_network
+      - network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 120s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
-  wird_db:
+  db:
     image: postgres:13.0-alpine
     volumes:
-      - wird_db_data:/var/lib/postgresql/data/
+      - db_data:/var/lib/postgresql/data/
     env_file:
       - db_vars.env
     networks:
-      - wird_network
+      - network
+    restart: unless-stopped
+    shm_size: 256mb
 
-  wird_redis:
+  redis:
     image: redis:7.0.2-alpine
-    command: redis-server
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
     networks:
-      - wird_network
+      - network
+    restart: unless-stopped
 
 volumes:
-  wird_db_data:
+  db_data:
 
 networks:
-  wird_network:
+  network:
     driver: bridge

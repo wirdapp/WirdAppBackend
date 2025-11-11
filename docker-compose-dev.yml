@@ -1,37 +1,49 @@
 version: '3.8'
 
 services:
-  wird_dev_backend:
+  backend:
     image: wird_back:latest
-    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: ./start-server.sh development
+    volumes:
+      - /var/www/html/wird_dev/static:/home/app/web/staticfiles
+      - /var/www/html/wird_dev/media:/home/app/web/mediafiles
     ports:
-      - 8100:8000
+      - "8300:8000"
     env_file:
       - backend_dev_vars.env
     depends_on:
-      - wird_dev_db
-      - wird_dev_redis
+      - db
+      - redis
     networks:
-      - wird_dev_network
+      - network
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health/" ]
+      interval: 120s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
-  wird_dev_db:
+  db:
     image: postgres:13.0-alpine
     volumes:
-      - wird_dev_db_data:/var/lib/postgresql/data/
+      - db_data:/var/lib/postgresql/data/
     env_file:
       - db_dev_vars.env
     networks:
-      - wird_dev_network
+      - network
+    restart: unless-stopped
 
-  wird_dev_redis:
+  redis:
     image: redis:7.0.2-alpine
-    command: redis-server
+    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
     networks:
-      - wird_dev_network
+      - network
+    restart: unless-stopped
 
 volumes:
-  wird_dev_db_data:
+  db_data:
 
 networks:
-  wird_dev_network:
+  network:
     driver: bridge
