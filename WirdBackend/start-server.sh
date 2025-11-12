@@ -22,6 +22,10 @@ MODE=${1:-production}
 
 echo "Starting server in $MODE mode..."
 
+if [ "${ENABLE_GUI:-}" = "true" ] || [ "${ENABLE_ADMIN:-}" = "true" ]; then
+  echo "Collecting static files..."
+  python manage.py collectstatic --no-input
+fi
 # Common: Run migrations
 echo "Running database migrations..."
 python manage.py migrate --no-input

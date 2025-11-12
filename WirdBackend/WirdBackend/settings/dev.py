@@ -25,7 +25,7 @@ ENABLE_API_DOCS = True
 INSTALLED_APPS = ['drf_spectacular'] + INSTALLED_APPS
 
 if ENABLE_ADMIN:
-    INSTALLED_APPS = ['django.contrib.admin', 'django.contrib.messages']+ INSTALLED_APPS
+    INSTALLED_APPS = ['django.contrib.admin', 'django.contrib.messages'] + INSTALLED_APPS
 
 if ENABLE_GUI or ENABLE_ADMIN:
     MIDDLEWARE.insert(5, 'django.contrib.sessions.middleware.SessionMiddleware')
@@ -42,7 +42,7 @@ if ENABLE_GUI or ENABLE_ADMIN:
     ]
     # Enable sessions
     SESSION_ENGINE = "django.contrib.sessions.backends.db"
-    # SESSION_COOKIE_AGE = 1209600  # 2 weeks
+    INSTALLED_APPS = ["django.contrib.staticfiles"] + INSTALLED_APPS
 
 AUTH_PASSWORD_VALIDATORS = []
 ACCOUNT_PASSWORD_MIN_LENGTH = 1
