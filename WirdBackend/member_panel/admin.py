@@ -1,5 +1,9 @@
 from django.contrib import admin
 
-from member_panel.models import PointRecord
+from member_panel.models import *
 
-admin.site.register(PointRecord)
+admin.site.register(NumberPointRecord)
+admin.site.register(CheckboxPointRecord)
+admin.site.register(UserInputPointRecord)
+admin.site.register(RadioPointRecord)
+admin.site.register(MultiCheckboxPointRecord)

@@ -7,4 +7,5 @@ admin.site.register(CheckboxCriterion)
 admin.site.register(NumberCriterion)
 admin.site.register(RadioCriterion)
 admin.site.register(MultiCheckboxCriterion)
+admin.site.register(UserInputCriterion)
 

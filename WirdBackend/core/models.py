@@ -30,6 +30,9 @@ class Contest(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
 
+    def __str__(self):
+        return f"{self.name} @ {self.contest_id}"
+
 
 class Person(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
