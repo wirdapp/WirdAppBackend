@@ -17,11 +17,32 @@ CORS_ALLOWED_ORIGINS = TRUSTED_ORIGINS
 CORS_ALLOW_ALL_ORIGINS = True
 DEBUG = True
 
+# Security and SSL
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
 SECURE_SSL_REDIRECT = False  # nginx already redirects 80 -> 443
 SECURE_HSTS_SECONDS = 0
+
+# Cookie settings for cross-subdomain authentication
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_DOMAIN = '.wird.app'
+SESSION_COOKIE_NAME = 'wird_sessionid'
+
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = False  # Must be False for CSRF token to be read by JS
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_DOMAIN = '.wird.app'
+CSRF_COOKIE_NAME = 'wird_csrftoken'
+
+# JWT Cookie settings (if using auth_kit)
+AUTH_KIT = {
+    'JWT_COOKIE_SECURE': True,
+    'JWT_COOKIE_HTTPONLY': True,
+    'JWT_COOKIE_SAMESITE': 'Lax',
+    'JWT_COOKIE_DOMAIN': '.wird.app',
+}
+
 # GUI mode for dev server
 ENABLE_GUI = os.environ.get('ENABLE_GUI', 'true').lower() == 'true'
 ENABLE_ADMIN = os.environ.get('ENABLE_ADMIN', 'true').lower() == 'true'
@@ -51,6 +72,7 @@ if ENABLE_GUI or ENABLE_ADMIN:
 
 AUTH_PASSWORD_VALIDATORS = []
 ACCOUNT_PASSWORD_MIN_LENGTH = 1
+
 # Disable rate limiting
 REST_FRAMEWORK['DEFAULT_THROTTLE_CLASSES'] = []
 REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'] = {}
@@ -70,6 +92,3 @@ SPECTACULAR_SETTINGS = {
 LOGGING['loggers']['django']['level'] = 'INFO'
 LOGGING['loggers']['django.request']['level'] = 'INFO'
 LOGGING['root']['level'] = 'INFO'
-
-# Less strict security
-SECURE_HSTS_SECONDS = 60
