@@ -17,6 +17,11 @@ CORS_ALLOWED_ORIGINS = TRUSTED_ORIGINS
 CORS_ALLOW_ALL_ORIGINS = True
 DEBUG = True
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = False  # nginx already redirects 80 -> 443
+SECURE_HSTS_SECONDS = 0
 # GUI mode for dev server
 ENABLE_GUI = os.environ.get('ENABLE_GUI', 'true').lower() == 'true'
 ENABLE_ADMIN = os.environ.get('ENABLE_ADMIN', 'true').lower() == 'true'
