@@ -17,32 +17,6 @@ CORS_ALLOWED_ORIGINS = TRUSTED_ORIGINS
 CORS_ALLOW_ALL_ORIGINS = True
 DEBUG = True
 
-# Security and SSL
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = False  # nginx already redirects 80 -> 443
-SECURE_HSTS_SECONDS = 0
-
-# Cookie settings for cross-subdomain authentication
-SESSION_COOKIE_SECURE = True
-SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_DOMAIN = '.wird.app'
-SESSION_COOKIE_NAME = 'wird_sessionid'
-
-CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_HTTPONLY = False  # Must be False for CSRF token to be read by JS
-CSRF_COOKIE_SAMESITE = 'Lax'
-CSRF_COOKIE_DOMAIN = '.wird.app'
-CSRF_COOKIE_NAME = 'wird_csrftoken'
-
-# JWT Cookie settings (if using auth_kit)
-AUTH_KIT = {
-    'JWT_COOKIE_SECURE': True,
-    'JWT_COOKIE_HTTPONLY': True,
-    'JWT_COOKIE_SAMESITE': 'Lax',
-    'JWT_COOKIE_DOMAIN': '.wird.app',
-}
-
 # GUI mode for dev server
 ENABLE_GUI = os.environ.get('ENABLE_GUI', 'true').lower() == 'true'
 ENABLE_ADMIN = os.environ.get('ENABLE_ADMIN', 'true').lower() == 'true'
@@ -54,9 +28,10 @@ if ENABLE_ADMIN:
     INSTALLED_APPS = ['django.contrib.admin', 'django.contrib.messages'] + INSTALLED_APPS
 
 if ENABLE_GUI or ENABLE_ADMIN:
-    MIDDLEWARE.insert(5, 'django.contrib.sessions.middleware.SessionMiddleware')
-    MIDDLEWARE.insert(6, 'django.contrib.auth.middleware.AuthenticationMiddleware')
-    MIDDLEWARE.insert(7, 'django.contrib.messages.middleware.MessageMiddleware')
+    MIDDLEWARE.insert(2, 'django.contrib.sessions.middleware.SessionMiddleware')
+    MIDDLEWARE.insert(3, 'django.contrib.auth.middleware.AuthenticationMiddleware')
+    MIDDLEWARE.insert(4, 'django.contrib.messages.middleware.MessageMiddleware')
+
     # Add session authentication + browsable API
     REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] = [
         'rest_framework.authentication.SessionAuthentication',
@@ -69,6 +44,16 @@ if ENABLE_GUI or ENABLE_ADMIN:
     # Enable sessions
     SESSION_ENGINE = "django.contrib.sessions.backends.db"
     INSTALLED_APPS = ["django.contrib.staticfiles"] + INSTALLED_APPS
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+SESSION_COOKIE_DOMAIN = ".wird.app"
+CSRF_COOKIE_DOMAIN = ".wird.app"
+
+# Essential for Cross-Origin requests (e.g., frontend to api)
+SESSION_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SAMESITE = 'None'
 
 AUTH_PASSWORD_VALIDATORS = []
 ACCOUNT_PASSWORD_MIN_LENGTH = 1
