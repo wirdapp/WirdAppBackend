@@ -28,10 +28,18 @@ INSTALLED_APPS = [
     'admin_panel.apps.AdminPanelConfig',
     'core.apps.CoreConfig',
     'rest_framework',
+
     'allauth',
     'allauth.account',
-    'django_filters',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',  # Google OAuth2
+    'allauth.socialaccount.providers.facebook',  # Facebook OAuth2
+    'allauth.socialaccount.providers.instagram',  # Instagram OAuth2
+    # 'allauth.socialaccount.providers.apple',
     'auth_kit',
+    'auth_kit.social',  # DRF Auth Kit social integration
+
+    'django_filters',
     'corsheaders',
     'polymorphic',
     'cachalot',
@@ -181,8 +189,42 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_KIT = {}
+AUTH_KIT = {
+    'SOCIAL_LOGIN_AUTH_TYPE': 'code',  # Recommended: 'code' for security, or 'token'
+}
 
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+        'OAUTH_PKCE_ENABLED': True,
+        'FETCH_USERINFO': True,
+    },
+    'facebook': {
+        'METHOD': 'oauth2',  # Set to 'js_sdk' if using the Facebook JS SDK
+        'SCOPE': ['email', 'public_profile'],
+        'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
+        'INIT_PARAMS': {'cookie': True},
+        'FIELDS': [
+            'id',
+            'first_name',
+            'last_name',
+            'middle_name',
+            'name',
+            'name_format',
+            'picture',
+            'short_name',
+            'email',
+        ],
+        'EXCHANGE_TOKEN': True,
+        'VERIFIED_EMAIL': False,
+        'VERSION': 'v13.0', # Use the latest Graph API version
+    },
+    'instagram': {
+        'SCOPE': ['user_profile', 'user_media'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+    }
+}
 # Internationalization
 LANGUAGE_CODE = 'en'
 LANGUAGES = [
@@ -223,7 +265,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 PERMISSIONS_POLICY = {"fullscreen": "*"}
 
-SITE_ID = 1
+SITE_ID = int(os.getenv('DJANGO_SITE_ID', 1))
 
 # Allauth
 ACCOUNT_AUTHENTICATION_METHOD = 'username'

@@ -27,7 +27,7 @@ urlpatterns = [
     path('admin_panel/<str:contest_id>/', include('admin_panel.urls')),
     path('member_panel/<str:contest_id>/', include('member_panel.urls')),
     path('auth/', include('auth_kit.urls')),
-    path('local-auth/', include('rest_framework.urls')),
+    path('auth/social/', include('auth_kit.social.urls')),
 ]
 
 # Add API documentation if enabled
