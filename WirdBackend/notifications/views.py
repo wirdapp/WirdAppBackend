@@ -1,8 +1,9 @@
 from django_q.tasks import async_task
+from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
-from core.util_classes import CustomPermissionsMixin
+from core.permissions import IsContestMember, IsContestSuperAdmin
 from core.util_methods import get_current_contest_person, get_current_contest
 from notifications.models import Notification, UserDevice
 from notifications.serializers import UserDeviceSerializer, AllNotificationSerializer
@@ -19,11 +20,8 @@ class UserDeviceViewSet(ModelViewSet):
         serializer.save(user=self.request.user)
 
 
-class AllNotificationViewSet(CustomPermissionsMixin, ModelViewSet):
+class AllNotificationViewSet(generics.ListCreateAPIView, generics.DestroyAPIView):
     serializer_class = AllNotificationSerializer
-    member_allowed_methods = ['list']
-    super_admin_allowed_methods = ["create", 'retrieve', "update", "partial_update", "destroy"]
-
 
     def get_queryset(self):
         # Filter to competitions where user is admin
@@ -32,6 +30,11 @@ class AllNotificationViewSet(CustomPermissionsMixin, ModelViewSet):
         return Notification.objects.filter(
             contest=contest
         )
+
+    def get_permissions(self):
+        if self.request.method in ['DELETE', 'POST']:
+            return [IsContestSuperAdmin()]
+        return [IsContestMember()]
 
     def perform_create(self, serializer):
         contest_person = get_current_contest_person(self.request)
