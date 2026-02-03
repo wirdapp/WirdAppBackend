@@ -1,11 +1,10 @@
 import os
 from pathlib import Path
-from django.core.management.utils import get_random_secret_key
 from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY', get_random_secret_key())
+SECRET_KEY = os.environ.get('SECRET_KEY', "123")
 
 DEBUG = False
 
@@ -43,6 +42,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'polymorphic',
     'cachalot',
+    'notifications',
+    'django_q'
 ]
 
 # Base middleware
@@ -219,7 +220,7 @@ SOCIALACCOUNT_PROVIDERS = {
         ],
         'EXCHANGE_TOKEN': True,
         'VERIFIED_EMAIL': False,
-        'VERSION': 'v13.0', # Use the latest Graph API version
+        'VERSION': 'v13.0',  # Use the latest Graph API version
     },
     'instagram': {
         'SCOPE': ['user_profile', 'user_media'],
@@ -278,3 +279,17 @@ ACCOUNT_USERNAME_BLACKLIST = ["wird", "wirdapp", "wirduser", "wirdadmin", "wird_
                               "wird_app"]
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
 ACCOUNT_SIGNUP_REDIRECT_URL = "/"
+# Firebase Configuration
+FIREBASE_CREDENTIALS_PATH = os.environ.get('FIREBASE_CREDENTIALS_PATH', 'firebase_credentials.json')
+
+Q_CLUSTER = {
+    'name': 'wird_app',
+    'workers': 1,
+    'recycle': 500,
+    'timeout': 60,
+    'retry': 120,
+    'queue_limit': 50,
+    'bulk': 10,
+    'catch_up': False,
+    'max_attempts': 3,
+}

@@ -23,6 +23,12 @@ SECURE_HSTS_SECONDS = 31536000  # 1 year
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
-
-# Stateless REST APIs only - JWT authentication
-# No browsable API, no sessions
+Q_CLUSTER.update({
+    'workers': 4,
+    'queue_limit': 100,
+    'redis': {
+        'host': os.environ.get('REDIS_URL', '127.0.0.1'),
+        'port': os.environ.get('REDIS_PORT', '6379'),
+        'db': 1
+    },
+})

@@ -77,3 +77,9 @@ SPECTACULAR_SETTINGS = {
 LOGGING['loggers']['django']['level'] = 'INFO'
 LOGGING['loggers']['django.request']['level'] = 'INFO'
 LOGGING['root']['level'] = 'INFO'
+LOGGING['root']['level'] = 'INFO'
+LOGGING['loggers']['django']['level'] = 'INFO'
+LOGGING['loggers']['django.request']['level'] = 'INFO'
+Q_CLUSTER.update({
+    'orm': 'default',
+})

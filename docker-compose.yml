@@ -7,6 +7,7 @@ services:
     volumes:
       - /var/www/html/wird_app/static:/home/app/web/staticfiles
       - /var/www/html/wird_app/media:/home/app/web/mediafiles
+      - ./firebase-credentials.json:/home/app/web/firebase-credentials.json:ro
     ports:
       - "8200:8000"
     env_file:
@@ -18,11 +19,25 @@ services:
       - network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health/" ]
       interval: 120s
       timeout: 10s
       retries: 3
       start_period: 10s
+
+  qcluster:
+    image: wird_back:prod
+    command: python manage.py qcluster
+    volumes:
+      - ./firebase-credentials.json:/home/app/web/firebase-credentials.json:ro
+    env_file:
+      - backend_vars.env
+    depends_on:
+      - db
+      - redis
+    networks:
+      - network
+    restart: unless-stopped
 
   db:
     image: postgres:18-alpine

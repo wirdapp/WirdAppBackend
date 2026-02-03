@@ -67,3 +67,6 @@ uritemplate==4.2.0
 urllib3==2.5.0
 whitenoise==6.11.0
 yarl==1.22.0
+django-q2>=1.6.0
+firebase-admin>=6.0.0
+pytz>=2023.3
