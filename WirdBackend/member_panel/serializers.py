@@ -59,7 +59,7 @@ class PointRecordSerializer(serializers.ModelSerializer):
         return value
 
     def validate_person(self, person):
-        if person.contest_role != ContestPerson.ContestRole.MEMBER.value:
+        if person.contest_role > ContestPerson.ContestRole.MEMBER.value: # Active Member or Admin
             raise ValidationError(gettext('user is not authorized to post data'))
         return person
 
