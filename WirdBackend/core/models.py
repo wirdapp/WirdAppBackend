@@ -38,6 +38,7 @@ class Person(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     profile_photo = ResizedImageField(size=[500, 500], upload_to=upload_location, blank=True)
     phone_number = models.CharField(max_length=15, validators=[integer_validator], default="0000000000", blank=True)
+    timezone = models.CharField(max_length=30, default="UTC")
 
 
 class ContestPerson(models.Model):

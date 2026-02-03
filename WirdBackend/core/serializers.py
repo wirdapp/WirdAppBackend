@@ -10,7 +10,8 @@ class PersonSerializer(DynamicFieldsCategorySerializer):
 
     class Meta:
         model = Person
-        fields = ['username', 'email', 'phone_number', 'first_name', 'last_name', 'profile_photo', "email_verified"]
+        fields = ['username', 'email', 'phone_number', 'first_name', 'last_name', "timezone",
+                  'profile_photo', "email_verified"]
         read_only_fields = ['username']
 
     def get_email_verified(self, person):
