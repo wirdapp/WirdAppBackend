@@ -4,7 +4,7 @@ from notifications.views import UserDeviceViewSet, AllNotificationViewSet
 
 router = DefaultRouter()
 router.register("devices", UserDeviceViewSet, basename="device")
-router.register("all", AllNotificationViewSet, basename="all")
 urlpatterns = [
     path('', include(router.urls)),
+    path("<str:contest_id>/all/",AllNotificationViewSet.as_view(),name="all-notifications",),
 ]
