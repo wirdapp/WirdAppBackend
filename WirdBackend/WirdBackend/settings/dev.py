@@ -83,3 +83,4 @@ LOGGING['loggers']['django.request']['level'] = 'INFO'
 Q_CLUSTER.update({
     'orm': 'default',
 })
+AUTH_KIT["SOCIAL_HIDE_AUTH_ERROR_DETAILS"] = False
