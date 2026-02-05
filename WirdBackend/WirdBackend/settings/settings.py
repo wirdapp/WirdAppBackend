@@ -193,7 +193,8 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_KIT = {
     'SOCIAL_LOGIN_AUTH_TYPE': 'code',  # Recommended: 'code' for security, or 'token'
     "USER_SERIALIZER": "core.serializers.PersonSerializer",
-    "USE_AUTH_COOKIE": False
+    "USE_AUTH_COOKIE": False,
+    "SOCIAL_LOGIN_CALLBACK_URL_GENERATOR": "core.util_methods.get_social_callback_url",
 }
 
 SOCIALACCOUNT_PROVIDERS = {
