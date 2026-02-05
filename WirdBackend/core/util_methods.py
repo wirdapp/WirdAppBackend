@@ -54,6 +54,14 @@ def is_person_role_in_contest(request, expected_roles):
     return bool(current_contest_role in expected_roles)
 
 
+def get_social_callback_url(request, view, social_app):
+    redirect_uri = request.data.get("redirect_uri")
+    if redirect_uri:
+        return redirect_uri
+    from auth_kit.social.utils import get_social_login_callback_url
+    return get_social_login_callback_url(request, view, social_app)
+
+
 def get_contest_and_request_related_start_and_end_date(request, contest):
     contest_start_date = contest.start_date
     contest_end_date = contest.end_date
