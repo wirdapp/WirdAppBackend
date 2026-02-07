@@ -162,6 +162,11 @@ LOGGING = {
             'level': os.environ.get("LOGGING_LEVEL", "INFO"),
             'propagate': True,
         },
+        "django_q": {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': False,
+        }
     },
     'root': {
         'handlers': ['file'],
@@ -295,4 +300,5 @@ Q_CLUSTER = {
     'bulk': 10,
     'catch_up': False,
     'max_attempts': 3,
+    'logging': False
 }
