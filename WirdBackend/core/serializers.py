@@ -1,9 +1,10 @@
+from allauth.account.models import EmailAddress
+from allauth.socialaccount.models import SocialAccount
+from rest_framework import serializers
+
 from core import util_methods
 from core.models import Person, Contest, ContestPerson
 from core.util_classes import DynamicFieldsCategorySerializer
-from rest_framework import serializers
-from allauth.account.models import EmailAddress
-from allauth.socialaccount.models import SocialAccount
 
 
 class PersonSerializer(DynamicFieldsCategorySerializer):
@@ -32,3 +33,13 @@ class ContestSerializer(DynamicFieldsCategorySerializer):
     def get_person_contest_role(self, contest):
         username = util_methods.get_username(self.context['request'])
         return ContestPerson.objects.filter(contest=contest, person__username=username).get().contest_role
+
+
+import auth_kit.serializers as auth_kit_serializers  # keep it here to avoid circular imports
+
+
+class CustomRegisterSerializer(auth_kit_serializers.RegisterSerializer):
+    def validate_email(self, email):
+        from allauth.account.adapter import get_adapter
+        email = get_adapter().clean_email(email)
+        return email
