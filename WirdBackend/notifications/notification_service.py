@@ -46,7 +46,7 @@ class NotificationService:
             },
         }
 
-        msg = messages.get(language, 'en')
+        msg = messages.get(language, messages['ar'])
         payload = NotificationPayload(
             title=msg['title'],
             body=msg['body'],
