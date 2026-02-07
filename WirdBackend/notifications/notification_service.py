@@ -26,14 +26,15 @@ class NotificationService:
             UserDevice.objects.filter(fcm_token__in=tokens).delete()
 
     @classmethod
-    def send_daily_reminder(cls, user):
-        tokens = cls.get_user_active_tokens(user.person)
+    def send_daily_reminder(cls, contest_person):
+        person = contest_person.person
+        tokens = cls.get_user_active_tokens(person)
         if not tokens:
             return False
 
-        language = getattr(user, 'language', 'en')
-        name = user.person.first_name or user.person.username
-        contest = user.contest
+        language = getattr(person, 'language', 'ar')
+        name = person.first_name or person.username
+        contest = contest_person.contest
         # Localized messages
         messages = {
             'en': {
