@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.messages',  # Required for django-allauth
     'django.contrib.postgres',
     'django.contrib.sites',
     'member_panel.apps.StudentConfig',
@@ -51,8 +52,11 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware', # Required for django-allauth
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware', # Required for django-allauth
+    'django.contrib.messages.middleware.MessageMiddleware', # Required for django-allauth
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_permissions_policy.PermissionsPolicyMiddleware',
     'django.middleware.locale.LocaleMiddleware',

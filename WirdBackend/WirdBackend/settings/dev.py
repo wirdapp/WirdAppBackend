@@ -25,13 +25,9 @@ ENABLE_API_DOCS = True
 INSTALLED_APPS = ['drf_spectacular'] + INSTALLED_APPS
 
 if ENABLE_ADMIN:
-    INSTALLED_APPS = ['django.contrib.admin', 'django.contrib.messages'] + INSTALLED_APPS
+    INSTALLED_APPS = ['django.contrib.admin'] + INSTALLED_APPS
 
 if ENABLE_GUI or ENABLE_ADMIN:
-    MIDDLEWARE.insert(2, 'django.contrib.sessions.middleware.SessionMiddleware')
-    MIDDLEWARE.insert(3, 'django.contrib.auth.middleware.AuthenticationMiddleware')
-    MIDDLEWARE.insert(4, 'django.contrib.messages.middleware.MessageMiddleware')
-
     # Add session authentication + browsable API
     REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] = [
         'rest_framework.authentication.SessionAuthentication',
