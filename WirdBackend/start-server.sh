@@ -18,7 +18,7 @@ while ! nc -z "$DB_HOST" "$DB_PORT"; do
 done
 echo "Database is up."
 
-MODE=${1:-production}
+MODE=${1:-prod}
 
 echo "Starting server in $MODE mode..."
 
@@ -30,9 +30,13 @@ fi
 echo "Running database migrations..."
 python manage.py migrate --no-input
 
+# Common: Setup schedules (if needed)
+echo "Setting up schedules..."
+python manage.py setup_schedules
+
 # Mode-specific server startup
 case $MODE in
-  development|prod)
+  production|prod)
     echo "Starting Gunicorn server..."
     exec gunicorn -c gunicorn_prod.py WirdBackend.wsgi:application
     ;;
