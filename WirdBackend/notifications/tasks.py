@@ -44,10 +44,10 @@ def send_daily_reminders():
 
         criterion_count = ContestCriterion.objects.filter(contest=contest).count()
         for contest_person in contest_persons:
-            records_count = PointRecord.objects.filter(person=contest_person, date=today, ).count()
+            records_count = PointRecord.objects.filter(person=contest_person, record_date=today).count()
             submitted_points_ratio = records_count / criterion_count if criterion_count else 0
 
-            if submitted_points_ratio < 0.5:
+            if submitted_points_ratio < 0.75:
                 try:
                     success = NotificationService.send_daily_reminder(contest_person)
                     if success: sent_count += 1
