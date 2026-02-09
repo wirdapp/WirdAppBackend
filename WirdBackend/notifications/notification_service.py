@@ -64,7 +64,7 @@ class NotificationService:
 
         # Log the notification
         NotificationLog.objects.create(
-            receiver=user,
+            receiver=person,
             notification_type='daily_reminder',
             success=result['success'] > 0,
             error_message=f"Success: {result['success']}, Failed: {result['failure']}"

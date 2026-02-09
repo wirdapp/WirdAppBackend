@@ -8,7 +8,7 @@ from core.models import Contest, ContestPerson
 from member_panel.models import PointRecord
 from notifications.notification_service import NotificationService
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("django_q")
 
 
 def send_daily_reminders():
