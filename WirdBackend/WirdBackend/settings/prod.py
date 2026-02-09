@@ -32,3 +32,23 @@ Q_CLUSTER.update({
         'db': 1
     },
 })
+
+ENABLE_GUI = os.environ.get('ENABLE_GUI', 'true').lower() == 'true'
+ENABLE_ADMIN = os.environ.get('ENABLE_ADMIN', 'true').lower() == 'true'
+
+if ENABLE_ADMIN:
+    INSTALLED_APPS = ['django.contrib.admin'] + INSTALLED_APPS
+
+if ENABLE_GUI or ENABLE_ADMIN:
+    # Add session authentication + browsable API
+    REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] = [
+        'rest_framework.authentication.SessionAuthentication',
+        'auth_kit.authentication.JWTCookieAuthentication',
+    ]
+    REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ]
+    # Enable sessions
+    SESSION_ENGINE = "django.contrib.sessions.backends.db"
+    INSTALLED_APPS = ["django.contrib.staticfiles"] + INSTALLED_APPS
