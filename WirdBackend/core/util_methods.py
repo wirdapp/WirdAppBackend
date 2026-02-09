@@ -1,5 +1,6 @@
 from datetime import timedelta, datetime
 
+from allauth.account.internal.userkit import user_email
 from django.shortcuts import get_object_or_404
 from rest_framework import exceptions
 
@@ -72,3 +73,23 @@ def get_contest_and_request_related_start_and_end_date(request, contest):
     else:
         start_date = max(request.query_params.get("start_date", contest_start_date), contest_start_date)
     return start_date, end_date
+
+
+def setup_user_email(user):
+    from allauth.account.models import EmailAddress
+
+    assert not EmailAddress.objects.filter(user=user).exists()
+
+    email = user_email(user)
+    if not email:
+        return None
+    email_address = EmailAddress(
+        user=user,
+        email=email.lower(),
+        primary=True,
+        verified=False
+    )
+    email_address.save()
+    EmailAddress.objects.fill_cache_for_user(user, [email_address])
+
+    return email_address
