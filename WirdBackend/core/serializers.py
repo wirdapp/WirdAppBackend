@@ -1,17 +1,10 @@
-from typing import cast
-
-from allauth.account.adapter import get_adapter
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
-from django.contrib.auth.base_user import AbstractBaseUser
-from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from core import util_methods
 from core.models import Person, Contest, ContestPerson
 from core.util_classes import DynamicFieldsCategorySerializer
-from core.util_methods import setup_user_email
-
 
 class PersonSerializer(DynamicFieldsCategorySerializer):
     email_verified = serializers.SerializerMethodField(read_only=True)
@@ -49,15 +42,3 @@ class CustomRegisterSerializer(auth_kit_serializers.RegisterSerializer):
         from allauth.account.adapter import get_adapter
         email = get_adapter().clean_email(email)
         return email
-
-    def save(self,  **kwargs):
-        request = self.context["request"]
-        adapter = get_adapter()
-        user: AbstractBaseUser = adapter.new_user(request)
-        self.cleaned_data = self.get_cleaned_data()
-
-        user = cast(User, adapter.save_user(request, user, self, commit=False))
-        user.save()
-        self.custom_signup(request, user)
-        setup_user_email(user)
-        return user

@@ -13,42 +13,29 @@ TRUSTED_ORIGINS = [
 CSRF_TRUSTED_ORIGINS = TRUSTED_ORIGINS
 CORS_ALLOWED_ORIGINS = TRUSTED_ORIGINS
 
+# Strict production security
+SECURE_HSTS_SECONDS = 31536000  # 1 year (overrides base 30-day default)
+SECURE_SSL_REDIRECT = True
+
+# Short-lived sessions — limits exposure if a session is compromised
+SESSION_COOKIE_AGE = 14400  # 4 hours
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
 # Production logging
 LOGGING['loggers']['django']['level'] = os.environ.get("LOGGING_LEVEL", "WARNING")
 LOGGING['loggers']['django.request']['level'] = os.environ.get("LOGGING_LEVEL", "WARNING")
 LOGGING['root']['level'] = os.environ.get("LOGGING_LEVEL", "WARNING")
 
-# Strict security
-SECURE_HSTS_SECONDS = 31536000  # 1 year
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# Production task queue with Redis
 Q_CLUSTER.update({
     'workers': 4,
     'queue_limit': 100,
     'redis': {
         'host': os.environ.get('REDIS_URL', '127.0.0.1'),
         'port': os.environ.get('REDIS_PORT', '6379'),
-        'db': 1
+        'db': 1,
     },
 })
 
-ENABLE_GUI = os.environ.get('ENABLE_GUI', 'true').lower() == 'true'
-ENABLE_ADMIN = os.environ.get('ENABLE_ADMIN', 'true').lower() == 'true'
-
-if ENABLE_ADMIN:
-    INSTALLED_APPS = ['django.contrib.admin'] + INSTALLED_APPS
-
-if ENABLE_GUI or ENABLE_ADMIN:
-    # Add session authentication + browsable API
-    REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] = [
-        'rest_framework.authentication.SessionAuthentication',
-        'auth_kit.authentication.JWTCookieAuthentication',
-    ]
-    REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = [
-        'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    ]
-    # Enable sessions
-    SESSION_ENGINE = "django.contrib.sessions.backends.db"
-    INSTALLED_APPS = ["django.contrib.staticfiles"] + INSTALLED_APPS
+# Longer-lived DB connections for persistent workers
+DATABASES["default"]["CONN_MAX_AGE"] = 600

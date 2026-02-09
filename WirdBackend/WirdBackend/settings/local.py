@@ -27,22 +27,27 @@ DATABASES = {
     }
 }
 
-# Dummy cache for local
+# Dummy cache — no Redis needed locally
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
     }
 }
 
+# Fall back to pure DB sessions since there's no Redis locally
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+
+# Cachalot is useless with DummyCache
+CACHALOT_ENABLED = False
+
 # Console email
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# No security for local
+# No security for local development
 SECURE_HSTS_SECONDS = 0
 SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
-
 SESSION_COOKIE_DOMAIN = None
 CSRF_COOKIE_DOMAIN = None
 SESSION_COOKIE_SAMESITE = 'Lax'
@@ -50,11 +55,14 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 
 # Console logging
 LOGGING['handlers'] = {
-    "console": {
+    'console': {
         'class': 'logging.StreamHandler',
-        'formatter': 'large'
+        'formatter': 'large',
     }
 }
 LOGGING['loggers']['django']['handlers'] = ['console']
 LOGGING['loggers']['django.request']['handlers'] = ['console']
+LOGGING['loggers']['django_q']['handlers'] = ['console']
 LOGGING['root']['handlers'] = ['console']
+
+SITE_ID = 2
