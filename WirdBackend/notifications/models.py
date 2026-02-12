@@ -66,5 +66,8 @@ class NotificationLog(models.Model):
     success = models.BooleanField(default=True)
     sent_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.notification_type} - {self.receiver} - {self.sent_at.strftime('%Y-%m-%d %H:%M')}"
+
     class Meta:
         ordering = ['-sent_at']

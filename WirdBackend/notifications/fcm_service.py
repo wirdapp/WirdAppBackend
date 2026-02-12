@@ -111,9 +111,10 @@ class FCMService:
 
         try:
             response = messaging.send_each_for_multicast(message)
-
+            errors = []
             invalid_tokens = []
             for idx, send_response in enumerate(response.responses):
+                errors.append(str(send_response.exception))
                 if not send_response.success:
                     if isinstance(
                             send_response.exception,
@@ -124,6 +125,7 @@ class FCMService:
             return {
                 'success': response.success_count,
                 'failure': response.failure_count,
+                'errors': ",".join(errors),
                 'invalid_tokens': invalid_tokens,
             }
         except Exception as e:

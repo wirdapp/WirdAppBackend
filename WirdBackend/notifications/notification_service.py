@@ -67,7 +67,7 @@ class NotificationService:
             receiver=contest_person,
             notification_type='daily_reminder',
             success=result['success'] > 0,
-            error_message=f"Success: {result['success']}, Failed: {result['failure']}"
+            error_message=result['errors']
         )
 
         return result['success'] > 0
@@ -101,7 +101,7 @@ class NotificationService:
                 receiver=contest_person,
                 notification_type='admin_notification',
                 success=result['success'] > 0,
-                error_message=f"Success: {result['success']}, Failed: {result['failure']}"
+                error_message=result['errors']
             )
 
         # Mark notification as sent
