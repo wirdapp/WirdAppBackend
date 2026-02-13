@@ -8,6 +8,7 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 from core import util_methods, models_helper
 from core.util_methods import is_person_role_in_contest
+from allauth.socialaccount.models import SocialAccount
 
 logger = logging.getLogger(__name__)
 
@@ -51,5 +52,8 @@ class NoPermission(BasePermission):
 
 class EmailVerified(BasePermission):
     def has_permission(self, request, view):
-        username = util_methods.get_username(request)
-        return EmailAddress.objects.filter(user__username=username, verified=True).exists()
+        user = request.user
+        return (
+                EmailAddress.objects.filter(user=user, verified=True).exists()
+                or SocialAccount.objects.filter(user=user).exists()
+        )
