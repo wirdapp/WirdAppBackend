@@ -1,6 +1,8 @@
 from django_q.tasks import async_task
 from rest_framework import generics
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from core.permissions import IsContestMember, IsContestSuperAdmin
@@ -16,15 +18,11 @@ class UserDeviceViewSet(ModelViewSet):
     def get_queryset(self):
         return UserDevice.objects.filter(user=self.request.user)
 
-    def create(self, request, *args, **kwargs):
-        user = request.user
-        token = request.data.get('fcm_token')
-        if UserDevice.objects.filter(user=user, fcm_token=token).exists():
-            return self.update(request, *args, **kwargs)
-        return super().create(request, *args, **kwargs)
-
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        user = self.request.user
+        token = serializer.validated_data['fcm_token']
+        if not UserDevice.objects.filter(user=user, fcm_token=token).exists():
+            serializer.save(user=self.request.user)
 
 
 class AllNotificationViewSet(generics.ListCreateAPIView, generics.DestroyAPIView):
