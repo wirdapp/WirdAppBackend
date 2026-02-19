@@ -18,11 +18,19 @@ class UserDeviceViewSet(ModelViewSet):
     def get_queryset(self):
         return UserDevice.objects.filter(user=self.request.user)
 
-    def perform_create(self, serializer):
-        user = self.request.user
-        token = serializer.validated_data['fcm_token']
-        if not UserDevice.objects.filter(user=user, fcm_token=token).exists():
-            serializer.save(user=self.request.user)
+    def create(self, request, *args, **kwargs):
+        token = request.data.get('fcm_token')
+        device, created = UserDevice.objects.get_or_create(
+            fcm_token=token,
+            defaults={'user': request.user}
+        )
+        if not created and device.user != request.user:
+            # Token switched to a new user — reassign it
+            device.user = request.user
+            device.save(update_fields=['user'])
+        serializer = self.get_serializer(device)
+        status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
+        return Response(serializer.data, status=status_code)
 
 
 class AllNotificationViewSet(generics.ListCreateAPIView, generics.DestroyAPIView):
