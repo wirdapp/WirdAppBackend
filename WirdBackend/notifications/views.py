@@ -16,6 +16,13 @@ class UserDeviceViewSet(ModelViewSet):
     def get_queryset(self):
         return UserDevice.objects.filter(user=self.request.user)
 
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        token = request.data.get('fcm_token')
+        if UserDevice.objects.filter(user=user, fcm_token=token).exists():
+            return self.update(request, *args, **kwargs)
+        return super().create(request, *args, **kwargs)
+
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
