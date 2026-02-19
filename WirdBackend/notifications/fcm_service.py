@@ -86,18 +86,13 @@ class FCMService:
             return {'success': 0, 'failure': 0, 'invalid_tokens': []}
 
         message = messaging.MulticastMessage(
-            notification=messaging.Notification(
-                title=payload.title,
-                body=payload.body,
-            ),
-            data=payload.data or {},
+            data={
+                "title": payload.title,
+                "body": payload.body,
+            },
             tokens=tokens,
             android=messaging.AndroidConfig(
                 priority='high',
-                notification=messaging.AndroidNotification(
-                    sound='default',
-                    click_action='FLUTTER_NOTIFICATION_CLICK',
-                ),
             ),
             apns=messaging.APNSConfig(
                 payload=messaging.APNSPayload(
