@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from rest_framework import serializers
@@ -8,6 +9,8 @@ from rest_framework.response import Response
 
 from core import util_methods
 from core.permissions import IsContestAdmin, IsContestSuperAdmin, NoPermission, IsContestMember, EmailVerified
+
+logger = logging.getLogger('django')
 
 
 class DateConverter:
@@ -62,8 +65,10 @@ class BulkCreateModelMixin:
                 self.perform_create(_serializer)
                 created.append(_serializer.data)
             else:
+                logger.error("BulkCreate validation error: %s | data: %s", _serializer.errors, _serializer.initial_data)
                 errors.append({"error": _serializer.errors, "data": _serializer.initial_data})
         if len(errors) > 0:
+            logger.warning("BulkCreate completed with %d error(s) and %d created: %s", len(errors), len(created), errors)
             return Response({"created": created, "errors": errors}, status=207)
         return Response(created, status=status.HTTP_201_CREATED)
 
@@ -86,10 +91,13 @@ class BulkUpdateModelMixin:
                     if getattr(instance, '_prefetched_objects_cache', None):
                         instance._prefetched_objects_cache = {}
                 else:
+                    logger.error("BulkUpdate validation error: %s | data: %s", _serializer.errors, _serializer.initial_data)
                     errors.append({"error": _serializer.errors, "data": _serializer.initial_data})
             else:
+                logger.error("BulkUpdate object not found for data: %s", item)
                 errors.append({"error": "Object not Found", "data": item})
         if len(errors) > 0:
+            logger.warning("BulkUpdate completed with %d error(s) and %d updated: %s", len(errors), len(updated), errors)
             return Response({"updated": updated, "errors": errors}, status=207)
         return Response(updated, status=status.HTTP_200_OK)
 
