@@ -6,9 +6,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from admin_panel.member_serializers import AdminPolymorphicPointRecordSerializer
+from admin_panel.models import ContestPersonGroup
 from core import util_methods, models_helper
 from core.models import ContestPerson
-from core.permissions import IsContestAdmin
+from core.permissions import IsContestAdmin, IsContestSuperAdmin
 from core.serializers import PersonSerializer
 from core.util_classes import CustomPermissionsMixin
 from member_panel.models import PointRecord
@@ -18,7 +19,7 @@ from admin_panel.api_schemas import UserResultsViewAPISchema, leaderboard_api_re
 
 
 class Leaderboard(APIView):
-    permission_classes = [IsContestAdmin]
+    permission_classes = [IsContestSuperAdmin]
 
     @extend_schema(responses=leaderboard_api_response)
     def get(self, request, *args, **kwargs):
@@ -75,6 +76,8 @@ class UserResultsView(APIView):
     @extend_schema(responses=UserResultsViewAPISchema)
     def get(self, request, *args, **kwargs):
         user_id = self.get_user_id(request, **kwargs)
+        if not self.is_allowed(request, user_id):
+            return Response(status=403)
         contest = util_methods.get_current_contest(request)
         contest_person = (ContestPerson.objects.filter(contest=contest, id=user_id)
                           .prefetch_related("contest_person_points").first())
@@ -94,6 +97,16 @@ class UserResultsView(APIView):
 
     def get_user_id(self, request, **kwargs):
         return kwargs["user_id"]
+
+    def is_allowed(self, request, member_id):
+        user_role = util_methods.get_current_user_contest_role(request)
+        managed_groups = models_helper.get_person_enrolled_groups(request)
+        in_admin_group = ContestPersonGroup.objects.filter(group__in=managed_groups,
+                                                           contest_person__id=member_id).exists()
+        if not (user_role <= ContestPerson.ContestRole.SUPER_ADMIN.value or in_admin_group):
+            return False
+        return True
+
 
 
 class MemberPointRecordViewSet(CustomPermissionsMixin, viewsets.ModelViewSet):
