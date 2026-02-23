@@ -99,7 +99,6 @@ class UserResultsView(APIView):
         return kwargs["user_id"]
 
     def is_allowed(self, request, member_id):
-        if member_id == request.user.id: return True
         user_role = util_methods.get_current_user_contest_role(request)
         managed_groups = models_helper.get_person_enrolled_groups(request)
         in_admin_group = ContestPersonGroup.objects.filter(group__in=managed_groups,

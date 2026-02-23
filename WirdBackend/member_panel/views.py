@@ -67,6 +67,8 @@ class UserResultsView(admin_member_views.UserResultsView):
     def get_user_id(self, request, **kwargs):
         return util_methods.get_current_contest_person(request).id
 
+    def is_allowed(self, request, member_id):
+        return True # User can always see his results
 
 class Leaderboard(admin_member_views.Leaderboard):
     permission_classes = [IsContestMember]
