@@ -1,12 +1,15 @@
 # views.py
 
+from datetime import datetime, timedelta
+
 from django.db.models import Sum, Count
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from admin_panel.member_serializers import AdminPolymorphicPointRecordSerializer
-from admin_panel.models import ContestPersonGroup
+from admin_panel import models_helper as admin_models_helper
+from admin_panel.models import Group, ContestPersonGroup
 from core import util_methods, models_helper
 from core.models import ContestPerson
 from core.permissions import IsContestAdmin, IsContestSuperAdmin
@@ -131,3 +134,95 @@ class MemberPointRecordViewSet(CustomPermissionsMixin, viewsets.ModelViewSet):
         context['record_date'] = self.kwargs.get("date")
         context['person'] = self.kwargs.get("user_id")
         return context
+
+
+class ExportResultsView(APIView):
+    permission_classes = [IsContestAdmin]
+
+    def get(self, request, *args, **kwargs):
+        contest = util_methods.get_current_contest(request)
+
+        # Parse date parameters
+        start_date = self._parse_date(request.query_params.get("start_date"))
+        end_date = self._parse_date(request.query_params.get("end_date"))
+
+        # Apply defaults
+        if start_date is None:
+            start_date = contest.start_date
+        if end_date is None:
+            end_date = min(contest.end_date, start_date + timedelta(days=30))
+
+        # Validate date range does not exceed 31 days
+        if (end_date - start_date).days > 31:
+            return Response(
+                {"error": "Date range must not exceed 31 days."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Validate dates fall within the contest range
+        if start_date < contest.start_date or end_date > contest.end_date:
+            return Response(
+                {"error": "Dates must be within the contest date range."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Resolve members
+        member_ids_param = request.query_params.get("member_ids")
+        if member_ids_param:
+            member_ids = [mid.strip() for mid in member_ids_param.split(",") if mid.strip()]
+            members = ContestPerson.objects.filter(
+                id__in=member_ids,
+                contest=contest,
+                contest_role=ContestPerson.ContestRole.MEMBER,
+            ).select_related("person")
+
+            # Validate all requested IDs belong to this contest
+            if members.count() != len(member_ids):
+                return Response(
+                    {"error": "One or more member IDs are invalid or do not belong to this contest."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        else:
+            members = (
+                ContestPerson.objects
+                .filter(contest=contest, contest_role=ContestPerson.ContestRole.MEMBER)
+                .select_related("person")
+            )
+
+        # Optional group filter
+        group_id = request.query_params.get("group_id")
+        if group_id:
+            if not Group.objects.filter(id=group_id, contest=contest).exists():
+                return Response(
+                    {"error": "Group does not belong to this contest."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            group_member_ids = ContestPersonGroup.objects.filter(
+                group_id=group_id,
+                group_role=ContestPersonGroup.GroupRole.MEMBER,
+            ).values_list("contest_person_id", flat=True)
+            members = members.filter(id__in=group_member_ids)
+
+        # Build the date list for the response
+        dates = util_methods.get_dates_between_two_dates(start_date, end_date)
+        date_strings = [d.strftime("%Y-%m-%d") for d in dates]
+
+        # Fetch bulk results
+        bulk_data = admin_models_helper.get_bulk_member_results(contest, members, start_date, end_date)
+
+        return Response({
+            "contest_name": contest.name,
+            "date_range": {
+                "start": start_date.strftime("%Y-%m-%d"),
+                "end": end_date.strftime("%Y-%m-%d"),
+            },
+            "dates": date_strings,
+            "criteria": bulk_data["criteria"],
+            "members": bulk_data["members"],
+        })
+
+    @staticmethod
+    def _parse_date(value):
+        if value is None:
+            return None
+        return datetime.strptime(value, "%Y-%m-%d").date()
