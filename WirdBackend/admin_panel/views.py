@@ -5,7 +5,7 @@ from core.util_classes import CustomPermissionsMixin, MyPageNumberPagination, Bu
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework import generics
-from rest_framework import viewsets
+from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .serializers import *
@@ -117,3 +117,67 @@ class ContestMembersView(CustomPermissionsMixin, viewsets.ModelViewSet):
         obj_role = obj.contest_role
         if user_role != 0 and user_role >= obj_role:
             self.permission_denied(request, gettext("You do not have the permission to do this action"))
+
+
+class ExportJobViewSet(CustomPermissionsMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin,
+                       mixins.ListModelMixin, viewsets.GenericViewSet):
+    super_admin_allowed_methods = ['create', 'retrieve', 'list']
+    serializer_class = ExportJobSerializer
+
+    def get_queryset(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        contest = util_methods.get_current_contest(self.request)
+        requester = util_methods.get_current_contest_person(self.request)
+        cutoff = timezone.now() - timedelta(hours=24)
+        return ExportJob.objects.filter(requester=requester, contest=contest, created_at__gte=cutoff)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['contest'] = util_methods.get_current_contest(self.request)
+        return context
+
+    def create(self, request, *args, **kwargs):
+        from admin_panel.export_helpers import find_intersecting_range_job, check_rate_limit, find_duplicate_job
+        contest = util_methods.get_current_contest(request)
+        requester = util_methods.get_current_contest_person(request)
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        has_member_range = data.get('members_from') is not None
+        response_data = {}
+        # Member range intersection check
+        if has_member_range:
+            intersecting_job = find_intersecting_range_job(
+                requester, contest, data['members_from'], data['members_to']
+            )
+            if intersecting_job:
+                response_data["data"] = self.get_serializer(intersecting_job).data
+                response_data['message'] = gettext("export_job_intersect") % {'from': intersecting_job.members_from, 'to': intersecting_job.members_to}
+                return Response(response_data, status=200)
+
+        # Rate limit: 1 new job per hour
+        if check_rate_limit(requester, contest):
+            response_data["data"] = {}
+            response_data['message'] = gettext("export_rate_limit")
+            return Response(response_data, status=429)
+
+        # Exact deduplication
+        existing_job = find_duplicate_job(requester, contest, data)
+        if existing_job:
+            response_data['message'] = gettext("existing_job_found")
+            response_data['data'] = self.get_serializer(existing_job).data
+            return Response(response_data, status=200)
+
+        # Create and dispatch
+        self.perform_create(serializer, contest=contest, requester=requester)
+        response_data["data"] = serializer.data
+        response_data['message'] = gettext("export_job_created")
+        return Response(response_data, status=202)
+
+    def perform_create(self, serializer, **kwargs):
+        from django_q.tasks import async_task
+        job = serializer.save(status=ExportJob.Status.PENDING, **kwargs)
+        async_task('admin_panel.export_helpers.process_export_job', str(job.id))

@@ -132,3 +132,70 @@ class ContestPersonGroupSerializer(serializers.ModelSerializer):
             person_id = get_object_or_404(ContestPerson, person__username=username).id
             data["contest_person"] = person_id
         return super().to_internal_value(data)
+
+
+class ExportJobSerializer(serializers.ModelSerializer):
+    group_id = ContestFilteredPrimaryKeyRelatedField(
+        queryset=Group.objects, required=False, allow_null=True, source='group'
+    )
+    member_ids = serializers.ListField(
+        child=serializers.UUIDField(), required=False, allow_null=True, allow_empty=False
+    )
+
+    class Meta:
+        model = ExportJob
+        fields = '__all__'
+        read_only_fields = ['id', 'created_at', 'status', 'serialized_data', 'group']
+        extra_kwargs = {
+            'members_from': {'required': False, 'allow_null': True, 'min_value': 1},
+            'members_to': {'required': False, 'allow_null': True, 'min_value': 1},
+        }
+
+    def validate(self, attrs):
+        start_date = attrs.get('start_date')
+        end_date = attrs.get('end_date')
+        group = attrs.get('group')
+        member_ids = attrs.get('member_ids')
+        members_from = attrs.get('members_from')
+        members_to = attrs.get('members_to')
+
+        if start_date > end_date:
+            raise ValidationError(gettext("validation_start_date_after_end_date"))
+
+        if (end_date - start_date).days > 31:
+            raise ValidationError(gettext("validation_date_range_exceeds_31_days"))
+
+        contest = self.context['contest']
+        if start_date < contest.start_date or end_date > contest.end_date:
+            raise ValidationError(
+                gettext("validation_dates_outside_contest_range")
+                % {
+                    'start': contest.start_date,
+                    'end': contest.end_date
+                }
+            )
+
+        has_group = group is not None
+        has_member_ids = member_ids is not None and len(member_ids) > 0
+        has_member_range = members_from is not None or members_to is not None
+
+        selections = sum([has_group, has_member_ids, has_member_range])
+
+        if selections == 0:
+            raise ValidationError(gettext("validation_selection_required"))
+
+        if selections > 1:
+            raise ValidationError(gettext("validation_multiple_selections_not_allowed"))
+
+        if has_member_range:
+            if members_from is None or members_to is None:
+                raise ValidationError(gettext("validation_member_range_requires_both_bounds"))
+
+            if members_from > members_to:
+                raise ValidationError(gettext("validation_invalid_member_range_order"))
+
+            if (members_to - members_from + 1) > 250:
+                raise ValidationError(gettext("validation_member_range_exceeds_250"))
+
+        return attrs
+

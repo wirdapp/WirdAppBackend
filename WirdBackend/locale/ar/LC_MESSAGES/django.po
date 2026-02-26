@@ -146,6 +146,45 @@ msgstr ""
 msgid "leaderboard is not available now"
 msgstr ""
 
+msgid "export_job_intersect"
+msgstr "تم العثور على مهمة تصدير حديثة بنطاق أعضاء متداخل. البيانات المُعادة تتوافق مع النطاق المخزَّن مسبقًا (الأعضاء من %(from)s إلى %(to)s)، وليس بالضرورة النطاق المطلوب بدقة."
+
+msgid "export_rate_limit"
+msgstr "يمكنك إرسال طلب تصدير واحد فقط كل ساعة."
+
+msgid "export_job_created"
+msgstr "تم إنشاء مهمة التصدير بنجاح. يُرجى العودة لاحقًا لتنزيل الملف."
+
+msgid "export_job_missing"
+msgstr "لم يتم العثور على مهمة التصدير."
+
+msgid "existing_job_found"
+msgstr "تم العثور على مهمة تصدير حديثة بنفس نطاق الأعضاء."
+
+msgid "validation_start_date_after_end_date"
+msgstr "يجب أن يكون تاريخ البداية قبل أو مساويًا لتاريخ النهاية."
+
+msgid "validation_date_range_exceeds_31_days"
+msgstr "يجب ألا يتجاوز نطاق التاريخ 31 يومًا."
+
+msgid "validation_dates_outside_contest_range"
+msgstr "يجب أن تقع التواريخ ضمن النطاق الزمني الصالح للمسابقة (%(start)s إلى %(end)s)."
+
+msgid "validation_selection_required"
+msgstr "يجب تقديم أحد الخيارات التالية: group_id أو member_ids أو نطاق أعضاء (members_from/members_to)."
+
+msgid "validation_multiple_selections_not_allowed"
+msgstr "يجب تقديم خيار واحد فقط من: group_id أو member_ids أو نطاق أعضاء — وليس أكثر من خيار."
+
+msgid "validation_member_range_requires_both_bounds"
+msgstr "يجب تقديم كل من members_from و members_to لتحديد نطاق الأعضاء."
+
+msgid "validation_invalid_member_range_order"
+msgstr "يجب أن يكون members_from أقل من أو مساويًا لـ members_to."
+
+msgid "validation_member_range_exceeds_250"
+msgstr "يجب ألا يتجاوز نطاق الأعضاء 250 عضوًا."
+
 #: templates/account/email/email_confirmation_message.html:149
 #: templates/account/email/email_confirmation_signup_message.html:149
 #: templates/account/email/password_reset_key_message.html:149

@@ -6,6 +6,7 @@ from rest_framework_nested import routers
 router = routers.DefaultRouter()
 
 router.register(r'criteria', views.ContestCriterionView, basename='ContestCriterionView')
+router.register(r'export_results', views.ExportJobViewSet, basename='export_jobs')
 router.register(r'sections', views.SectionView, basename='Section')
 router.register(r'members', views.ContestMembersView, basename='Contest Members')
 router.register(r'point_records/(?P<user_id>[0-9a-f-]+)/(?P<date>\d{4}-\d{2}-\d{2})',

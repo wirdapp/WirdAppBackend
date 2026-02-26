@@ -112,3 +112,36 @@ class ContestPersonGroup(models.Model):
                                     name="unique_group_person",
                                     violation_error_message=gettext("person is member of group")),
         ]
+
+
+class ExportJob(models.Model):
+    class Status(models.TextChoices):
+        PENDING = 'pending', 'Pending'
+        PROCESSING = 'processing', 'Processing'
+        COMPLETED = 'completed', 'Completed'
+        FAILED = 'failed', 'Failed'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    contest = models.ForeignKey("core.Contest", on_delete=models.CASCADE, related_name='export_jobs')
+    requester = models.ForeignKey(ContestPerson, on_delete=models.CASCADE, related_name='export_jobs')
+
+    # Date filters
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    # Member selection (mutually exclusive)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True, blank=True)
+    member_ids = models.JSONField(null=True, blank=True, help_text="List of ContestPerson UUIDs")
+    members_from = models.IntegerField(null=True, blank=True, help_text="Start of member range (1-indexed)")
+    members_to = models.IntegerField(null=True, blank=True, help_text="End of member range (1-indexed, inclusive)")
+
+    # Result
+    serialized_data = models.JSONField(null=True, blank=True)
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"ExportJob {self.id} [{self.status}] by {self.requester}"

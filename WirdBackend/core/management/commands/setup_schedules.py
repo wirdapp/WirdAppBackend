@@ -17,3 +17,15 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS('Successfully created notification schedules')
         )
+
+        Schedule.objects.update_or_create(
+            name='cleanup_old_export_jobs',
+            defaults={
+                'func': 'admin_panel.export_helpers.cleanup_old_export_jobs',
+                'schedule_type': Schedule.HOURLY,
+                'repeats': -1,  # Repeat forever
+            }
+        )
+        self.stdout.write(
+            self.style.SUCCESS('Successfully created export job cleanup schedule')
+        )

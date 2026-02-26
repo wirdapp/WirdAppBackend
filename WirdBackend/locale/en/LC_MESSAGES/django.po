@@ -145,6 +145,45 @@ msgstr ""
 msgid "leaderboard is not available now"
 msgstr ""
 
+msgid "export_job_intersect"
+msgstr "A recent job with an intersecting member range was found. "
+"The returned data corresponds to the previously stored range (members %(from)s to %(to)s), not necessarily the exact range requested."
+
+msgid "export_rate_limit"
+msgstr "You may only submit one export request per hour."
+
+msgid "export_job_created"
+msgstr "Export job created successfully. Come back later to download the file."
+
+msgid "export_job_missing"
+msgstr "Export job not found."
+
+msgid "existing_job_found"
+msgstr "A recent export job was found."
+
+msgid "validation_start_date_after_end_date"
+msgstr "Start date must be before or equal to end date."
+
+msgid "validation_date_range_exceeds_31_days"
+msgstr "Date range must not exceed 31 days."
+
+msgid "validation_dates_outside_contest_range"
+msgstr "Dates must fall within the contest's valid date range (%(start)s to %(end)s)."
+
+msgid "validation_selection_required"
+msgstr "You must provide either group_id, member_ids, or a member range (members_from/members_to)."
+
+msgid "validation_multiple_selections_not_allowed"
+msgstr "Provide only one of: group_id, member_ids, or member range — not multiple."
+
+msgid "validation_member_range_requires_both_bounds"
+msgstr "Both members_from and members_to must be provided for a member range."
+
+msgid "validation_invalid_member_range_order"
+msgstr "members_from must be less than or equal to members_to."
+
+msgid "validation_member_range_exceeds_250"
+msgstr "Member range must span no more than 250 members."
 #: templates/account/email/email_confirmation_message.html:149
 #: templates/account/email/email_confirmation_signup_message.html:149
 #: templates/account/email/password_reset_key_message.html:149
