@@ -9,7 +9,7 @@ from core.permissions import IsContestMember, IsContestSuperAdmin
 from core.util_methods import get_current_contest_person, get_current_contest
 from notifications.models import Notification, UserDevice
 from notifications.serializers import UserDeviceSerializer, AllNotificationSerializer
-
+from core.util_classes import CustomPermissionsMixin
 
 class UserDeviceViewSet(ModelViewSet):
     serializer_class = UserDeviceSerializer
@@ -33,21 +33,14 @@ class UserDeviceViewSet(ModelViewSet):
         return Response(serializer.data, status=status_code)
 
 
-class AllNotificationViewSet(generics.ListCreateAPIView, generics.DestroyAPIView):
+class AllNotificationViewSet(CustomPermissionsMixin, ModelViewSet):
     serializer_class = AllNotificationSerializer
+    member_allowed_methods = ["list"]
+    super_admin_allowed_methods = ["create", "destroy", "partial_update", "update", "retrieve"]
 
     def get_queryset(self):
-        # Filter to competitions where user is admin
         contest = get_current_contest(self.request)
-
-        return Notification.objects.filter(
-            contest=contest
-        )
-
-    def get_permissions(self):
-        if self.request.method in ['DELETE', 'POST']:
-            return [IsContestSuperAdmin()]
-        return [IsContestMember()]
+        return Notification.objects.filter(contest=contest)
 
     def perform_create(self, serializer):
         contest_person = get_current_contest_person(self.request)
