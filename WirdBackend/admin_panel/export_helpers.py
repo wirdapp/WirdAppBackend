@@ -95,6 +95,7 @@ def process_export_job(job_id):
         logger.info(f"ExportJob {job_id} completed with {len(payload['members'])} members.")
     except Exception as e:
         job.status = ExportJob.Status.FAILED
+        job.error_message = str(e)
         job.save(update_fields=['status'])
         logger.exception(f"ExportJob {job_id} failed: {e}")
 

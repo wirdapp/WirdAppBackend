@@ -138,6 +138,7 @@ class ExportJob(models.Model):
     # Result
     serialized_data = models.JSONField(null=True, blank=True)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
+    error_message = models.TextField(null=True, blank=True)
 
     class Meta:
         ordering = ['-created_at']
