@@ -119,6 +119,7 @@ class ExportJob(models.Model):
         PENDING = 'pending', 'Pending'
         PROCESSING = 'processing', 'Processing'
         COMPLETED = 'completed', 'Completed'
+        ARCHIVED = 'archived', 'Archived'
         FAILED = 'failed', 'Failed'
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

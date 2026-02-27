@@ -43,7 +43,6 @@ def check_rate_limit(requester, contest):
     return (
         ExportJob.objects
         .filter(requester=requester, contest=contest, created_at__gte=one_hour_ago)
-        .exclude(status=ExportJob.Status.FAILED)
         .exists()
     )
 

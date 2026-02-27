@@ -130,7 +130,9 @@ class ExportJobViewSet(CustomPermissionsMixin, viewsets.ModelViewSet):
         contest = util_methods.get_current_contest(self.request)
         requester = util_methods.get_current_contest_person(self.request)
         cutoff = timezone.now() - timedelta(hours=24)
-        return ExportJob.objects.filter(requester=requester, contest=contest, created_at__gte=cutoff)
+        return ExportJob.objects.filter(
+            requester=requester, contest=contest, created_at__gte=cutoff,status__not_in=[ExportJob.Status.ARCHIVED]
+        )
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -194,3 +196,8 @@ class ExportJobViewSet(CustomPermissionsMixin, viewsets.ModelViewSet):
         from django_q.tasks import async_task
         job = serializer.save(status=ExportJob.Status.PENDING, **kwargs)
         async_task('admin_panel.export_helpers.process_export_job', str(job.id))
+
+    def perform_destroy(self, instance):
+        instance.status = ExportJob.Status.ARCHIVED
+        instance.save()
+
