@@ -146,7 +146,7 @@ def _build_payload(members, dates):
         members_data.append({
             'username': str(member.person.username).strip(),
             'name': f"{member.person.first_name} {member.person.last_name}".strip(),
-            'points_by_date': dict(points_by_date),
+            'points_by_date': {d.strftime('%Y-%m-%d'): p for d, p in points_by_date},
         })
 
     return {'dates': date_strings, 'members': members_data}
