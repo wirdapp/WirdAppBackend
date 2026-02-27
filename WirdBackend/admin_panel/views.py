@@ -5,10 +5,11 @@ from core.util_classes import CustomPermissionsMixin, MyPageNumberPagination, Bu
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework import generics
-from rest_framework import mixins, viewsets
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .serializers import *
+from django.utils.translation import gettext
 
 
 class ContestView(generics.RetrieveUpdateDestroyAPIView):
@@ -119,9 +120,8 @@ class ContestMembersView(CustomPermissionsMixin, viewsets.ModelViewSet):
             self.permission_denied(request, gettext("You do not have the permission to do this action"))
 
 
-class ExportJobViewSet(CustomPermissionsMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin,
-                       mixins.ListModelMixin, viewsets.GenericViewSet):
-    super_admin_allowed_methods = ['create', 'retrieve', 'list']
+class ExportJobViewSet(CustomPermissionsMixin, viewsets.ModelViewSet):
+    super_admin_allowed_methods = ['create', 'retrieve', 'list', "destroy"]
     serializer_class = ExportJobSerializer
 
     def get_queryset(self):

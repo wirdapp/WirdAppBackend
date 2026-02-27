@@ -4,14 +4,12 @@ Export job helpers: validation, deduplication, rate limiting, background tasks.
 import logging
 from datetime import timedelta
 
-from django.db.models import Sum
 from django.utils import timezone
-from django.utils.translation import gettext
 
 from admin_panel.models import ExportJob, ContestPersonGroup
+from core import models_helper
 from core.models import ContestPerson
 from core.util_methods import get_dates_between_two_dates
-from member_panel.models import PointRecord
 
 logger = logging.getLogger('django')
 
@@ -119,13 +117,12 @@ def _resolve_members(job):
     """Return a queryset of ContestPerson based on the job's member selection."""
     base_qs = ContestPerson.objects.filter(
         contest=job.contest,
-        contest_role=ContestPerson.ContestRole.MEMBER,
     ).select_related('person')
 
     if job.group_id:
         person_ids = (
             ContestPersonGroup.objects
-            .filter(group=job.group, group_role=ContestPersonGroup.GroupRole.MEMBER)
+            .filter(group=job.group)
             .values_list('contest_person_id', flat=True)
         )
         return base_qs.filter(id__in=person_ids)
@@ -146,21 +143,14 @@ def _build_payload(members, dates):
     date_strings = [d.strftime('%Y-%m-%d') for d in dates]
     members_data = []
 
+
     for member in members:
-        points_qs = (
-            PointRecord.objects
-            .filter(person=member, record_date__in=dates)
-            .values('record_date')
-            .annotate(total=Sum('point_total'))
-        )
-        points_by_date = {
-            row['record_date'].strftime('%Y-%m-%d'): row['total']
-            for row in points_qs
-        }
+        points_by_date = (models_helper.get_person_points_by_date(member, dates, "-record_date")
+                          .values_list('record_date', "points"))
         members_data.append({
-            'member_id': str(member.id),
+            'username': str(member.person.username).strip(),
             'name': f"{member.person.first_name} {member.person.last_name}".strip(),
-            'points_by_date': {d: points_by_date.get(d, 0) for d in date_strings},
+            'points_by_date': dict(points_by_date),
         })
 
     return {'dates': date_strings, 'members': members_data}

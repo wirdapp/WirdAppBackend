@@ -145,7 +145,7 @@ class ExportJobSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExportJob
         fields = '__all__'
-        read_only_fields = ['id', 'created_at', 'status', 'serialized_data', 'group']
+        read_only_fields = ['id', 'created_at', 'status', 'serialized_data', 'group', 'contest', 'requester']
         extra_kwargs = {
             'members_from': {'required': False, 'allow_null': True, 'min_value': 1},
             'members_to': {'required': False, 'allow_null': True, 'min_value': 1},
