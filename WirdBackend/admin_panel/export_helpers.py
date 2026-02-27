@@ -30,7 +30,7 @@ def find_intersecting_date_range_job(requester, contest, start_date, end_date):
             contest=contest,
             created_at__gte=one_hour_ago,
         )
-        .exclude(status=ExportJob.Status.FAILED)
+        .exclude(status__in=[ExportJob.Status.FAILED, ExportJob.Status.ARCHIVED])
         .filter(start_date__lte=end_date, end_date__gte=start_date)
         .order_by('-created_at')
         .first()
