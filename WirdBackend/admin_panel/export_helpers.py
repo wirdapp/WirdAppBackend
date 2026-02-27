@@ -96,7 +96,7 @@ def process_export_job(job_id):
     except Exception as e:
         job.status = ExportJob.Status.FAILED
         job.error_message = str(e)
-        job.save(update_fields=['status'])
+        job.save(update_fields=['status', 'error_message'])
         logger.exception(f"ExportJob {job_id} failed: {e}")
 
 
