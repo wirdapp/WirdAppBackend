@@ -131,8 +131,8 @@ class ExportJobViewSet(CustomPermissionsMixin, viewsets.ModelViewSet):
         requester = util_methods.get_current_contest_person(self.request)
         cutoff = timezone.now() - timedelta(hours=24)
         return ExportJob.objects.filter(
-            requester=requester, contest=contest, created_at__gte=cutoff,status__not_in=[ExportJob.Status.ARCHIVED]
-        )
+            requester=requester, contest=contest, created_at__gte=cutoff
+        ).exclude(status=ExportJob.Status.ARCHIVED)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
