@@ -139,7 +139,7 @@ class ExportJobSerializer(serializers.ModelSerializer):
         queryset=Group.objects, required=False, allow_null=True, source='group'
     )
     member_ids = serializers.ListField(
-        child=serializers.UUIDField(), required=False, allow_null=True, allow_empty=False
+        child=serializers.CharField(), required=False, allow_null=True, allow_empty=False
     )
     all_members = serializers.BooleanField(required=False, default=False)
 
@@ -182,6 +182,9 @@ class ExportJobSerializer(serializers.ModelSerializer):
         if selections > 1:
             raise ValidationError(gettext("validation_multiple_selections_not_allowed"))
 
+        # Convert UUIDs to strings so JSONField stores/queries them correctly
+        if attrs.get('member_ids'):
+            attrs['member_ids'] = [str(uid) for uid in attrs['member_ids']]
 
         return attrs
 

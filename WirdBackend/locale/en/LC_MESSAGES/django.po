@@ -104,7 +104,7 @@ msgstr ""
 msgid "export_job_intersect"
 msgstr ""
 "A recent job with an intersecting date range was found. The returned data "
-"corresponds to the previously stored range (from %(from)s to %(to)s), not "
+"corresponds to the previously stored range (from %(start)s to %(end)s), not "
 "necessarily the exact range requested."
 
 #: admin_panel/views.py:177

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 07:56-0600\n"
+"POT-Creation-Date: 2026-02-27 09:37-0600\n"
 "PO-Revision-Date: 2021-11-24 16:27+0000\n"
 "Last-Translator: Mariusz Felisiak <felisiak.mariusz@gmail.com>\n"
 "Language-Team: Arabic (http://www.transifex.com/django/django/language/ar/)\n"
@@ -65,67 +65,58 @@ msgstr ""
 msgid "only members are allowed to become group members"
 msgstr ""
 
-#: admin_panel/serializers.py:163
+#: admin_panel/serializers.py:159
 msgid "validation_start_date_after_end_date"
 msgstr "يجب أن يكون تاريخ البداية قبل أو مساويًا لتاريخ النهاية."
 
-#: admin_panel/serializers.py:166
+#: admin_panel/serializers.py:162
 msgid "validation_date_range_exceeds_31_days"
 msgstr "يجب ألا يتجاوز نطاق التاريخ 31 يومًا."
 
-#: admin_panel/serializers.py:171
+#: admin_panel/serializers.py:167
 msgid "validation_dates_outside_contest_range"
 msgstr ""
 "يجب أن تقع التواريخ ضمن النطاق الزمني الصالح للمسابقة (%(start)s إلى "
 "%(end)s)."
 
-#: admin_panel/serializers.py:185
+#: admin_panel/serializers.py:180
 msgid "validation_selection_required"
 msgstr ""
 "يجب تقديم أحد الخيارات التالية: group_id أو member_ids أو نطاق أعضاء "
 "(members_from/members_to)."
 
-#: admin_panel/serializers.py:188
+#: admin_panel/serializers.py:183
 msgid "validation_multiple_selections_not_allowed"
 msgstr ""
 "يجب تقديم خيار واحد فقط من: group_id أو member_ids أو نطاق أعضاء — وليس أكثر "
 "من خيار."
 
-#: admin_panel/serializers.py:192
-msgid "validation_member_range_requires_both_bounds"
-msgstr "يجب تقديم كل من members_from و members_to لتحديد نطاق الأعضاء."
-
-#: admin_panel/serializers.py:195
-msgid "validation_invalid_member_range_order"
-msgstr "يجب أن يكون members_from أقل من أو مساويًا لـ members_to."
-
-#: admin_panel/serializers.py:198
-msgid "validation_member_range_exceeds_250"
-msgstr "يجب ألا يتجاوز نطاق الأعضاء 250 عضوًا."
-
-#: admin_panel/views.py:93 admin_panel/views.py:119
+#: admin_panel/views.py:94 admin_panel/views.py:120
 msgid "You do not have the permission to do this action"
 msgstr ""
 
-#: admin_panel/views.py:157
+#: admin_panel/views.py:158
+msgid "export_all_members_limit"
+msgstr ""
+"هذه المسابقة تحوي أعلى من الحد الأعلى لتصدير الأعضاء %(limit)s. يرجى تحديد "
+"نطاق أعضاء أصغر."
+
+#: admin_panel/views.py:168
 msgid "export_job_intersect"
 msgstr ""
 "تم العثور على مهمة تصدير حديثة بنطاق تاريخ متداخل. البيانات المُعادة تتوافق "
 "مع النطاق المخزَّن مسبقًا (التاريخ من %(start)s إلى %(end)s)، وليس بالضرورة "
 "النطاق المطلوب بدقة."
 
-msgid "export_all_members_limit"
-msgstr "هذه المسابقة تحوي أعلى من الحد الأعلى لتصدير الأعضاء %(limit)s. يرجى تحديد نطاق أعضاء أصغر."
-
-#: admin_panel/views.py:163
+#: admin_panel/views.py:177
 msgid "export_rate_limit"
 msgstr "يمكنك إرسال طلب تصدير واحد فقط كل ساعة."
 
-#: admin_panel/views.py:169
+#: admin_panel/views.py:183
 msgid "existing_job_found"
 msgstr "تم العثور على مهمة تصدير حديثة بنفس نطاق الأعضاء."
 
-#: admin_panel/views.py:176
+#: admin_panel/views.py:190
 msgid "export_job_created"
 msgstr "تم إنشاء مهمة التصدير بنجاح. يُرجى العودة لاحقًا لتنزيل الملف."
 
@@ -294,6 +285,15 @@ msgstr "إذا لم تقم بطلب هذه القائمة يمكنك تجاهل 
 #: templates/account/email/username_reset_subject.txt:3
 msgid "Username Reset Email"
 msgstr ""
+
+#~ msgid "validation_member_range_requires_both_bounds"
+#~ msgstr "يجب تقديم كل من members_from و members_to لتحديد نطاق الأعضاء."
+
+#~ msgid "validation_invalid_member_range_order"
+#~ msgstr "يجب أن يكون members_from أقل من أو مساويًا لـ members_to."
+
+#~ msgid "validation_member_range_exceeds_250"
+#~ msgstr "يجب ألا يتجاوز نطاق الأعضاء 250 عضوًا."
 
 #~ msgid "export_job_missing"
 #~ msgstr "لم يتم العثور على مهمة التصدير."
