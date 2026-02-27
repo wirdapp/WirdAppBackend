@@ -13,13 +13,14 @@ from core.util_methods import get_dates_between_two_dates
 
 logger = logging.getLogger('django')
 
+MAX_ALL_MEMBERS_LIMIT = 5000
 
 # ---------------------------------------------------------------------------
 # Deduplication & rate-limit checks (called from the view)
 # ---------------------------------------------------------------------------
 
-def find_intersecting_range_job(requester, contest, members_from, members_to):
-    """Return an existing job whose member range intersects the requested range,
+def find_intersecting_date_range_job(requester, contest, start_date, end_date):
+    """Return an existing job whose date range intersects the requested range,
     created by the same requester within the last hour, or None."""
     one_hour_ago = timezone.now() - timedelta(hours=1)
     return (
@@ -28,11 +29,9 @@ def find_intersecting_range_job(requester, contest, members_from, members_to):
             requester=requester,
             contest=contest,
             created_at__gte=one_hour_ago,
-            members_from__isnull=False,
-            members_to__isnull=False,
         )
         .exclude(status=ExportJob.Status.FAILED)
-        .filter(members_from__lte=members_to, members_to__gte=members_from)
+        .filter(start_date__lte=end_date, end_date__gte=start_date)
         .order_by('-created_at')
         .first()
     )
@@ -64,9 +63,8 @@ def find_duplicate_job(requester, contest, data):
         filters['group'] = data['group']
     elif data.get('member_ids'):
         filters['member_ids'] = data['member_ids']
-    elif data.get('members_from') is not None:
-        filters['members_from'] = data['members_from']
-        filters['members_to'] = data['members_to']
+    elif data.get('all_members'):
+        filters['all_members'] = True
 
     return ExportJob.objects.filter(**filters).order_by('-created_at').first()
 
@@ -130,10 +128,8 @@ def _resolve_members(job):
     if job.member_ids:
         return base_qs.filter(id__in=job.member_ids)
 
-    if job.members_from is not None and job.members_to is not None:
-        ordered = base_qs.order_by('person__username')
-        start_idx = job.members_from - 1  # 1-indexed → 0-indexed
-        return ordered[start_idx:job.members_to]
+    if job.all_members:
+        return base_qs
 
     return base_qs
 
@@ -142,7 +138,6 @@ def _build_payload(members, dates):
     """Build the JSON payload suitable for Excel conversion."""
     date_strings = [d.strftime('%Y-%m-%d') for d in dates]
     members_data = []
-
 
     for member in members:
         points_by_date = (models_helper.get_person_points_by_date(member, dates, "-record_date")

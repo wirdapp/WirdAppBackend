@@ -138,7 +138,9 @@ class ExportJobViewSet(CustomPermissionsMixin, viewsets.ModelViewSet):
         return context
 
     def create(self, request, *args, **kwargs):
-        from admin_panel.export_helpers import find_intersecting_range_job, check_rate_limit, find_duplicate_job
+        from admin_panel.export_helpers import (
+            find_intersecting_date_range_job, check_rate_limit, find_duplicate_job, MAX_ALL_MEMBERS_LIMIT
+        )
         contest = util_methods.get_current_contest(request)
         requester = util_methods.get_current_contest_person(request)
 
@@ -146,17 +148,28 @@ class ExportJobViewSet(CustomPermissionsMixin, viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
-        has_member_range = data.get('members_from') is not None
         response_data = {}
-        # Member range intersection check
-        if has_member_range:
-            intersecting_job = find_intersecting_range_job(
-                requester, contest, data['members_from'], data['members_to']
-            )
-            if intersecting_job:
-                response_data["data"] = self.get_serializer(intersecting_job).data
-                response_data['message'] = gettext("export_job_intersect") % {'from': intersecting_job.members_from, 'to': intersecting_job.members_to}
-                return Response(response_data, status=200)
+
+        # All-members limit check
+        if data.get('all_members'):
+            from core.models import ContestPerson
+            members_count = ContestPerson.objects.filter(contest=contest).count()
+            if members_count > MAX_ALL_MEMBERS_LIMIT:
+                response_data['message'] = gettext("export_all_members_limit") % {'limit': MAX_ALL_MEMBERS_LIMIT}
+                response_data['data'] = {}
+                return Response(response_data, status=400)
+
+        # Date range intersection check
+        intersecting_job = find_intersecting_date_range_job(
+            requester, contest, data['start_date'], data['end_date']
+        )
+        if intersecting_job:
+            response_data["data"] = self.get_serializer(intersecting_job).data
+            response_data['message'] = gettext("export_job_intersect") % {
+                'start': intersecting_job.start_date,
+                'end': intersecting_job.end_date,
+            }
+            return Response(response_data, status=200)
 
         # Rate limit: 1 new job per hour
         if check_rate_limit(requester, contest):

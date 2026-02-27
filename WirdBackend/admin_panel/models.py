@@ -133,8 +133,7 @@ class ExportJob(models.Model):
     # Member selection (mutually exclusive)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True, blank=True)
     member_ids = models.JSONField(null=True, blank=True, help_text="List of ContestPerson UUIDs")
-    members_from = models.IntegerField(null=True, blank=True, help_text="Start of member range (1-indexed)")
-    members_to = models.IntegerField(null=True, blank=True, help_text="End of member range (1-indexed, inclusive)")
+    all_members = models.BooleanField(default=False, help_text="Export all contest members")
 
     # Result
     serialized_data = models.JSONField(null=True, blank=True)

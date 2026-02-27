@@ -141,23 +141,19 @@ class ExportJobSerializer(serializers.ModelSerializer):
     member_ids = serializers.ListField(
         child=serializers.UUIDField(), required=False, allow_null=True, allow_empty=False
     )
+    all_members = serializers.BooleanField(required=False, default=False)
 
     class Meta:
         model = ExportJob
         fields = '__all__'
         read_only_fields = ['id', 'created_at', 'status', 'serialized_data', 'group', 'contest', 'requester']
-        extra_kwargs = {
-            'members_from': {'required': False, 'allow_null': True, 'min_value': 1},
-            'members_to': {'required': False, 'allow_null': True, 'min_value': 1},
-        }
 
     def validate(self, attrs):
         start_date = attrs.get('start_date')
         end_date = attrs.get('end_date')
         group = attrs.get('group')
         member_ids = attrs.get('member_ids')
-        members_from = attrs.get('members_from')
-        members_to = attrs.get('members_to')
+        all_members = attrs.get('all_members', False)
 
         if start_date > end_date:
             raise ValidationError(gettext("validation_start_date_after_end_date"))
@@ -177,9 +173,8 @@ class ExportJobSerializer(serializers.ModelSerializer):
 
         has_group = group is not None
         has_member_ids = member_ids is not None and len(member_ids) > 0
-        has_member_range = members_from is not None or members_to is not None
 
-        selections = sum([has_group, has_member_ids, has_member_range])
+        selections = sum([has_group, has_member_ids, all_members])
 
         if selections == 0:
             raise ValidationError(gettext("validation_selection_required"))
@@ -187,15 +182,6 @@ class ExportJobSerializer(serializers.ModelSerializer):
         if selections > 1:
             raise ValidationError(gettext("validation_multiple_selections_not_allowed"))
 
-        if has_member_range:
-            if members_from is None or members_to is None:
-                raise ValidationError(gettext("validation_member_range_requires_both_bounds"))
-
-            if members_from > members_to:
-                raise ValidationError(gettext("validation_invalid_member_range_order"))
-
-            if (members_to - members_from + 1) > 250:
-                raise ValidationError(gettext("validation_member_range_exceeds_250"))
 
         return attrs
 

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Django\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-27 07:56-0600\n"
+"POT-Creation-Date: 2026-02-27 08:33-0600\n"
 "PO-Revision-Date: 2010-05-13 15:35+0200\n"
 "Last-Translator: Django team\n"
 "Language-Team: English <en@li.org>\n"
@@ -66,62 +66,56 @@ msgstr ""
 msgid "only members are allowed to become group members"
 msgstr ""
 
-#: admin_panel/serializers.py:163
+#: admin_panel/serializers.py:159
 msgid "validation_start_date_after_end_date"
 msgstr "Start date must be before or equal to end date."
 
-#: admin_panel/serializers.py:166
+#: admin_panel/serializers.py:162
 msgid "validation_date_range_exceeds_31_days"
 msgstr "Date range must not exceed 31 days."
 
-#: admin_panel/serializers.py:171
+#: admin_panel/serializers.py:167
 msgid "validation_dates_outside_contest_range"
 msgstr ""
 "Dates must fall within the contest's valid date range (%(start)s to %(end)s)."
 
-#: admin_panel/serializers.py:185
+#: admin_panel/serializers.py:180
 msgid "validation_selection_required"
 msgstr ""
 "You must provide either group_id, member_ids, or a member range "
 "(members_from/members_to)."
 
-#: admin_panel/serializers.py:188
+#: admin_panel/serializers.py:183
 msgid "validation_multiple_selections_not_allowed"
 msgstr ""
 "Provide only one of: group_id, member_ids, or member range — not multiple."
 
-#: admin_panel/serializers.py:192
-msgid "validation_member_range_requires_both_bounds"
-msgstr "Both members_from and members_to must be provided for a member range."
-
-#: admin_panel/serializers.py:195
-msgid "validation_invalid_member_range_order"
-msgstr "members_from must be less than or equal to members_to."
-
-#: admin_panel/serializers.py:198
-msgid "validation_member_range_exceeds_250"
-msgstr "Member range must span no more than 250 members."
-
-#: admin_panel/views.py:93 admin_panel/views.py:119
+#: admin_panel/views.py:94 admin_panel/views.py:120
 msgid "You do not have the permission to do this action"
 msgstr ""
 
-#: admin_panel/views.py:157
+#: admin_panel/views.py:158
+msgid "export_all_members_limit"
+msgstr ""
+"Exporting all members is limited to %(limit)s members. Please use filters to "
+"reduce the number of members in the export."
+
+#: admin_panel/views.py:168
 msgid "export_job_intersect"
 msgstr ""
-"A recent job with an intersecting member range was found. The returned data "
-"corresponds to the previously stored range (members %(from)s to %(to)s), not "
+"A recent job with an intersecting date range was found. The returned data "
+"corresponds to the previously stored range (from %(from)s to %(to)s), not "
 "necessarily the exact range requested."
 
-#: admin_panel/views.py:163
+#: admin_panel/views.py:177
 msgid "export_rate_limit"
 msgstr "You may only submit one export request per hour."
 
-#: admin_panel/views.py:169
+#: admin_panel/views.py:183
 msgid "existing_job_found"
 msgstr "A recent export job was found."
 
-#: admin_panel/views.py:176
+#: admin_panel/views.py:190
 msgid "export_job_created"
 msgstr "Export job created successfully. Come back later to download the file."
 
@@ -279,6 +273,16 @@ msgstr "If you didn't request this email, you can safely ignore it."
 #: templates/account/email/username_reset_subject.txt:3
 msgid "Username Reset Email"
 msgstr ""
+
+#~ msgid "validation_member_range_requires_both_bounds"
+#~ msgstr ""
+#~ "Both members_from and members_to must be provided for a member range."
+
+#~ msgid "validation_invalid_member_range_order"
+#~ msgstr "members_from must be less than or equal to members_to."
+
+#~ msgid "validation_member_range_exceeds_250"
+#~ msgstr "Member range must span no more than 250 members."
 
 #~ msgid "export_job_missing"
 #~ msgstr "Export job not found."
