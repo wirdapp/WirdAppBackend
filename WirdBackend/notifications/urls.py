@@ -10,7 +10,7 @@ notifications_router.register(r"(?P<contest_id>[^/.]+)", AllNotificationViewSet,
 
 urlpatterns = [
     path('', include(devices_router.urls)),
+    #Legacy URL
+    path('<str:contest_id>/all/', AllNotificationViewSet.as_view({'get': 'list'}), name='all-notifications-legacy'),
     path('', include(notifications_router.urls)),
-    # Legacy URL: <contest_id>/all -> AllNotificationViewSet list action
-    path('<str:contest_id>/all', AllNotificationViewSet.as_view({'get': 'list'}), name='all-notifications-legacy'),
 ]
